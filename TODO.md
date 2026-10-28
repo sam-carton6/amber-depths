@@ -5,9 +5,9 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** the game, deployed from `amber-depths-app.zip` (commit `9d56f30`).
-**On `staging`, not live yet:** deploy straight from `app/` instead of the zip; Project Kit notes.
-**Next up:** Sam says "merge", then check the deploy and the live game on a phone. Then bring the source files in (below).
+**Live on `main`:** the game, published straight from `app/` (merged 27 Oct 2026, commit `12c42e6`).
+**On `staging`, not live yet:** nothing.
+**Next up:** bring the source files in (below).
 
 ## To do
 
@@ -22,4 +22,4 @@ under *Ideas (later)*; ask before building one.
 
 ## What's new at the next merge
 
-- Nothing players will notice: the game is now published from the files directly instead of a zip.
+- 

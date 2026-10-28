@@ -7,6 +7,9 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-10-27 — Merged to `main` (commit 12c42e6)
+- Deploy run passed; live files match `app/` and the offline worker registers. Notes files aren't published.
+
 ### 2026-10-27 — Brought into the Project Kit
 - Added CLAUDE.md, README.md, TODO.md, BUGS.md, DONE.md, .gitignore; created the `staging` branch.
 
