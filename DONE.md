@@ -7,6 +7,12 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-10-27 — v7 merged to `main` (commit cec47f0): pixel font for UI text, CRT scanlines on boxes
+- UI text uses "VT323 UI" (VT323 at 137%, defined in build.mjs); map/logo/ASCII art stay JetBrains Mono.
+  Scanlines (`--scan`) on buttons, cards, challenges, sheets and the daily banner. Phone HUD: name on its own line.
+- Deploy passed and live files match `app/`, but a browser that had loaded the page in the last 10 minutes got the
+  old page once (HTTP cache, see TODO).
+
 ### 2026-10-27 — v6 merged to `main` (commit 6d039c8)
 - Deploy passed; live files match `app/`, the live service worker moved to the v6 cache, no console errors.
 
