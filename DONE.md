@@ -7,6 +7,14 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-10-28 — v9: scanlines everywhere, CRT sweep, calmer title blink (on staging)
+- Scanline pitches: 2px chips/bars (`--scan-2`), 3px buttons/cards/challenges (`--scan`), 4px sheets/toasts
+  (`--scan-4`), 5px faint light lines on the page. `!important` so selected/pressed states keep them.
+- `body::after` is a fixed beam sweeping down every 9 s behind everything (`isolation: isolate` on body keeps it
+  above the page background). Off with reduced motion.
+- The card stat lines used `.st`, the map's stairs class, so every title card pulsed like the stairs. Now only class
+  cards pulse (`statglow`, 4.5 s, modest brightness).
+
 ### 2026-10-27 — v8 merged to `main` (commit ae04ebf)
 - Deploy passed; live files match. A real browser with v7 installed moved to the v8 worker and cache by itself, and
   the page served through the new worker matches the server. The no-delay part gets its real proof at the next deploy.

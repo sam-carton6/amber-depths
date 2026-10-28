@@ -320,9 +320,31 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 .end .btns .primary { border-color: var(--amber); color: var(--hot); background: #2a1c0e; }
 @media (prefers-reduced-motion: reduce) { .ft, .st, .boss, .screen.shake, .screen.flashred { animation: none; } }
 
-/* CRT scanlines on every box, like the game screen. Listed last (and with html body) so it layers over each box's own background. */
-html body :is(button, .chal, .sheet) { background-image: var(--scan); }
-html body .daily { background-image: var(--scan), linear-gradient(90deg, #2a1c0e, #1a120a); }
+/* CRT scanlines on everything, at a few different pitches so they don't read as one flat overlay:
+   2px on small chips and bars, 3px on buttons and cards (like the game screen), 4px on big sheets, 5px faint lines on the page.
+   !important because selected/pressed states set their own background, which would otherwise wipe the lines. */
+:root {
+  --scan-2: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 1px, rgba(0,0,0,.16) 1px 2px);
+  --scan-4: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 3px, rgba(0,0,0,.24) 3px 4px);
+}
+html body :is(button, .chal) { background-image: var(--scan) !important; }
+html body :is(.mini, .crtrow button, .relrow button, .copybox) { background-image: var(--scan-2) !important; }
+html body :is(.sheet, .toast) { background-image: var(--scan-4) !important; }
+html body .daily { background-image: var(--scan), linear-gradient(90deg, #2a1c0e, #1a120a) !important; }
+.bar::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: var(--scan-2); }
+body { background-image: repeating-linear-gradient(to bottom, rgba(255,181,71,0) 0 4px, rgba(255,181,71,.03) 4px 5px); isolation: isolate; }
+
+/* The page background slowly redraws like a CRT: a faint beam with a fading trail sweeps down behind everything. */
+body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 40vh; z-index: -1; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(255,181,71,0), rgba(255,181,71,.035) 75%, rgba(255,210,127,.08) 97%, rgba(255,181,71,0));
+  animation: crtsweep 9s linear infinite; }
+@keyframes crtsweep { from { transform: translateY(-40vh); } to { transform: translateY(100vh); } }
+
+/* Card stat lines share the .st class with the map's stairs glyph; only the class cards get a slow, gentle pulse. */
+.card .st { animation: none; }
+#classes .card .st { animation: statglow 4.5s ease-in-out infinite; }
+@keyframes statglow { 50% { color: #b8925a; text-shadow: 0 0 3px rgba(255,181,71,.2); } }
+@media (prefers-reduced-motion: reduce) { #classes .card .st { animation: none; } body::after { display: none; } }
 </style>
 
 <!-- ================= TITLE ================= -->
