@@ -5,10 +5,10 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** the latest build (v5: 10 classes, relics, Ascension, the Hollow), built from `src/` with
-`node src/build.mjs` (merged 27 Oct 2026, commit `757287f`).
-**On `staging`, not live yet:** v6, fixes for the tester's bugs 1–5 (see DONE.md).
-**Next up:** Sam says "merge", then plays it on the iPhone and notes anything odd in BUGS.md.
+**Live on `main`:** v6 (10 classes, relics, Ascension, the Hollow, plus the tester's bugs 1–5 fixed), built from
+`src/` with `node src/build.mjs` (merged 27 Oct 2026, commit `6d039c8`).
+**On `staging`, not live yet:** nothing.
+**Next up:** Sam plays it on the iPhone (check the screen layout) and notes anything odd in BUGS.md.
 
 ## To do
 
@@ -27,10 +27,6 @@ under *Ideas (later)*; ask before building one.
 
 ## What's new at the next merge
 
-- Tapping Menu right as you die or win no longer breaks the end screen.
-- Smaller iPhones (mini, SE, 11 Pro): all the buttons fit on screen again.
-- The Pack won't let you waste a potion at full health.
-- Play daily asks before replacing a saved run.
-- Ascension 4 Darkness now dims the Ranger too (still sees farther than other classes).
+- 
 
 - 
