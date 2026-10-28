@@ -7,7 +7,7 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v6 (10 classes, relics, Ascension, the Hollow, plus the tester's bugs 1–5 fixed), built from
 `src/` with `node src/build.mjs` (merged 27 Oct 2026, commit `6d039c8`).
-**On `staging`, not live yet:** nothing.
+**On `staging`, not live yet:** v7, pixel font for all UI text and CRT scanlines on boxes.
 **Next up:** Sam plays it on the iPhone (check the screen layout) and notes anything odd in BUGS.md.
 
 ## To do
@@ -27,6 +27,6 @@ under *Ideas (later)*; ask before building one.
 
 ## What's new at the next merge
 
-- 
+- All the text now uses the old-school pixel font, and buttons and panels get CRT scanlines like the game screen.
 
 - 

@@ -17,6 +17,7 @@
 <title>Amber Depths</title>
 <style>
 @font-face { font-family: "VT323"; src: url("vt323.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "VT323 UI"; src: url("vt323.woff2") format("woff2"); size-adjust: 137%; font-display: swap; }
 @font-face { font-family: "JetBrains Mono"; src: url("jbm-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
 @font-face { font-family: "JetBrains Mono"; src: url("jbm-700.woff2") format("woff2"); font-weight: 700; font-display: swap; }
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -38,12 +39,14 @@ body { margin: 0; font-size: 14px; }
   --loot: #8fd3ff;
   --magic: #cdb8ff;
   --font-display: "VT323", "Courier New", monospace;
-  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; /* map and ASCII art only: VT323 lacks box-drawing glyphs */
+  --font-ui: "VT323 UI", "VT323", "Courier New", monospace; /* "VT323 UI" = VT323 scaled up to JetBrains Mono's x-height (defined in the phone build) */
+  --scan: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.2) 2px 3px);
   color-scheme: dark;
 }
 html, body { min-height: 100%; }
 body {
-  background: var(--bg); color: var(--amber); font-family: var(--font-mono);
+  background: var(--bg); color: var(--amber); font-family: var(--font-ui);
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   padding-block: 14px 24px; box-sizing: border-box;
@@ -51,7 +54,7 @@ body {
 }
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
-button { font-family: var(--font-mono); color: var(--amber); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; touch-action: manipulation; }
+button { font-family: var(--font-ui); color: var(--amber); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; touch-action: manipulation; }
 button:active { background: var(--line); }
 button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 .k { display: inline-block; font-size: .65rem; color: var(--dim); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; line-height: 1.4; }
@@ -83,7 +86,7 @@ button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 .daily .dr { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .daily .res { font-size: .78rem; color: var(--gold); }
 .daily button, .copyb { font-family: var(--font-display); font-size: 1.25rem; padding: 6px 14px; border-color: var(--amber); color: var(--hot); background: #2a1c0e; }
-.copybox { width: 100%; min-height: 5.5em; font: .75rem/1.4 var(--font-mono); color: var(--amber); background: #0b0805; border: 1px solid var(--line); border-radius: 6px; padding: 8px; resize: none; }
+.copybox { width: 100%; min-height: 5.5em; font: .75rem/1.4 var(--font-ui); color: var(--amber); background: #0b0805; border: 1px solid var(--line); border-radius: 6px; padding: 8px; resize: none; }
 .ally { color: #8ff0c8; font-weight: 700; text-shadow: 0 0 6px #3fd09a; }
 .corpse { color: #8a3020; }
 .raise { color: #8ff0c8; text-shadow: 0 0 8px #3fd09a; }
@@ -190,6 +193,8 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 .mini { font-size: .7rem; padding: 3px 9px; border-radius: 6px; }
 .mini[aria-pressed="true"] { color: var(--dim); }
 .hud-row .who { font-family: var(--font-display); font-size: 1.35rem; color: var(--hot); margin-right: auto; }
+@media (max-width: 899px) { .hud-row .who { flex-basis: 100%; } } /* name on its own line, stats together below */
+.hud-row .chips:empty { display: none; }
 .bars { display: grid; grid-template-columns: 3fr 1fr; gap: 8px; }
 .bar { position: relative; height: 14px; background: var(--panel); border: 1px solid var(--line); overflow: hidden; }
 .bar i { position: absolute; inset: 0 auto 0 0; background: var(--amber); transition: width .2s; }
@@ -287,7 +292,7 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 @media (max-width: 400px) { .controls { gap: 8px; } } /* d-pad + actions stay on one row on 375px phones */
 .pad { display: grid; grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 56px); gap: 6px; }
 .pad button { font-family: var(--font-display); font-size: 1.6rem; }
-.pad .wait { font-family: var(--font-mono); font-size: .7rem; color: var(--dim); }
+.pad .wait { font-family: var(--font-ui); font-size: .7rem; color: var(--dim); }
 .acts { display: grid; gap: 6px; grid-template-rows: repeat(3, 56px); width: 150px; }
 .acts button { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 10px; font-size: .8rem; text-align: left; }
 .acts button b { font-family: var(--font-display); font-weight: 400; font-size: 1.3rem; color: var(--hot); }
@@ -335,6 +340,10 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 .end .btns button { font-family: var(--font-display); font-size: 1.4rem; padding: 8px 16px; }
 .end .btns .primary { border-color: var(--amber); color: var(--hot); background: #2a1c0e; }
 @media (prefers-reduced-motion: reduce) { .ft, .st, .boss, .screen.shake, .screen.flashred { animation: none; } }
+
+/* CRT scanlines on every box, like the game screen. Listed last (and with html body) so it layers over each box's own background. */
+html body :is(button, .chal, .sheet) { background-image: var(--scan); }
+html body .daily { background-image: var(--scan), linear-gradient(90deg, #2a1c0e, #1a120a); }
 </style>
 </head>
 <body>

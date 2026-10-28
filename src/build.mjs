@@ -20,6 +20,7 @@ const swap = (from, to) => {
 src = src.split('\n').filter(l => !l.includes('claude:viewport-fit-sides') && !l.includes('fonts.googleapis.com')).join('\n');
 swap('<style>\n', `<style>
 @font-face { font-family: "VT323"; src: url("vt323.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "VT323 UI"; src: url("vt323.woff2") format("woff2"); size-adjust: 137%; font-display: swap; }
 @font-face { font-family: "JetBrains Mono"; src: url("jbm-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
 @font-face { font-family: "JetBrains Mono"; src: url("jbm-700.woff2") format("woff2"); font-weight: 700; font-display: swap; }
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }

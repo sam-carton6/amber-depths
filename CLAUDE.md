@@ -52,6 +52,9 @@ each player's browser (`localStorage`).
   would wipe friends' unlocks and progress.
 - Generation code uses `RNG()` / `rnd()` / `pick()`, never `Math.random`, so daily dungeons stay the same for everyone.
 - When adding or renaming a file in `app/`, update `ASSETS` in `sw.js`.
+- Fonts: UI text uses `--font-ui` (VT323 scaled 137% as "VT323 UI", defined in `src/build.mjs`); the map, logo and
+  ASCII art stay on `--font-mono` (JetBrains Mono) because VT323 lacks box-drawing glyphs and would break the grid.
+  In the claude.ai artifact, "VT323 UI" doesn't exist, so UI text there falls back to unscaled VT323 (small).
 
 ## Decisions so far
 - Deploy the `app/` folder directly, not a zip (27 Oct 2026; the zip was only for uploading from a phone).
