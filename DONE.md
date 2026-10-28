@@ -7,6 +7,10 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-10-27 — v5 merged to `main` (commit 757287f)
+- Deploy passed; live files match `app/`, `src/` isn't published, and a browser that had v1 installed moved to the
+  v5 offline cache on its own.
+
 ### 2026-10-27 — Source into the repo, latest build (v5)
 - `src/` holds the claude.ai source, HANDOFF.md and the test bot; `src/build.mjs` builds `app/index.html`.
 - The live build had been the very first version; this brings in everything from claude.ai (10 classes, relics,
