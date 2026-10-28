@@ -1,5 +1,5 @@
 // Amber Depths service worker: works offline, and picks up new versions whenever you're online.
-const VERSION = 'amber-depths-v5';
+const VERSION = 'amber-depths-v6';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './vt323.woff2', './jbm-400.woff2', './jbm-700.woff2',
   './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 

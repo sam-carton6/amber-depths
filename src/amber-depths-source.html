@@ -264,6 +264,7 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 
 /* controls */
 .controls { grid-area: controls; display: flex; gap: 14px; justify-content: center; align-items: center; flex-wrap: wrap; }
+@media (max-width: 400px) { .controls { gap: 8px; } } /* d-pad + actions stay on one row on 375px phones */
 .pad { display: grid; grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 56px); gap: 6px; }
 .pad button { font-family: var(--font-display); font-size: 1.6rem; }
 .pad .wait { font-family: var(--font-mono); font-size: .7rem; color: var(--dim); }
@@ -1042,6 +1043,7 @@ function renderDaily() {
 function canStartDaily() { const k = todayKey(), rec = loadJSON(DAILY_KEY, {})[k]; return !rec; }
 function startDaily() {
   if (!canStartDaily()) return;
+  if (readSave() && !confirm('Start the daily run? Your saved run will be lost.')) return;
   const k = todayKey(), store = loadJSON(DAILY_KEY, {});
   store[k] = { started: true, cls: dailyClass() };
   saveJSON(DAILY_KEY, store);
@@ -1304,6 +1306,7 @@ function descend() {
   const allies = S.mons.filter(m => m.ally);
   RNG = S.daily ? seeded(hashStr(S.daily) + S.depth * 7919) : Math.random;
   try { if (isHollow) genHollow(); else if (isBoss) genBoss(); else genFloor(); } finally { RNG = Math.random; }
+  if (S.cls === 'ranger' && !isBoss) S.fovR = 9; // before Darkness, so A4 dims the Ranger too
   if (S.asc >= 4 && !isBoss && !isHollow) S.fovR = Math.max(4, S.fovR - 2);
   S.corpses = [];
   for (const a of allies) {
@@ -1312,7 +1315,6 @@ function descend() {
     if (spot) { a.x = spot[0]; a.y = spot[1]; S.mons.push(a); }
   }
   if (allies.length) say(allies.length > 1 ? 'Your thralls shamble down after you.' : 'Your thrall shambles down after you.');
-  if (S.cls === 'ranger' && !isBoss) S.fovR = 9;
   if (S.relic === 'lens' && S.stairs) for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (inb(S.sx + dx, S.sy + dy)) S.seen[S.sy + dy][S.sx + dx] = true;
   S.aiming = false;
   computeFov();
@@ -1996,6 +1998,7 @@ async function useItem(i) {
   const it = S && S.pack[i];
   if (!it || busy || S.dead || S.won) return;
   if (it.type === 'potion' && S.frenzy > 0) { say('You\'re in a frenzy. No time to drink!', 'bad'); SND.play('deny'); closePack(); update(); return; }
+  if (it.type === 'potion' && S.hp >= stats().max && !S.status.poison && !S.status.burn) { say('You are already at full health.'); SND.play('deny'); closePack(); update(); return; }
   closePack();
   busy = true;
   try {
@@ -2528,6 +2531,7 @@ function record() {
 }
 
 async function die(by) {
+  const run = S;
   S.dead = true; S.hp = 0;
   clearSave(); SND.play('death'); syncMusic();
   const rec = record(); finishRun(by);
@@ -2539,10 +2543,12 @@ async function die(by) {
     $('map').innerHTML = `<span class="melt">${esc(rows.map(r => r.join('')).join('\n'))}</span>`;
     if (!reduce) await sleep(45);
   }
+  if (S !== run) return; // left the run mid-animation
   showEnd(false, by, rec);
 }
 
 async function victory(b) {
+  const run = S;
   S.won = true; S.danger = new Set();
   clearSave(); syncMusic(); SND.play('win');
   const rec = record(); finishRun(null);
@@ -2563,6 +2569,7 @@ async function victory(b) {
     $('map').innerHTML = out;
     if (!reduce) await sleep(50);
   }
+  if (S !== run) return; // left the run mid-animation
   showEnd(true, null, rec);
 }
 
@@ -2729,6 +2736,9 @@ function fit() {
     let fs = Math.min(avail / (W * 0.6), (innerHeight * (wide ? .62 : .4)) / (H * 1.15));
     fs = clamp(fs, 7, 24);
     $('map').style.fontSize = fs + 'px';
+    // On phones, shrink the map if the whole game (safe areas included) still doesn't fit the screen.
+    const over = document.documentElement.scrollHeight - innerHeight;
+    if (!wide && over > 0) { fs = clamp(fs - over / (H * 1.15), 7, 24); $('map').style.fontSize = fs + 'px'; }
     const r = $('map').getBoundingClientRect();
     cellW = r.width / W; cellH = r.height / H;
   } else {
@@ -2809,7 +2819,7 @@ $('chal').addEventListener('click', e => { if (e.target === $('chal')) closeChal
 $('guide').addEventListener('click', e => { if (e.target === $('guide')) closeGuide(); });
 applyCrt(); checkProgress();
 $('hist').addEventListener('click', e => { if (e.target === $('hist')) closeHist(); }); bind('menu', toTitle); bind('cont', loadGame);
-bind('shopclose', closeShop); bind('menubtn', () => { if (!busy) toTitle(); });
+bind('shopclose', closeShop); bind('menubtn', () => { if (!busy && !(S && (S.dead || S.won) && $('end').hidden)) toTitle(); }); // not during the death/win animation
 bind('sndbtn', () => { SND.toggle(); update(); });
 bind('musbtn', () => { SND.toggleMusic(); update(); });
 bind('tmus', () => { SND.toggleMusic(); buildTitle(); });
