@@ -7,14 +7,10 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v7 (10 classes, relics, Ascension, the Hollow, tester's bugs 1–5 fixed, pixel font + scanlines),
 built from `src/` with `node src/build.mjs` (merged 27 Oct 2026, commit `cec47f0`).
-**On `staging`, not live yet:** nothing.
+**On `staging`, not live yet:** v8 service worker: updates arrive at once instead of up to 10 minutes late.
 **Next up:** Sam plays it on the iPhone (check the screen layout and the scanlines) and notes anything odd in BUGS.md.
 
 ## To do
-
-- Updates can show up to 10 minutes late: GitHub Pages sends `Cache-Control: max-age=600`, and `sw.js` fetches the
-  page with a plain `fetch(req)`, which accepts the browser's cached copy. Fix: `fetch(req, { cache: 'no-cache' })`
-  for the page (a cheap ETag check). Seen right after the v7 merge.
 
 - **Left from the independent tester (27 Oct 2026; 1–5 fixed in v6):**
   6. Corrupted storage only: `amber-depths-history` holding a non-array, or a profile with `done: null`, stops the
@@ -31,6 +27,6 @@ built from `src/` with `node src/build.mjs` (merged 27 Oct 2026, commit `cec47f0
 
 ## What's new at the next merge
 
-- 
+- Updates show up the next time you open the game online, instead of up to 10 minutes later.
 
 - 

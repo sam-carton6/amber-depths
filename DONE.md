@@ -7,6 +7,12 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-10-27 — v8 service worker: no more 10-minute update delay (on staging)
+- `sw.js` fetches the page with `cache: 'no-cache'` (ETag check) and installs assets with `cache: 'reload'`, so the
+  browser's HTTP cache (GitHub Pages `max-age=600`) can't hand back an old page. Checked with a Node fake-browser
+  test (install, online page, offline fallback, cached assets); the old sw.js fails it. Not run in a real browser:
+  the Claude browser pane can't run service workers on localhost.
+
 ### 2026-10-27 — v7 merged to `main` (commit cec47f0): pixel font for UI text, CRT scanlines on boxes
 - UI text uses "VT323 UI" (VT323 at 137%, defined in build.mjs); map/logo/ASCII art stay JetBrains Mono.
   Scanlines (`--scan`) on buttons, cards, challenges, sheets and the daily banner. Phone HUD: name on its own line.
