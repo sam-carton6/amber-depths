@@ -5,10 +5,10 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v8 (10 classes, relics, Ascension, the Hollow, tester's bugs 1–5 fixed, pixel font + scanlines,
-updates arrive at once), built from `src/` with `node src/build.mjs` (merged 27 Oct 2026, commit `ae04ebf`).
-**On `staging`, not live yet:** v9, scanlines on everything at varied sizes, a slow CRT sweep behind the page,
-calmer title-screen stat pulse.
+**Live on `main`:** v9 (10 classes, relics, Ascension, the Hollow, tester's bugs 1–5 fixed, pixel font, scanlines
+everywhere, CRT sweep, updates arrive at once), built from `src/` with `node src/build.mjs` (merged 28 Oct 2026,
+commit `ab94b59`).
+**On `staging`, not live yet:** nothing.
 **Next up:** Sam plays it on the iPhone (check the screen layout and the scanlines) and notes anything odd in BUGS.md.
 
 ## To do
@@ -28,8 +28,6 @@ calmer title-screen stat pulse.
 
 ## What's new at the next merge
 
-- Scanlines on every box (and the selected one keeps them), in a few different sizes.
-- The background slowly redraws like an old CRT.
-- The class stats on the title screen pulse gently and slowly; the run length and difficulty cards no longer blink.
+- 
 
 - 

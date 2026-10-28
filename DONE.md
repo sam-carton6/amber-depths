@@ -7,7 +7,11 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
-### 2026-10-28 — v9: scanlines everywhere, CRT sweep, calmer title blink (on staging)
+### 2026-10-28 — v9 merged to `main` (commit ab94b59)
+- Deploy passed; live files match. The v8 no-delay fix is proven: a browser that loaded v8 just before the merge
+  got v9 on its first reload, then dropped the v8 cache.
+
+### 2026-10-28 — v9: scanlines everywhere, CRT sweep, calmer title blink
 - Scanline pitches: 2px chips/bars (`--scan-2`), 3px buttons/cards/challenges (`--scan`), 4px sheets/toasts
   (`--scan-4`), 5px faint light lines on the page. `!important` so selected/pressed states keep them.
 - `body::after` is a fixed beam sweeping down every 9 s behind everything (`isolation: isolate` on body keeps it
