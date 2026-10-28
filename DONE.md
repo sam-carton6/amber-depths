@@ -7,7 +7,11 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
-### 2026-10-27 — v8 service worker: no more 10-minute update delay (on staging)
+### 2026-10-27 — v8 merged to `main` (commit ae04ebf)
+- Deploy passed; live files match. A real browser with v7 installed moved to the v8 worker and cache by itself, and
+  the page served through the new worker matches the server. The no-delay part gets its real proof at the next deploy.
+
+### 2026-10-27 — v8 service worker: no more 10-minute update delay
 - `sw.js` fetches the page with `cache: 'no-cache'` (ETag check) and installs assets with `cache: 'reload'`, so the
   browser's HTTP cache (GitHub Pages `max-age=600`) can't hand back an old page. Checked with a Node fake-browser
   test (install, online page, offline fallback, cached assets); the old sw.js fails it. Not run in a real browser:

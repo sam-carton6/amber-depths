@@ -5,9 +5,9 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v7 (10 classes, relics, Ascension, the Hollow, tester's bugs 1–5 fixed, pixel font + scanlines),
-built from `src/` with `node src/build.mjs` (merged 27 Oct 2026, commit `cec47f0`).
-**On `staging`, not live yet:** v8 service worker: updates arrive at once instead of up to 10 minutes late.
+**Live on `main`:** v8 (10 classes, relics, Ascension, the Hollow, tester's bugs 1–5 fixed, pixel font + scanlines,
+updates arrive at once), built from `src/` with `node src/build.mjs` (merged 27 Oct 2026, commit `ae04ebf`).
+**On `staging`, not live yet:** nothing.
 **Next up:** Sam plays it on the iPhone (check the screen layout and the scanlines) and notes anything odd in BUGS.md.
 
 ## To do
@@ -27,6 +27,6 @@ built from `src/` with `node src/build.mjs` (merged 27 Oct 2026, commit `cec47f0
 
 ## What's new at the next merge
 
-- Updates show up the next time you open the game online, instead of up to 10 minutes later.
+- 
 
 - 
