@@ -7,6 +7,11 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-10-27 — Source into the repo, latest build (v5)
+- `src/` holds the claude.ai source, HANDOFF.md and the test bot; `src/build.mjs` builds `app/index.html`.
+- The live build had been the very first version; this brings in everything from claude.ai (10 classes, relics,
+  Ascension, the Hollow). Bot sweep: 50 games, all classes, Short Hard to Nightmare A10, no issues or errors.
+
 ### 2026-10-27 — Merged to `main` (commit 12c42e6)
 - Deploy run passed; live files match `app/` and the offline worker registers. Notes files aren't published.
 
