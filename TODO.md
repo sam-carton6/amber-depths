@@ -8,17 +8,11 @@ under *Ideas (later)*; ask before building one.
 **Live on `main`:** v9 (10 classes, relics, Ascension, the Hollow, tester's bugs 1–5 fixed, pixel font, scanlines
 everywhere, CRT sweep, updates arrive at once), built from `src/` with `node src/build.mjs` (merged 28 Oct 2026,
 commit `ab94b59`).
-**On `staging`, not live yet:** nothing.
+**On `staging`, not live yet:** v13, the tester's bugs 6 and 7 fixed (say "merge" to put it live).
 **Next up:** Sam plays it on the iPhone (check the screen layout and the scanlines) and notes anything odd in BUGS.md.
 
 ## To do
 
-- **Left from the independent tester (27 Oct 2026; 1–5 fixed in v6):**
-  6. Corrupted storage only: `amber-depths-history` holding a non-array, or a profile with `done: null`, stops the
-     end screen or blanks the title. Can't happen in normal play; low priority.
-  7. Guide/ability text vs code: A3 still puts potions on the Wyrm floor and in the Hollow; A6's HP boost also hits the
-     Amber Heart; Golden Shot doubles on Short; Shield Wall doesn't halve poison/burn; the shop's "drop something"
-     hint, but the pack can't open in the shop.
 - Sam's iPhone bug list from real play (touch, Safari, feel) goes in BUGS.md as it comes.
 
 ## Ideas (later)
@@ -28,6 +22,5 @@ commit `ab94b59`).
 
 ## What's new at the next merge
 
-- 
-
-- 
+- Damaged saved data no longer breaks the title, run history or end screen.
+- Guide text fixed to match the game: Ascension 3 and 6, Shield Wall, Golden Shot, and the shop's full-pack message.
