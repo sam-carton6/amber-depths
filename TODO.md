@@ -5,10 +5,10 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v9 (10 classes, relics, Ascension, the Hollow, tester's bugs 1–5 fixed, pixel font, scanlines
+**Live on `main`:** v13 (10 classes, relics, Ascension, the Hollow, all the tester's bugs fixed, pixel font, scanlines
 everywhere, CRT sweep, updates arrive at once), built from `src/` with `node src/build.mjs` (merged 28 Oct 2026,
-commit `ab94b59`).
-**On `staging`, not live yet:** v13, the tester's bugs 6 and 7 fixed (say "merge" to put it live).
+commit `905e9af`).
+**On `staging`, not live yet:** nothing.
 **Next up:** Sam plays it on the iPhone (check the screen layout and the scanlines) and notes anything odd in BUGS.md.
 
 ## To do
@@ -22,5 +22,4 @@ commit `ab94b59`).
 
 ## What's new at the next merge
 
-- Damaged saved data no longer breaks the title, run history or end screen.
-- Guide text fixed to match the game: Ascension 3 and 6, Shield Wall, Golden Shot, and the shop's full-pack message.
+- 

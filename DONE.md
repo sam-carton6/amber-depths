@@ -7,7 +7,10 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
-### 2026-10-28 — v13: tester's bugs 6 and 7 (on staging)
+### 2026-10-28 — v13 merged to `main` (commit 905e9af)
+- Deploy passed; live index.html and sw.js match `main` (VERSION v13).
+
+### 2026-10-28 — v13: tester's bugs 6 and 7
 - Bug 6: `loadHist()` ignores a history that isn't a list (and junk entries); profile fields with the wrong type reset
   to their defaults on load. Tested with broken storage: title, history and end screen all work.
 - Bug 7: text changed to match the code (balance unchanged): A3 keeps the Wyrm/Heart floor potions, A6 includes the
