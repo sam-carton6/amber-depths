@@ -7,6 +7,13 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v19: Phoenix Feather relic, Golem gets the deep curve (on staging)
+- Phoenix Feather (`phoenix` in `RELICS`): `die()` checks it first; once per run (`S.revived`) you come back at half
+  max HP with statuses cleared. Collector II now counts every relic (13), so players who had all 12 keep the badge.
+- The Golem's melee and slam use `DEEP_DMG ** deep()` like other monsters (floor 30 Golem bonus 10 -> 20).
+- Bot sweep with the feather, 20 games (Standard and Endless Hard, every class): every death had used the revive
+  first, no errors.
+
 ### 2026-11-05 — v18: Backup and restore (on staging)
 - Title-screen Backup sheet: every `amber-depths-*` key, gzipped (CompressionStream) and base64'd into an `AD1z:`
   code (24 KB of data became 5 KB), or the same code as a .txt file (share sheet on phones, download elsewhere).

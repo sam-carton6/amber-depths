@@ -614,6 +614,7 @@ const RELICS = {
   ward:  { name: 'Ashen Ward', desc: 'You cannot be set on fire' },
   fang:  { name: 'Viper Fang', desc: 'Your hits poison enemies 25% of the time' },
   coin:  { name: "Merchant's Coin", desc: 'Merchants stock an extra rare piece of gear' },
+  phoenix: { name: 'Phoenix Feather', desc: 'Once per run, when you would die, you rise again with half your HP' },
 };
 const BOMBS = ['fire', 'frost', 'poison'];
 const UNDEAD = new Set(['skeleton', 'wraith', 'ghoul']);
@@ -685,7 +686,7 @@ const CH = [
   { id: 's_crypt', grp: 'Secrets', name: 'Bone Rune', desc: 'Something is hidden behind the walls of the Bone Crypt', reward: 'Rune fragment 3 of 3' },
   { id: 's_heart', grp: 'Secrets', name: 'Still the Heart', desc: 'Carry all three runes into a Standard run, slay the Wyrm, and go deeper', reward: 'Heartlight screen color' },
   { id: 'm_rel6', grp: 'Milestones', name: 'Collector I', desc: 'Find 6 relics', reward: 'Badge', prog: () => [Object.keys(PROF.relics || {}).length, 6] },
-  { id: 'm_rel12', grp: 'Milestones', name: 'Collector II', desc: 'Find all 12 relics', reward: 'Badge', prog: () => [Object.keys(PROF.relics || {}).length, 12] },
+  { id: 'm_rel12', grp: 'Milestones', name: 'Collector II', desc: `Find all ${Object.keys(RELICS).length} relics`, reward: 'Badge', prog: () => [Object.keys(PROF.relics || {}).length, Object.keys(RELICS).length] },
   { id: 'm_runs', grp: 'Milestones', name: 'Regular', desc: 'Finish 50 runs', reward: 'Badge', prog: () => [P('runs'), 50] },
 ];
 const CHI = Object.fromEntries(CH.map(c => [c.id, c]));
@@ -1648,8 +1649,8 @@ function placeGolem() {
   for (const [dx, dy] of DIRS8) { const x = S.sx + dx, y = S.sy + dy; if (free(x, y) && !itemAt(x, y)) { p = [x, y]; break; } }
   if (!p) p = [S.sx, S.sy];
   S.mons = S.mons.filter(m => Math.abs(m.x - S.sx) + Math.abs(m.y - S.sy) > 4);
-  const hp = Math.round((40 + e * 6) * S.D.hp * (S.D.bossHp || 1));
-  S.mons.push({ ch: 'G', name: 'Stone Golem', hp, maxhp: hp, atk: [3, 6], bonus: Math.floor(e / 3), x: p[0], y: p[1], boss: true, golem: true, timer: 0, awake: false, flash: 0, xp: 20 + e * 2 });
+  const hp = Math.round((40 + e * 6) * S.D.hp * (S.D.bossHp || 1)), k = DEEP_DMG ** deep();
+  S.mons.push({ ch: 'G', name: 'Stone Golem', hp, maxhp: hp, atk: [Math.round(3 * k), Math.round(6 * k)], bonus: Math.round(Math.floor(e / 3) * k), x: p[0], y: p[1], boss: true, golem: true, timer: 0, awake: false, flash: 0, xp: 20 + e * 2 });
   S.stairsLocked = true;
 }
 
@@ -2588,7 +2589,7 @@ async function golemTurn(b, d) {
     const hit = S.danger.has(key(S.px, S.py));
     S.danger = new Set();
     if (hit) {
-      const dmg = Math.max(3, Math.round((rnd(7, 11) + Math.floor(eff() / 2)) * S.D.dmg) - Math.floor(stats().def / 2));
+      const dmg = Math.max(3, Math.round((rnd(7, 11) + Math.floor(eff() / 2)) * S.D.dmg * DEEP_DMG ** deep()) - Math.floor(stats().def / 2));
       damagePlayer(dmg, `The golem's slam crushes you for ${dmg}!`, 'the Stone Golem');
     } else say('The floor buckles, but you are clear.', 'hl');
     return;
@@ -2708,6 +2709,12 @@ function record() {
 }
 
 async function die(by) {
+  if (S.relic === 'phoenix' && !S.revived) { // Phoenix Feather: one second chance per run
+    S.revived = true; S.hp = Math.ceil(stats().max / 2); S.status = { poison: 0, burn: 0, slow: 0 };
+    for (const [dx, dy] of DIRS8) setFx(S.px + dx, S.py + dy, '*', 'ring', 450);
+    floatText(S.px, S.py - 1, 'REBORN', 'lvl'); shake(true); SND.play('level');
+    say('The Phoenix Feather bursts into flame. You rise again!', 'hl'); update(); return;
+  }
   const run = S;
   S.dead = true; S.hp = 0; $('boon').hidden = true;
   clearSave(); SND.play('death'); syncMusic();

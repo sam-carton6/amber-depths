@@ -95,7 +95,7 @@ The phone picks up a new version the next time the app opens online, because the
 - **Bosses:** Stone Golem (mid-run), Amber Wyrm (final), and Amber Heart (secret).
 - **Upgrades (added in Claude Code, Nov 2026):** beating the Golem in Standard or Endless (every 5 floors) offers 3 of the `BOONS`; `offerBoons()` / `takeBoon()`, stored in `S.bn`. Endless also gets deadlier past floor 12 (`DEEP_*` constants, `deep()`).
 - **Secret path:** three runes `¤` can appear in secret rooms, one per zone, only on non-daily Standard or Endless runs. With all three, killing the Wyrm opens stairs to the Hollow instead of ending the run.
-- **Other systems:** 12 relics, the daily run, run history, the in-game guide (G), the challenges screen (C), and 5 screen colors.
+- **Other systems:** 13 relics (Phoenix Feather added in Claude Code), the daily run, run history, the in-game guide (G), the challenges screen (C), and 5 screen colors.
 
 ## Testing harness
 `test-bot.js` is a bot that runs inside the page and plays real games:
