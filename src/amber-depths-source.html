@@ -387,7 +387,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
   <details class="howto">
     <summary>How to play</summary>
     <ul>
-      <li><b>Move</b> with the arrow keys, WASD, the numpad (<b>8 4 5 6</b>; <b>7</b> ability, <b>9</b> potion, <b>.</b> pack, <b>0</b> wait) or the d-pad. Walk into a monster to attack it.</li>
+      <li><b>Move</b> with the arrow keys, WASD, the numpad (<b>8 4 5 6</b>; <b>7</b> ability, <b>9</b> potion, <b>.</b> pack, <b>0</b> wait) or the d-pad. With the arrow keys, <b>Delete</b> uses your ability, <b>End</b> waits, <b>Page Down</b> drinks a potion and <b>right Ctrl</b> opens the pack. Walk into a monster to attack it.</li>
       <li><b>Q</b> uses your class ability. <b>P</b> drinks a healing potion. <b>I</b> opens your pack. <b>Space</b> waits a turn.</li>
       <li>In the pack, press <b>1–9</b> to use or equip an item, and <b>Shift + number</b> to drop it.</li>
       <li>Find the <b>&gt;</b> on each floor to go deeper. Gear: <b>)</b> weapon, <b>[</b> armor, <b>!</b> potion, <b>?</b> scroll, <b>$</b> gold.</li>
@@ -458,7 +458,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
     <div class="equip" id="equip"></div>
     <div id="tosswrap"></div>
     <ol class="plist" id="plist"></ol>
-    <p class="hint">Tap an item to use or equip it (costs a turn). <span class="k">1–9</span> use · <span class="k">Shift+1–9</span> drop · <span class="k">Esc</span> close</p>
+    <p class="hint">Tap an item to use or equip it. Using costs a turn; equipping is free when no enemy is in sight. <span class="k">1–9</span> use · <span class="k">Shift+1–9</span> drop · <span class="k">Esc</span> close</p>
   </div>
 </div>
 
@@ -2190,7 +2190,7 @@ async function useItem(i) {
   if (it.type === 'potion' && S.frenzy > 0) { say('You\'re in a frenzy. No time to drink!', 'bad'); SND.play('deny'); closePack(); update(); return; }
   if (it.type === 'potion' && S.hp >= stats().max && !S.status.poison && !S.status.burn) { say('You are already at full health.'); SND.play('deny'); closePack(); update(); return; }
   const foeInSight = () => S.mons.some(m => !m.ally && S.vis[m.y] && S.vis[m.y][m.x]);
-  const keepOpen = it.type === 'gear' && !foeInSight(); // swapping gear between fights keeps the pack open
+  const keepOpen = it.type === 'gear' && !foeInSight(); // between fights, swapping gear is free and keeps the pack open
   if (!keepOpen) closePack();
   busy = true;
   try {
@@ -2200,6 +2200,7 @@ async function useItem(i) {
       S.hp = Math.min(S.hp, stats().max);
       say(`You equip the ${itemName(it)}.`, 'good');
       SND.play('equip');
+      if (keepOpen) { saveGame(); return; } // no enemy in sight: no turn used
     } else if (it.type === 'potion') {
       SND.play('potion'); PROF.potions++; S.potionsDrunk = (S.potionsDrunk || 0) + 1;
       const h = healAmt(), st = stats();
@@ -2959,9 +2960,11 @@ $('screen').addEventListener('pointerdown', () => { try { window.focus(); } catc
 const MOVE = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0],
   w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0], k: [0, -1], j: [0, 1], h: [-1, 0], l: [1, 0], '.': [0, 0], ' ': [0, 0], '5': [0, 0] };
 addEventListener('keydown', e => {
-  if (e.metaKey || e.ctrlKey || e.altKey) return;
-  // Numpad for one-handed play: 8 4 5 6 move like W A S D, 7 ability, 9 potion, . pack, 0 wait.
-  const np = screenNow === 'game' && { Numpad8: 'w', Numpad4: 'a', Numpad5: 's', Numpad6: 'd', Numpad7: 'q', Numpad9: 'p', Numpad0: '.', NumpadDecimal: 'i' }[e.code];
+  if (e.metaKey || e.altKey || (e.ctrlKey && e.code !== 'ControlRight') || (e.code === 'ControlRight' && e.repeat)) return;
+  // One-handed play. Numpad: 8 4 5 6 move like W A S D, 7 ability, 9 potion, . pack, 0 wait.
+  // With the arrow keys: Delete ability, End wait, Page Down potion, right Ctrl pack.
+  const np = screenNow === 'game' && { Numpad8: 'w', Numpad4: 'a', Numpad5: 's', Numpad6: 'd', Numpad7: 'q', Numpad9: 'p', Numpad0: '.', NumpadDecimal: 'i',
+    Delete: 'q', End: '.', PageDown: 'p', ControlRight: 'i' }[e.code];
   const k = np || (e.key.length === 1 ? e.key.toLowerCase() : e.key);
   if (!$('hist').hidden) {
     if (e.key === 'Escape' || k === 'h') { e.preventDefault(); closeHist(); }

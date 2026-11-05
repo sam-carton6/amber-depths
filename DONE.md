@@ -7,6 +7,10 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v21: free equipping out of combat; Delete / End / Page Down / right Ctrl keys (on staging)
+- `useItem()` returns before `endTurn()` for gear when no enemy is in sight (and saves). Keys map by `e.code`; right
+  Ctrl gets past the ctrl-key guard only on its own keydown (no repeats), so Ctrl+C etc. still do nothing.
+
 ### 2026-11-05 — v20: pack stays open on gear swaps, Pack Mule relic, Sell all junk (on staging)
 - `useItem()` keeps the pack open for gear when no enemy is in sight, re-renders it after the turn, and closes it if
   an enemy appears. Pack size goes through `packMax()` (Pack Mule +5). Junk = gear not better than what's worn

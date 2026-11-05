@@ -7,7 +7,7 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v19 (merged 5 Nov 2026, commit `0aed9ae`): deadlier Endless, Golem upgrades, Rogue dodge,
 numpad, Backup button, Phoenix Feather relic. Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** v20: pack stays open when swapping gear, Pack Mule relic, Sell all junk.
+**On `staging`, not live yet:** v21: pack changes, Pack Mule, Sell all junk, free equipping out of combat, more keys.
 **Next up:** Sam plays deep Hard Endless and says how the curve and the upgrades feel (too strong, too weak, missing picks?).
 
 ## To do
@@ -38,8 +38,6 @@ numpad, Backup button, Phoenix Feather relic. Built from `src/` with `node src/b
   run in the Worker, same refactor as the bot project). Anti-abuse: Cloudflare rate limits + Turnstile on submits,
   generated or filtered names, prepared statements, size caps, long random sync codes stored hashed, admin key as a
   Worker secret (never in this public repo).
-- **Free equipping out of combat? (Sam asked, 5 Nov 2026):** equipping costs a turn so mid-fight swaps are a
-  choice; it could be free when no enemy is in sight. Sam to decide.
 - **Key rebinding screen:** choose your own keys (numpad is built in for now).
 - **Sprite pack option:** swap ASCII cells for tiles (e.g. Kenney's free 1-bit pack tinted amber). ~25-40% of a window.
   Sam may draw his own: 16×16 tiles (bosses 32×32), white/greyscale on transparent so the game can tint them for each
@@ -56,3 +54,5 @@ numpad, Backup button, Phoenix Feather relic. Built from `src/` with `node src/b
 - Swapping gear keeps the pack open when no enemy is in sight.
 - New relic, the Pack Mule: your pack holds 15 items instead of 10.
 - The merchant has a "Sell all junk" button that sells every piece of gear worse than what you're wearing.
+- Equipping is free when no enemy is in sight (still a turn in a fight).
+- More keys for arrow-key players: Delete ability, End wait, Page Down potion, right Ctrl pack.
