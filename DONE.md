@@ -7,6 +7,12 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v20: pack stays open on gear swaps, Pack Mule relic, Sell all junk (on staging)
+- `useItem()` keeps the pack open for gear when no enemy is in sight, re-renders it after the turn, and closes it if
+  an enemy appears. Pack size goes through `packMax()` (Pack Mule +5). Junk = gear not better than what's worn
+  (`junkGear()`); the shop's Sell all junk button sells it at the normal third of the price.
+- Tested each in the browser; bot sweep with Pack Mule (10 classes, Standard).
+
 ### 2026-11-05 — v19 merged to `main` (commit 0aed9ae)
 - Deploy passed; live index.html and sw.js match `main` (VERSION v19). Includes v18 and v19.
 

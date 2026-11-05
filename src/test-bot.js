@@ -37,7 +37,7 @@ window.__runGame = async (cls, mode, diff, maxTurns, relic, asc, alt) => {
     if (!Number.isFinite(S.hp) || !Number.isFinite(S.gold) || !Number.isFinite(S.xp)) note('NaN stat', JSON.stringify({ hp: S.hp, gold: S.gold, xp: S.xp }));
     if (S.hp > st.max) note('hp>max', S.hp + '/' + st.max);
     if (S.gold < 0) note('negative gold', S.gold);
-    if (S.pack.length > T.PACK) note('pack overflow', S.pack.length);
+    if (S.pack.length > T.PACK + (S.relic === 'mule' ? 5 : 0)) note('pack overflow', S.pack.length);
     if (S.map[S.py][S.px] === '#') note('player in wall', S.depth);
     const seenPos = new Set();
     for (const m of S.mons) {

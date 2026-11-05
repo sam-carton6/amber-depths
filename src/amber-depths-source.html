@@ -470,7 +470,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
  /|&amp;|\
   / \</pre><p class="greet" id="shopgreet"></p></div>
     <ol class="plist" id="slist"></ol>
-    <div id="sellwrap"><h3 class="sub">SELL GEAR</h3><ol class="plist" id="sell"></ol></div>
+    <div id="sellwrap"><h3 class="sub">SELL GEAR</h3><button class="mini" id="selljunk" hidden></button><ol class="plist" id="sell"></ol></div>
     <p class="hint">Buying doesn't use a turn. <span class="k">1–9</span> buy · <span class="k">Esc</span> leave</p>
   </div>
 </div>
@@ -562,6 +562,7 @@ const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(
 const DIRS4 = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 const DIRS8 = [...DIRS4, [1, 1], [1, -1], [-1, 1], [-1, -1]];
 const PACK = 10;
+const packMax = () => PACK + (S && S.relic === 'mule' ? 5 : 0); // Pack Mule relic: +5 slots
 
 const LOGO = [
 ' █████╗ ███╗   ███╗██████╗ ███████╗██████╗ ',
@@ -615,6 +616,7 @@ const RELICS = {
   fang:  { name: 'Viper Fang', desc: 'Your hits poison enemies 25% of the time' },
   coin:  { name: "Merchant's Coin", desc: 'Merchants stock an extra rare piece of gear' },
   phoenix: { name: 'Phoenix Feather', desc: 'Once per run, when you would die, you rise again with half your HP' },
+  mule:  { name: 'Pack Mule', desc: 'Your pack holds 5 more items (15)' },
 };
 const BOMBS = ['fire', 'frost', 'poison'];
 const UNDEAD = new Set(['skeleton', 'wraith', 'ghoul']);
@@ -1376,7 +1378,7 @@ const potion = () => ({ type: 'potion', ch: '!' });
 const scroll = kind => ({ type: 'scroll', kind: kind || pick(['fire', 'fire', 'frost', 'teleport', 'mapping']), ch: '?' });
 const stackable = it => it.type === 'potion' || it.type === 'scroll';
 const sameStack = (a, b) => a.type === b.type && (a.type !== 'scroll' || a.kind === b.kind);
-const canAdd = it => (stackable(it) && S.pack.some(p => sameStack(p, it))) || S.pack.length < PACK;
+const canAdd = it => (stackable(it) && S.pack.some(p => sameStack(p, it))) || S.pack.length < packMax();
 const SCROLL_ORDER = ['fire', 'frost', 'teleport', 'mapping'];
 const sortKey = it => it.type === 'potion' ? 0 : it.type === 'scroll' ? 1 + SCROLL_ORDER.indexOf(it.kind) * .1 : it.kind === 'weapon' ? 2 : 3;
 function sortPack() { S.pack.sort((a, b) => sortKey(a) - sortKey(b) || gearScore(b) - gearScore(a)); }
@@ -1385,7 +1387,7 @@ function addToPack(it) {
     const ex = S.pack.find(p => sameStack(p, it));
     if (ex) { ex.n = (ex.n || 1) + (it.n || 1); return true; }
   }
-  if (S.pack.length >= PACK) return false;
+  if (S.pack.length >= packMax()) return false;
   S.pack.push(stackable(it) ? { ...it, n: it.n || 1 } : it);
   sortPack();
   return true;
@@ -1703,6 +1705,9 @@ function renderShop() {
   }).join('') : '<li class="empty">Sold out. "Come back when I restock. I won\'t."</li>';
   const sellable = S.pack.map((it, i) => [it, i]).filter(([it]) => it.type === 'gear');
   $('sellwrap').hidden = !sellable.length;
+  const junk = junkGear(), jg = junk.reduce((a, i) => a + Math.round(gearPrice(S.pack[i]) / 3), 0);
+  $('selljunk').hidden = !junk.length;
+  $('selljunk').textContent = `Sell all junk (${junk.length} worse than yours) · ${jg}g`;
   $('sell').innerHTML = sellable.map(([it, i]) => `<li><span class="use" style="display:flex;gap:10px;align-items:baseline;border:1px solid var(--line);border-radius:8px;padding:8px 10px;flex:1;min-width:0"><span class="${itemCls(it)}" style="font-weight:700">${esc(it.ch)}</span><span style="font-size:.8rem;min-width:0">${esc(itemName(it))}${cmpTag(it)}</span></span><button class="sellb" data-sell="${i}">Sell ${Math.round(gearPrice(it) / 3)}g</button></li>`).join('');
   document.querySelectorAll('[data-buy]').forEach(b => b.onclick = () => buy(+b.dataset.buy));
   document.querySelectorAll('[data-sell]').forEach(b => b.onclick = () => sellItem(+b.dataset.sell));
@@ -1721,6 +1726,15 @@ function buy(i) {
   S.gold -= s.price; S.shop.stock.splice(i, 1);
   SND.play('coin');
   renderShop(); update();
+}
+// Junk = gear in the pack that isn't better than what you're wearing.
+const junkGear = () => S.pack.map((it, i) => [it, i]).filter(([it]) => it.type === 'gear' && gearScore(it) <= gearScore(S[it.kind])).map(([, i]) => i);
+function sellJunk() {
+  const idx = junkGear(); if (!idx.length) return;
+  let g = 0; for (const i of idx.reverse()) { g += Math.round(gearPrice(S.pack[i]) / 3); S.pack.splice(i, 1); }
+  S.gold += g;
+  say(`You sell ${idx.length} piece${idx.length === 1 ? '' : 's'} of spare gear for ${g} gold.`, 'gold');
+  SND.play('coin'); renderShop(); update();
 }
 function sellItem(i) {
   const it = S.pack[i]; if (!it || it.type !== 'gear') return;
@@ -2175,7 +2189,9 @@ async function useItem(i) {
   if (!it || busy || S.dead || S.won) return;
   if (it.type === 'potion' && S.frenzy > 0) { say('You\'re in a frenzy. No time to drink!', 'bad'); SND.play('deny'); closePack(); update(); return; }
   if (it.type === 'potion' && S.hp >= stats().max && !S.status.poison && !S.status.burn) { say('You are already at full health.'); SND.play('deny'); closePack(); update(); return; }
-  closePack();
+  const foeInSight = () => S.mons.some(m => !m.ally && S.vis[m.y] && S.vis[m.y][m.x]);
+  const keepOpen = it.type === 'gear' && !foeInSight(); // swapping gear between fights keeps the pack open
+  if (!keepOpen) closePack();
   busy = true;
   try {
     takeFromPack(i);
@@ -2221,7 +2237,10 @@ async function useItem(i) {
       say('Lines of amber light trace the whole floor.', 'hl'); SND.play('map');
     }
     await endTurn();
-  } finally { busy = false; update(); }
+  } finally {
+    busy = false; update();
+    if (keepOpen && !$('pack').hidden) { if (S.dead || foeInSight()) closePack(); else renderPack(); }
+  }
 }
 
 function dropItem(i) {
@@ -2812,7 +2831,7 @@ function closePack() { $('pack').hidden = true; focusGame(); }
 function renderPack() {
   const eqLine = (lab, it) => `<div><span class="lab">${lab}</span>${it ? `<span class="${itemCls(it)}">${esc(it.ch)}</span> ${esc(itemName(it))} <span style="color:var(--dim)">· ${esc(itemDesc(it))}</span>` : '<span style="color:var(--dim)">nothing</span>'}</div>`;
   $('equip').innerHTML = eqLine('Weapon', S.weapon) + eqLine('Armor', S.armor);
-  $('packcnt').textContent = `${S.pack.length}/${PACK}`;
+  $('packcnt').textContent = `${S.pack.length}/${packMax()}`;
   if (!S.pack.length) { $('plist').innerHTML = '<li class="empty">Your pack is empty.</li>'; return; }
   const weak = weakerGear();
   $('tosswrap').innerHTML = weak.length ? `<button class="toss" id="tossbtn">${tossArmed ? `Tap again to toss ${weak.length} item${weak.length > 1 ? 's' : ''}` : `Toss weaker gear (${weak.length})`}</button>` : '';
@@ -2896,7 +2915,7 @@ function update() {
   $('cdfill').style.width = ((cdMax - Math.min(S.cd, cdMax)) / cdMax * 100) + '%';
   const pots = S.pack.filter(i => i.type === 'potion').reduce((a, i) => a + (i.n || 1), 0);
   $('quaffn').textContent = `${pots} left`;
-  $('packn').textContent = `${S.pack.length}/${PACK}`;
+  $('packn').textContent = `${S.pack.length}/${packMax()}`;
   $('log').innerHTML = S.log.map(l => `<div class="${l.cls}">${esc(l.t)}</div>`).join('');
   const gl = (lab, it) => `<div class="row"><span class="lab">${lab}</span><span class="val">${it ? `<span class="${itemCls(it)}">${esc(it.ch)}</span> ${esc(itemName(it))}<br><span style="color:var(--dim);font-size:.7rem">${esc(itemDesc(it))}</span>` : '<span style="color:var(--dim)">nothing</span>'}</span></div>`;
   syncMusic();
@@ -3010,6 +3029,7 @@ $('pack').addEventListener('click', e => { if (e.target === $('pack')) closePack
 bind('start', () => newGame()); bind('again', () => newGame());
 bind('histbtn', openHist); bind('histclose', closeHist);
 bind('chalbtn', openChal); bind('chalclose', closeChal);
+bind('selljunk', sellJunk);
 bind('bakbtn', openBak); bind('bakclose', closeBak); bind('bakcopy', bakCopy); bind('bakfile', bakFile);
 bind('bakrestore', () => restoreBackup($('bakin').value)); bind('bakopen', () => $('bakpick').click());
 $('bakpick').addEventListener('change', async e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) restoreBackup(await f.text()); }); bind('tguide', openGuide); bind('guidebtn', () => { if (!busy) openGuide(); }); bind('guideclose', closeGuide);
