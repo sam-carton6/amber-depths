@@ -7,7 +7,7 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v29 (merged 5 Nov 2026, commit `e94f223`): everything so far, plus the Challenges menu fix.
 Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** nothing.
+**On `staging`, not live yet:** v30: version number on the title screen.
 **Next up:** Sam is on floor 24+ of Hard Endless (Rogue), says it's no longer a blitz; he reports his final depth
 and whether the menu fix worked. Then the curve tuning, then boss floors step 2.
 
@@ -57,4 +57,4 @@ and whether the menu fix worked. Then the curve tuning, then boss floors step 2.
 
 ## What's new at the next merge
 
-- 
+- The title screen shows the game's version (e.g. v30) in the top-right corner of the logo.

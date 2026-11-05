@@ -27,7 +27,8 @@ every chat), [DONE.md](DONE.md) (the archive; history only). Code map and game c
 - **Edit [src/amber-depths-source.html](src/amber-depths-source.html), never `app/index.html`.** It's the
   claude.ai artifact version (one file, all CSS and JS inline).
 - `node src/build.mjs` writes `app/index.html` from it (local fonts, phone-app head tags, service worker) and bumps
-  `VERSION` in `app/sw.js` when the output changed. Commit the source, `app/index.html` and `app/sw.js` together.
+  `VERSION` in `app/sw.js` when the output changed, writing that number into the title screen's version tag (`#ver`,
+  "dev" in the source). Commit the source, `app/index.html` and `app/sw.js` together.
 - If Sam brings a newer source from a claude.ai chat, drop it in as `src/amber-depths-source.html` and rebuild.
 
 ## Checking work

@@ -59,22 +59,27 @@ const head = `<!doctype html>
 swap('</style>\n', '</style>\n</head>\n<body>\n');
 const sw = test ? '' : `<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));</script>\n`;
 const out = head + src.trimEnd() + '\n' + sw + '</body>\n</html>\n';
+// The title screen's version tag says "dev" in the source (and the claude.ai artifact); the build writes in the
+// sw.js VERSION number. It's left out when comparing, so the tag alone never counts as a change.
+const VER_TAG = /<span class="ver" id="ver" aria-label="Version">[^<]*<\/span>/;
+if (!VER_TAG.test(out)) throw new Error('version tag not found in the source');
+const withVer = (html, v) => html.replace(VER_TAG, `<span class="ver" id="ver" aria-label="Version">${v}</span>`);
 
 if (test) {
   fs.mkdirSync(path.join(root, 'test'), { recursive: true });
-  fs.writeFileSync(path.join(root, 'test/game_test.html'), out);
+  fs.writeFileSync(path.join(root, 'test/game_test.html'), withVer(out, 'test'));
   console.log('wrote test/game_test.html');
 } else {
   const target = path.join(root, 'app/index.html');
   const old = fs.existsSync(target) ? fs.readFileSync(target, 'utf8').replace(/\r\n/g, '\n') : '';
-  if (old === out) { console.log('app/index.html already up to date'); process.exit(0); }
-  fs.writeFileSync(target, out);
+  if (withVer(old, 'dev') === out) { console.log('app/index.html already up to date'); process.exit(0); }
   // A new VERSION makes installed phones drop their old offline copy.
   const swPath = path.join(root, 'app/sw.js');
   const swSrc = fs.readFileSync(swPath, 'utf8');
   const m = swSrc.match(/const VERSION = 'amber-depths-v(\d+)';/);
   if (!m) throw new Error('VERSION line not found in app/sw.js');
   const v = Number(m[1]) + 1;
+  fs.writeFileSync(target, withVer(out, 'v' + v));
   fs.writeFileSync(swPath, swSrc.replace(m[0], `const VERSION = 'amber-depths-v${v}';`));
   console.log(`wrote app/index.html, sw.js VERSION -> v${v}`);
 }
