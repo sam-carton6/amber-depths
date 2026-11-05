@@ -7,6 +7,24 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v31 merged to `main` (commit 51b1a6d)
+- Deploy passed; live sw.js is v31 and the page has the version tag and Controls. Includes v29-v31.
+
+### 2026-11-05 — v31: phone Controls setting (commit 51b1a6d)
+- Challenges menu > Controls: Arrows, Big arrows (cells `min(84px, (100vw - 176px) / 3)`, about 68px on a 375px
+  phone, up from 56), or Tap the map (`tapDir`: the screen split like an X, the middle quarter-square waits; faint
+  `.tapguide` lines; buttons in one row; foldable `#phstats` Run stats on phones, open state in `PROF.statsOpen`).
+- `PROF.ctl` holds the choice; root `data-controls`. The map may use 50% of the screen height in tap mode (40% otherwise).
+
+### 2026-11-05 — v30: version number on the title screen (commit a316b11)
+- `src/build.mjs` writes the sw.js VERSION into `#ver` ("dev" in the source, "test" on the test page); the tag is
+  ignored when deciding whether the output changed, so it never causes a bump by itself.
+
+### 2026-11-05 — v29: Challenges menu fix (merged, commit e94f223)
+- With Clean/Readable text or a non-amber screen colour, the page root carried `data-font`/`data-crt`, so the
+  pickers' click handler (which reopens the menu) landed on the whole page: ✕ didn't close it and any click reopened
+  it. Both pickers are now selected inside `#chalbody`.
+
 ### 2026-11-05 — v28 merged to `main` (commit de55c6e)
 - Deploy passed; live index.html, sw.js and the new font files match `main` (VERSION v28). Includes v25-v28.
 
@@ -169,16 +187,3 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 
 ### 2026-10-27 — Deploy from `app/` instead of a zip (commit b11b3cb)
 - The app files moved out of `amber-depths-app.zip` into `app/`; the Pages workflow publishes that folder as-is.
-## 5 Nov 2026: v31, version tag and phone Controls (merged, `51b1a6d`)
-
-- The title screen shows the game's version (e.g. v30) in the top-right corner of the logo.
-- **Controls** setting (Challenges menu): Arrows, Big arrows (about 68px buttons on a 375px phone, up from 56), or
-  Tap the map (an X splits the dungeon; top/bottom/left/right moves, the middle square waits; faint guide lines;
-  the three buttons in one row and a foldable Run stats panel under them on phones).
-
-## 5 Nov 2026: v29, Challenges menu fix (merged, `e94f223`)
-
-- With the Clean/Readable text style or a non-amber screen colour, the page root carried `data-font`/`data-crt`,
-  so the pickers' click handler (which reopens the menu) landed on the whole page: ✕ didn't close the menu and any
-  click reopened it. Both pickers are now scoped to the menu body.
-
