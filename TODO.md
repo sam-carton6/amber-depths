@@ -8,7 +8,7 @@ under *Ideas (later)*; ask before building one.
 **Live on `main`:** v17 (merged 5 Nov 2026, commit `031a7c4`): everything up to Endless getting deadlier past
 floor 12, Golem upgrades (pick 1 of 3), Rogue dodge, numpad controls, longer Frost Nova. Built from `src/` with
 `node src/build.mjs`.
-**On `staging`, not live yet:** nothing.
+**On `staging`, not live yet:** v18, Backup button (save progress as a code or file, restore it).
 **Next up:** Sam plays deep Hard Endless and says how the curve and the upgrades feel (too strong, too weak, missing picks?).
 
 ## To do
@@ -30,6 +30,10 @@ floor 12, Golem upgrades (pick 1 of 3), Rogue dodge, numpad controls, longer Fro
 - **Endless loot that keeps mattering:** gear caps at +7 (Runeblade / Amberplate) by about floor 10 and bonuses are
   flat. Ideas: "+N" gear or tiers past the cap; bonuses that grow with depth; trade-off bonuses like "Reckless"
   (+50% damage dealt, +25% taken) so you can choose to be a glass cannon.
+- **Cloudflare move (Sam, 5 Nov 2026):** own domain (~$11/yr) on Cloudflare, Worker + D1/KV for leaderboards and
+  cross-device saves (a sync code instead of accounts), Ko-fi link. Moving domains wipes localStorage, so players
+  must Backup on the old address and restore on the new one. Ask Sam before creating anything in Cloudflare.
+- **Revive relic idea (Sam):** see the relic added in v19, or tune it.
 - **Key rebinding screen:** choose your own keys (numpad is built in for now).
 - **Sprite pack option:** swap ASCII cells for tiles (e.g. Kenney's free 1-bit pack tinted amber). ~25-40% of a window.
 - **Learning project (Sam):** write a smarter bot: rule-based first, then look-ahead search, then reinforcement learning
@@ -37,4 +41,5 @@ floor 12, Golem upgrades (pick 1 of 3), Rogue dodge, numpad controls, longer Fro
 
 ## What's new at the next merge
 
-- 
+- A Backup button on the title screen: copy your progress as a code or save it as a file, and restore it on any
+  device. The game also asks the browser to keep its data instead of clearing it.

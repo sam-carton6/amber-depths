@@ -47,8 +47,9 @@ each player's browser (`localStorage`).
 
 ## Conventions
 - `app/` is exactly what gets published; nothing else in the repo goes live.
-- `localStorage` keys are `amber-depths-*` (profile, save, sel, best, daily, history, mute, music; the old
-  `unlocks` is migrated into the profile). Don't rename them or change their format without a migration: that
+- `localStorage` keys are `amber-depths-*` (profile, save, sel, best, daily, history, mute, music, backupAt; the
+  old `unlocks` is migrated into the profile). The title's Backup button copies every `amber-depths-*` key into a code
+  or file and restores it, so a new key is backed up automatically. Don't rename them or change their format without a migration: that
   would wipe friends' unlocks and progress.
 - Generation code uses `RNG()` / `rnd()` / `pick()`, never `Math.random`, so daily dungeons stay the same for everyone.
 - When adding or renaming a file in `app/`, update `ASSETS` in `sw.js`.

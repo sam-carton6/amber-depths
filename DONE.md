@@ -7,6 +7,13 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v18: Backup and restore (on staging)
+- Title-screen Backup sheet: every `amber-depths-*` key, gzipped (CompressionStream) and base64'd into an `AD1z:`
+  code (24 KB of data became 5 KB), or the same code as a .txt file (share sheet on phones, download elsewhere).
+  Restore from a pasted code or file replaces all keys after a confirm, then reloads. Also calls
+  `navigator.storage.persist()`. Tested: wipe + restore gave identical data and the run continued; bad codes are
+  refused. Not tested: Save as file and Open file on a real iPhone.
+
 ### 2026-11-05 — v17 merged to `main` (commit 031a7c4)
 - Deploy passed; live index.html and sw.js match `main` (VERSION v17). Includes v14-v17.
 

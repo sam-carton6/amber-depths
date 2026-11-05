@@ -383,7 +383,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
   <button class="start" id="start">Begin descent <span class="k">Enter</span></button>
   <p class="savenote" id="savenote" hidden>Starting a new run replaces your saved one.</p>
   <p class="bestline" id="bestline"></p>
-  <div class="audiorow"><button class="mini" id="chalbtn">Challenges <span class="k">C</span></button><button class="mini" id="tguide">Guide <span class="k">G</span></button><button class="mini" id="histbtn">Run history <span class="k">H</span></button><button class="mini" id="tmus"></button><button class="mini" id="tsnd"></button></div>
+  <div class="audiorow"><button class="mini" id="chalbtn">Challenges <span class="k">C</span></button><button class="mini" id="tguide">Guide <span class="k">G</span></button><button class="mini" id="histbtn">Run history <span class="k">H</span></button><button class="mini" id="bakbtn">Backup</button><button class="mini" id="tmus"></button><button class="mini" id="tsnd"></button></div>
   <details class="howto">
     <summary>How to play</summary>
     <ul>
@@ -400,7 +400,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
       <li><b>Challenges</b> unlock new classes, screen colors and a Nightmare difficulty. Press <b>C</b> on this screen to see them, and <b>G</b> any time for the guide.</li>
       <li>The <b>Daily Run</b> gives everyone the same dungeon, class and settings for the day. You get one try. Copy your result to compare with friends.</li>
       <li>On the last floor the Amber Wyrm breathes fire in a line. When the floor glows <b>≈</b>, step out of it.</li>
-      <li>Your run saves after every turn. <b>Esc</b> returns to the menu. <b>B</b> toggles music and <b>M</b> mutes all sound.</li>
+      <li>Your run saves after every turn, but only in this browser. Use <b>Backup</b> on this screen to keep a copy of your progress or move it to another device. <b>Esc</b> returns to the menu. <b>B</b> toggles music and <b>M</b> mutes all sound.</li>
     </ul>
   </details>
 </section>
@@ -486,6 +486,20 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
 </div>
 
 <div class="toasts" id="toasts" aria-live="polite"></div>
+
+<div class="modal" id="bak" hidden>
+  <div class="sheet" role="dialog" aria-label="Backup and restore">
+    <header><h2>Backup</h2><span class="cnt" id="bakwhen"></span><button class="x" id="bakclose" aria-label="Close backup">✕</button></header>
+    <p class="gtxt">Your progress (unlocks, relics, challenges, history and any run in progress) lives only in this browser. Clearing website data, or moving to another phone or computer, loses it. Keep a backup: copy the code into a note, or save it as a file.</p>
+    <div class="dr" style="display:flex;gap:8px;flex-wrap:wrap"><button id="bakcopy">Copy backup code</button><button id="bakfile">Save as file</button></div>
+    <textarea class="copybox" id="bakcode" readonly hidden></textarea>
+    <h3 class="sub">RESTORE</h3>
+    <p class="gtxt">Paste a backup code, or open a backup file. This replaces all progress on this device.</p>
+    <textarea class="copybox" id="bakin" placeholder="Paste a backup code here"></textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="bakrestore">Restore code</button><button id="bakopen">Open file</button><input type="file" id="bakpick" accept=".txt,text/plain" hidden></div>
+    <p class="gtxt" id="bakmsg" style="color:var(--dim)"></p>
+  </div>
+</div>
 
 <div class="modal" id="chal" hidden>
   <div class="sheet" role="dialog" aria-label="Challenges">
@@ -1060,6 +1074,69 @@ const bestKey = (m, c, d) => `${m}-${c}-${d}`;
 const DAILY_KEY = 'amber-depths-daily', HIST_KEY = 'amber-depths-history';
 function loadJSON(k, d) { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v == null ? d : v; } catch (e) { return d; } }
 function saveJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+/* ================= backup ================= */
+// A backup is every amber-depths-* key, as JSON, gzipped when the browser can, then base64: "AD1z:..." (or "AD1:..." plain).
+const BAK_PRE = 'amber-depths-', BAK_AT = 'amber-depths-backupAt';
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {} // ask the browser not to clear our data on its own
+const b64 = bytes => { let t = ''; for (let i = 0; i < bytes.length; i += 0x8000) t += String.fromCharCode(...bytes.subarray(i, i + 0x8000)); return btoa(t); };
+const unb64 = str => Uint8Array.from(atob(str), c => c.charCodeAt(0));
+const pipe = async (bytes, Stream, kind) => new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new Stream(kind))).arrayBuffer());
+async function makeBackup() {
+  const d = {};
+  for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith(BAK_PRE) && k !== BAK_AT) d[k] = localStorage.getItem(k); }
+  const raw = new TextEncoder().encode(JSON.stringify({ v: 1, t: Date.now(), d }));
+  if (typeof CompressionStream === 'function') { try { return 'AD1z:' + b64(await pipe(raw, CompressionStream, 'gzip')); } catch (e) {} }
+  return 'AD1:' + b64(raw);
+}
+async function readBackup(code) {
+  code = String(code || '').replace(/\s+/g, '');
+  const m = /^AD1(z?):(.+)$/.exec(code); if (!m) throw new Error('That isn\'t an Amber Depths backup code.');
+  let bytes = unb64(m[2]);
+  if (m[1]) { if (typeof DecompressionStream !== 'function') throw new Error('This browser is too old to open that backup.'); bytes = await pipe(bytes, DecompressionStream, 'gzip'); }
+  const o = JSON.parse(new TextDecoder().decode(bytes));
+  if (!o || o.v !== 1 || !o.d || typeof o.d !== 'object') throw new Error('That backup is damaged.');
+  for (const [k, v] of Object.entries(o.d)) { if (!k.startsWith(BAK_PRE) || typeof v !== 'string') throw new Error('That backup is damaged.'); }
+  return o;
+}
+function bakSummary(o) {
+  let pr = {}; try { pr = JSON.parse(o.d[PROF_KEY] || '{}') || {}; } catch (e) {}
+  const when = new Date(o.t).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  return `from ${when}: ${pr.runs || 0} runs, ${Object.keys(pr.done || {}).length} challenges, ${Object.keys(pr.relics || {}).length} relics${o.d[SAVE_KEY] ? ', a run in progress' : ''}`;
+}
+async function restoreBackup(code) {
+  const msg = $('bakmsg');
+  let o; try { o = await readBackup(code); } catch (e) { msg.textContent = e.message || 'That backup could not be read.'; SND.play('deny'); return; }
+  if (!confirm(`Restore the backup ${bakSummary(o)}? Everything on this device will be replaced.`)) return;
+  try {
+    const old = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith(BAK_PRE)) old.push(k); }
+    for (const k of old) localStorage.removeItem(k);
+    for (const [k, v] of Object.entries(o.d)) localStorage.setItem(k, v);
+    localStorage.setItem(BAK_AT, String(Date.now()));
+  } catch (e) { msg.textContent = 'Restoring failed: the browser would not save the data.'; return; }
+  location.reload();
+}
+function bakWhen() {
+  const t = +(localStorage.getItem(BAK_AT) || 0);
+  if (!t) return 'never backed up';
+  const days = Math.floor((Date.now() - t) / 864e5);
+  return days < 1 ? 'backed up today' : `last backup ${days} day${days === 1 ? '' : 's'} ago`;
+}
+const markBackedUp = () => { try { localStorage.setItem(BAK_AT, String(Date.now())); } catch (e) {} $('bakwhen').textContent = bakWhen(); };
+function openBak() {
+  $('bakwhen').textContent = bakWhen(); $('bakmsg').textContent = ''; $('bakcode').hidden = true; $('bakin').value = '';
+  $('bakcopy').textContent = 'Copy backup code'; $('bak').hidden = false;
+  setTimeout(() => $('bakclose').focus(), 30);
+}
+function closeBak() { $('bak').hidden = true; }
+async function bakCopy() { const code = await makeBackup(); copyResult($('bakcopy'), $('bakcode'), code); markBackedUp(); }
+async function bakFile() {
+  const code = await makeBackup(), name = `amber-depths-backup-${new Date().toISOString().slice(0, 10)}.txt`;
+  const file = new File([code], name, { type: 'text/plain' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Amber Depths backup' }); markBackedUp(); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000); markBackedUp();
+}
 const loadHist = () => { const h = loadJSON(HIST_KEY, []); return Array.isArray(h) ? h.filter(r => r && typeof r === 'object') : []; };
 const runScore = () => S.depth * 150 + S.kills * 10 + S.gold + S.lv * 25 + (S.won ? 1000 + Math.max(0, 1500 - S.turn) : 0);
 function shareText(k, r) {
@@ -2868,6 +2945,10 @@ addEventListener('keydown', e => {
     if (e.key === 'Escape' || k === 'c') { e.preventDefault(); closeChal(); }
     return;
   }
+  if (!$('bak').hidden) {
+    if (e.key === 'Escape') { e.preventDefault(); closeBak(); }
+    return;
+  }
   if (!$('guide').hidden) {
     if (e.key === 'Escape' || k === 'g') { e.preventDefault(); closeGuide(); }
     return;
@@ -2921,7 +3002,10 @@ bind('abil', ability); bind('quaff', quaff); bind('packbtn', openPack); bind('pa
 $('pack').addEventListener('click', e => { if (e.target === $('pack')) closePack(); });
 bind('start', () => newGame()); bind('again', () => newGame());
 bind('histbtn', openHist); bind('histclose', closeHist);
-bind('chalbtn', openChal); bind('chalclose', closeChal); bind('tguide', openGuide); bind('guidebtn', () => { if (!busy) openGuide(); }); bind('guideclose', closeGuide);
+bind('chalbtn', openChal); bind('chalclose', closeChal);
+bind('bakbtn', openBak); bind('bakclose', closeBak); bind('bakcopy', bakCopy); bind('bakfile', bakFile);
+bind('bakrestore', () => restoreBackup($('bakin').value)); bind('bakopen', () => $('bakpick').click());
+$('bakpick').addEventListener('change', async e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) restoreBackup(await f.text()); }); bind('tguide', openGuide); bind('guidebtn', () => { if (!busy) openGuide(); }); bind('guideclose', closeGuide);
 $('chal').addEventListener('click', e => { if (e.target === $('chal')) closeChal(); });
 $('guide').addEventListener('click', e => { if (e.target === $('guide')) closeGuide(); });
 applyCrt(); checkProgress();
