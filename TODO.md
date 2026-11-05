@@ -7,15 +7,19 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v31 (merged 5 Nov 2026, commit `51b1a6d`): everything so far, plus the version tag and Controls.
 Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** v40: Endless boss floors (see *What's new*).
+**On `staging`, not live yet:** v45: Endless boss floors (5 bosses, Wyrm every 50) and the retuned deep curve.
 **Next up:** Sam is on floor 24+ of Hard Endless (Rogue), says it's no longer a blitz; he reports his final depth
 and whether the menu fix and the new Controls work on his iPhone. Then the curve tuning, then boss floors step 2.
 
 ## To do
 
-- **Tune the Endless curve from Sam's play.** Knobs at the top of the monster code in the source: `DEEP_FROM` (12),
-  `DEEP_DMG` (1.04 per floor, compounding), `DEEP_POTS` (0.95). If potions still pile up, cap how many you can carry.
-  Soak test: `test/soak.js` (ignored file; see DONE.md 5 Nov 2026 for how it was run).
+- **Check the new deep curve against Sam's play** (retuned 5 Nov 2026 from his floor-40 Hard Rogue backup: Lv 70,
+  ATK 123, 45 potions, 43k gold, one-shotting everything). Knobs: `DEEP_FROM` 12, `DEEP_HP` 1.05 (new: monster HP
+  per floor), `DEEP_DMG` 1.025 (was 1.04), `DEEP_POTS` 0.95. Measured with his character: floor 40 monsters now take
+  2-3 hits and need ~5 hits to kill him (was 1 and 3.4, then a cliff: 1 hit kills by floor 60). Still open: potions
+  (45) and gold (43k) pile up; a carry cap or pricier deep shops are the next knobs if he says so.
+  Testing with a real save: decode the backup code into `test/sam-save.json` (ignored; private) and load it in the
+  test page (`localStorage` save key + `__T.loadGame()`). Soak test: `test/soak.js` (ignored; see DONE.md).
 - Sam's iPhone bug list from real play (touch, Safari, feel) goes in BUGS.md as it comes.
 
 ## Ideas (later)
@@ -23,8 +27,6 @@ and whether the menu fix and the new Controls work on his iPhone. Then the curve
 - More classes, a second wave of relics, cosmetic titles on the daily share text.
 - **Echo** (reveal everything within 8 tiles for a few turns) as an upgrade or scroll; spare from the Mole design.
 - Leaderboards (would need a backend).
-- **More boss-floor bosses (Sam liked all of these, 5 Nov 2026):** a Brood Mother (webs and spiderlings) and a Shadow
-  (teleports around the arena) to join the Cyclops, Drake and Lich in the rotation (`ARENA_KINDS`).
 - Other deep-Endless ideas: a "new depth record" moment, deep-only monsters or elite abilities past floor 15-20,
   a challenge for beating each boss (`PROF.bosses` already counts kills).
 - **Map/ASCII-art font options (Sam, 5 Nov 2026; probably not worth it):** the map needs a monospace font with
@@ -66,8 +68,13 @@ and whether the menu fix and the new Controls work on his iPhone. Then the curve
 ## What's new at the next merge
 
 - **Endless boss floors:** every 10th floor is a short dungeon (left) and a lit arena with pillars (right) where a
-  boss holds the stairs, in turn: Cyclops (slow; stomp within 2 tiles and boulders, both 2 turns' warning), Drake
-  (fast; thin line of fire with 1 turn's warning, sets you alight, leaps back), Lich (bolts, brittle skeletons, blinks
-  away after each quarter of its HP; 80% HP). Beating it: 2 upgrade picks in a row, gear with +2 extra, double Golem
-  gold, 75% relic chance. Golems now on floors 5, 15, 25... Tested with bot runs and a scripted rush at floors 10-50:
-  Cyclops and Drake beaten every time with fair stats; the Lich is the hardest (2 of 3 at strong stats, no potions).
+  boss holds the stairs, from a shuffled deck (each once before repeats, never twice running): Cyclops (stomp and
+  boulders, 2 turns' warning), Drake (thin fire line, 1 turn, burns; leaps back), Lich (bolts, brittle skeletons,
+  blinks after each quarter of its HP), Brood Mother (webs `"` that slow you, spiderlings, poison bite), Shadow (fast;
+  vanishes and strikes the X around you). Every 50th floor: the **Amber Wyrm** (wide breath with 2 turns' warning,
+  tail sweep, brittle minions at half HP, enrages). Rewards: 2 upgrade picks (Wyrm 3), gear +2 extra (Wyrm +3), more
+  gold, relic 75% (Wyrm always). Golems now on floors 5, 15, 25...
+- **Deep Endless retuned:** monsters past floor 12 gain HP every floor (`DEEP_HP` 1.05) and their damage grows slower
+  (`DEEP_DMG` 1.04 -> 1.025), so fights last a few hits instead of one-shots both ways. Tested with Sam's floor-40
+  character: floor-40 bosses take 12-18 turns (the Lich 67-195, the slog), the floor-50 Wyrm won 1 of 3 at his current
+  strength and 3 of 3 with ~10 more levels.

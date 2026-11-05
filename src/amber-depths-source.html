@@ -163,6 +163,7 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 .mburn { color: #ffb070; font-weight: 700; text-shadow: 0 0 8px #ff6a2a; }
 .mpois { color: #b6f07a; font-weight: 700; text-shadow: 0 0 6px #6fc03a; }
 .snare { color: #8ff0c8; font-weight: 700; }
+.web { color: #e8e0d0; opacity: .75; }
 .bombfire { color: #ffb070; } .bombfrost { color: #cdefff; } .bombpoison { color: #b6f07a; }
 .relrow button { font-size: .72rem; padding: 6px 10px; max-width: 100%; }
 .relrow button[aria-pressed="true"] { border-color: var(--amber); color: var(--hot); background: #2a1c0e; }
@@ -422,7 +423,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
       <li>Cracked walls <b>▒</b> hide secret rooms. Walk into one to break it. Chests <b>=</b> hold loot, though some bite back.</li>
       <li>Poison and burning hurt every turn, and frost slows you. Potions cure poison and burns. Water puts out flames.</li>
       <li>Partway down, a Stone Golem guards the stairs (floors 5, 15, 25… in Endless). When it raises its fists, step out of the glowing ring. In Standard and Endless, beating it lets you choose one of 3 upgrades that last the whole run.</li>
-      <li>In Endless, every 10th floor is a <b>boss floor</b>: a short dungeon, then an arena where a Cyclops, a Drake or a Lich holds the stairs. Watch for the glowing tiles and get clear. Beating it gives better loot and <b>2</b> upgrade picks. Monsters get deadlier past floor 12.</li>
+      <li>In Endless, every 10th floor is a <b>boss floor</b>: a short dungeon, then an arena where a boss holds the stairs: a Cyclops, a Drake, a Lich, a Brood Mother or a Shadow, shuffled so you meet each before any repeats. Every 50th floor, the <b>Amber Wyrm</b> itself returns. Watch for the glowing tiles and get clear. Beating a boss gives better loot and <b>2</b> upgrade picks (the Wyrm: <b>3</b>, and a relic). Past floor 12, monsters get tougher and hit harder every floor.</li>
       <li><b>Relics</b> are rare finds that join your collection forever. Pick one on this screen to start a run with it.</li>
       <li><b>Challenges</b> unlock new classes, screen colors and a Nightmare difficulty. Press <b>C</b> on this screen to see them and to change the text style or screen color, and <b>G</b> any time for the guide.</li>
       <li>The <b>Daily Run</b> gives everyone the same dungeon, class and settings for the day. You get one try. Copy your result to compare with friends.</li>
@@ -674,13 +675,15 @@ const MON_NOTES = {
   'Stone Golem': 'Guards the stairs partway down, and on floors 5, 15, 25… in Endless. Step out of its glowing ring when it raises its fists. Beat it in Standard or Endless to choose an upgrade.',
   Cyclops: 'Endless boss floors. Slow, with heavy fists. Its stomp hits everything within 2 tiles and its boulders land where you stand: both give you 2 turns to get clear.',
   Drake: 'Endless boss floors. Quick. Breathes a long, thin line of fire that sets you alight: step sideways or put a pillar between you. Leaps back if you crowd it.',
+  'Brood Mother': 'Endless boss floors. Spits webs around you (stepping in one slows you) and lays spiderlings. Her bite poisons. Webs show as ".',
+  Shadow: 'Endless boss floors. Fast. Every few turns it vanishes and strikes the X around you: step straight up, down, left or right to dodge.',
   Lich: 'Endless boss floors. Shoots bolts from afar, raises brittle skeletons, and blinks across the room each time it loses a quarter of its HP. Rush it: its skeletons fall when it does.',
-  'Amber Wyrm': 'Breathes fire down a line, and calls in minions at half HP. Leave the glowing line.',
+  'Amber Wyrm': 'Breathes fire down a line, and calls in minions at half HP. Leave the glowing line. In Endless it returns every 50 floors, bigger, with a tail sweep and 2 turns of warning before its breath.',
   'amber shard': 'Splinters of the Heart. Erratic, and they burn.',
   'Amber Heart': 'The thing the Wyrm was guarding. It never moves. Watch the light it gathers and stand clear.',
 };
-const BESTIARY = ['rat', 'bat', 'goblin', 'kobold archer', 'cave spider', 'fire imp', 'skeleton', 'frost wisp', 'orc', 'ghoul', 'wraith', 'troll', 'mimic', 'Stone Golem', 'Cyclops', 'Drake', 'Lich', 'Amber Wyrm', 'amber shard', 'Amber Heart'];
-const BEST_CH = { rat: 'r', bat: 'b', goblin: 'g', 'kobold archer': 'k', 'cave spider': 'x', 'fire imp': 'i', skeleton: 's', 'frost wisp': 'f', orc: 'o', ghoul: 'z', wraith: 'w', troll: 'T', mimic: 'M', 'Stone Golem': 'G', Cyclops: 'C', Drake: 'd', Lich: 'L', 'Amber Wyrm': 'D', 'amber shard': 'a', 'Amber Heart': 'Ø' };
+const BESTIARY = ['rat', 'bat', 'goblin', 'kobold archer', 'cave spider', 'fire imp', 'skeleton', 'frost wisp', 'orc', 'ghoul', 'wraith', 'troll', 'mimic', 'Stone Golem', 'Cyclops', 'Drake', 'Lich', 'Brood Mother', 'Shadow', 'Amber Wyrm', 'amber shard', 'Amber Heart'];
+const BEST_CH = { rat: 'r', bat: 'b', goblin: 'g', 'kobold archer': 'k', 'cave spider': 'x', 'fire imp': 'i', skeleton: 's', 'frost wisp': 'f', orc: 'o', ghoul: 'z', wraith: 'w', troll: 'T', mimic: 'M', 'Stone Golem': 'G', Cyclops: 'C', Drake: 'd', Lich: 'L', 'Brood Mother': 'B', Shadow: 'S', 'Amber Wyrm': 'D', 'amber shard': 'a', 'Amber Heart': 'Ø' };
 let unlocks = {};
 try { unlocks = JSON.parse(localStorage.getItem('amber-depths-unlocks') || '{}') || {}; } catch (e) { unlocks = {}; }
 
@@ -1299,7 +1302,7 @@ function openGuide() {
   const all = `<div class="chal-grp"><h3 class="sub">CLASSES</h3><div class="gcls">${Object.entries(CLASSES).map(([id, k]) => isLocked(id)
     ? `<div class="c"><b>@? ${esc(k.name)}</b> · locked<br><span style="color:var(--dim)">Unlock: ${esc(CHI[k.unlock].desc)}.</span></div>`
     : `<div class="c${id === cur ? ' me' : ''}"><b>${esc(k.sig)} ${esc(k.name)}</b> · HP ${k.hp} · ATK +${k.atk} · DEF +${k.def} · CRIT ${Math.round(k.crit * 100)}%<br>${esc(ABIL_DETAIL[id]())}</div>`).join('')}</div></div>`;
-  const syms = [['@', 'you', 'p'], ['>', 'stairs down', 'st'], [')', 'weapon', 'ie'], ['[', 'armor', 'ie'], ['!', 'healing potion', 'ip'], ['?', 'scroll', 'is'], ['$', 'gold', 'ig'], ['=', 'chest (or mimic)', 'chest'], ['&', 'merchant', 'shopk'], ['^', 'trap you spotted', 'trap'], ['×', 'your snare', 'snare'], ['▒', 'cracked wall', 'crack'], ['~', 'water', 'wat0'], ['%', 'bones', 'bone'], [',', 'corpse', 'corpse'], ['ψ', 'torch', 'tc0'], ['¤', 'rune (rare)', 'rune'], ['≈', 'danger: move!', 'dg']];
+  const syms = [['@', 'you', 'p'], ['>', 'stairs down', 'st'], [')', 'weapon', 'ie'], ['[', 'armor', 'ie'], ['!', 'healing potion', 'ip'], ['?', 'scroll', 'is'], ['$', 'gold', 'ig'], ['=', 'chest (or mimic)', 'chest'], ['&', 'merchant', 'shopk'], ['^', 'trap you spotted', 'trap'], ['×', 'your snare', 'snare'], ['▒', 'cracked wall', 'crack'], ['~', 'water', 'wat0'], ['%', 'bones', 'bone'], [',', 'corpse', 'corpse'], ['ψ', 'torch', 'tc0'], ['¤', 'rune (rare)', 'rune'], ['"', 'web (slows you)', 'web'], ['≈', 'danger: move!', 'dg']];
   const sym = `<div class="chal-grp"><h3 class="sub">SYMBOLS</h3><div class="gsym">${syms.map(([g, t, cl]) => `<span><b class="${cl}">${esc(g)}</b>${esc(t)}</span>`).join('')}</div><p class="gtxt" style="font-size:.72rem;color:var(--dim)">Rare gear glows violet. Your allies show in green. Frozen monsters turn ice blue.</p></div>`;
   const stat = `<div class="chal-grp"><h3 class="sub">STATUS EFFECTS</h3><p class="gtxt"><b>Poison</b>: lose 1 HP a turn. A potion cures it.<br><b>Burning</b>: lose 2 HP a turn. Step in water or drink a potion.<br><b>Slowed</b>: monsters sometimes get two moves in a row.<br><b>Frozen</b> (Scroll of Frost): monsters skip their turns. Bosses thaw twice as fast.<br>Monsters can be <b>poisoned</b> (green) and <b>set alight</b> (orange) too, and they take damage every turn. Fire scrolls and Firebolt leave them burning. Monsters also set off traps.</p></div>`;
   const relicTxt = S && S.relic ? `<div class="chal-grp"><h3 class="sub">YOUR RELIC</h3><p class="gtxt"><b>♦ ${esc(RELICS[S.relic].name)}</b>: ${esc(RELICS[S.relic].desc)}.</p></div>` : '';
@@ -1348,8 +1351,9 @@ function showScreen(which) {
 
 /* ================= state helpers ================= */
 const eff = () => S.depth * S.M.scale;
-// Endless past floor 12: monsters hit harder every floor (compounding) and drop fewer potions, so deep floors punish mistakes.
-const DEEP_FROM = 12, DEEP_DMG = 1.04, DEEP_POTS = .95;
+// Endless past floor 12, every floor (compounding): monsters get more HP (so fights last a few hits and they get to
+// swing back), hit a little harder, and drop fewer potions. The Golem gets half the HP growth, boss floors three quarters.
+const DEEP_FROM = 12, DEEP_HP = 1.05, DEEP_DMG = 1.025, DEEP_POTS = .95;
 const deep = () => S.mode === 'endless' ? Math.max(0, S.depth - DEEP_FROM) : 0;
 const key = (x, y) => x + ',' + y;
 const monAt = (x, y) => S.mons.find(m => m.x === x && m.y === y);
@@ -1395,9 +1399,10 @@ function offerBoons(skip) {
   showBoons();
 }
 function showBoons() {
-  $('boonfloor').textContent = 'Floor ' + S.depth + (S.boonPicks ? ` · pick ${3 - S.boonPicks} of 2` : '');
-  $('boongreet').textContent = S.boonPicks === 2 ? `The ${S.boonFrom || 'boss'} falls, and its power is yours. Choose 2 upgrades, one at a time. They last the whole run.`
-    : S.boonPicks === 1 ? 'Choose one more upgrade.'
+  const tot = S.boonTotal || 2;
+  $('boonfloor').textContent = 'Floor ' + S.depth + (S.boonPicks ? ` · pick ${tot - S.boonPicks + 1} of ${tot}` : '');
+  $('boongreet').textContent = S.boonPicks === tot ? `The ${S.boonFrom || 'boss'} falls, and its power is yours. Choose ${tot} upgrades, one at a time. They last the whole run.`
+    : S.boonPicks > 0 ? (S.boonPicks === 1 ? 'Choose one more upgrade.' : `Choose ${S.boonPicks} more upgrades.`)
     : "The golem's core still glows. Take one power with you. It lasts the whole run, and deeper golems give stronger ones.";
   $('blist').innerHTML = S.boonOffer.map((id, i) => `<li><button class="use" data-boon="${i}"><span class="num k">${i + 1}</span><span class="gl ig">✦</span><span class="nm">${esc(BOONS[id].name)}</span><span class="ds">${esc(BOONS[id].desc(S.boonT))}</span></button></li>`).join('');
   const have = boonList();
@@ -1414,7 +1419,7 @@ function takeBoon(i) {
   S.boonOffer = null; $('boon').hidden = true;
   say(`${BOONS[id].name}: ${BOONS[id].desc(S.boonT)}.`, 'lvl'); SND.play('equip');
   if (S.boonPicks > 1) { S.boonPicks--; offerBoons(id); saveGame(); update(); return; }
-  S.boonPicks = 0;
+  S.boonPicks = S.boonTotal = 0;
   saveGame(); update(); focusGame();
 }
 const boonList = () => { const n = {}; for (const id of (S.boons || [])) n[id] = (n[id] || 0) + 1; return Object.entries(n).map(([id, c]) => BOONS[id].name + (c > 1 ? ' ×' + c : '')).join(', '); };
@@ -1576,15 +1581,29 @@ function themeFor(d) {
   if (S.M.floors === Infinity) return T[Math.floor((d - 1) / 3) % 3];
   return T[Math.min(2, Math.floor((d - 1) / (S.M.floors - 1) * 3))];
 }
-/* Endless boss floors: every 10th floor is a short dungeon on the left and an arena on the right, where a Cyclops,
-   a Drake or a Lich (in turn) holds the stairs. Beating it gives better loot and 2 upgrade picks. */
-const ARENA_KINDS = ['cyclops', 'drake', 'lich'];
+/* Endless boss floors: every 10th floor is a short dungeon on the left and an arena on the right, where a boss holds
+   the stairs. Bosses come from a shuffled deck (each once before any repeats, never the same twice running); every
+   50th floor is the Amber Wyrm. Beating one gives better loot and 2 upgrade picks (the Wyrm: 3). */
+const ARENA_KINDS = ['cyclops', 'drake', 'lich', 'brood', 'shadow'];
+function nextArenaKind() {
+  if (S.depth % 50 === 0) return 'wyrm';
+  if (!S.bossDeck || !S.bossDeck.length) {
+    const deck = [...ARENA_KINDS];
+    for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(RNG() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+    if (deck[deck.length - 1] === S.lastBoss) [deck[0], deck[deck.length - 1]] = [deck[deck.length - 1], deck[0]];
+    S.bossDeck = deck;
+  }
+  return (S.lastBoss = S.bossDeck.pop());
+}
 const ARENA_X = 22; // the arena runs from here to the right wall
 const isArenaFloor = () => S.mode === 'endless' && S.depth % 10 === 0;
 const ARENA_BOSS = {
   cyclops: { ch: 'C', name: 'Cyclops', atk: [5, 9], intro: 'A Cyclops rises from its pile of bones, one huge eye fixed on you.', down: 'The Cyclops topples like a felled tree. The runes on the stairs go dark.' },
   drake:   { ch: 'd', name: 'Drake', atk: [3, 6], intro: 'A Drake uncoils from the rafters, embers dripping from its jaws.', down: 'The Drake crashes down in a shower of sparks. The runes on the stairs go dark.' },
   lich:    { ch: 'L', name: 'Lich', atk: [3, 5], intro: 'A Lich turns toward you. Its bones rattle with laughter.', down: 'The Lich comes apart in a cloud of grave dust. Its servants fall with it.' },
+  brood:   { ch: 'B', name: 'Brood Mother', atk: [3, 6], poison: 4, intro: 'A Brood Mother drops from the ceiling on a thread, legs twitching.', down: 'The Brood Mother curls up and goes still. Her webs dry to dust.' },
+  shadow:  { ch: 'S', name: 'Shadow', atk: [4, 7], intro: 'The torchlight bends. A Shadow peels itself off the wall.', down: 'The Shadow tears apart like smoke in the wind. The torches burn steady again.' },
+  wyrm:    { ch: 'D', name: 'Amber Wyrm', atk: [3, 6], intro: 'The Amber Wyrm has followed you down. It is bigger now, and it remembers you.', down: 'The Amber Wyrm crashes down and lies still, for now. Its hoard spills across the floor.' },
 };
 function genArena() {
   let map, rooms;
@@ -1629,10 +1648,10 @@ function genArena() {
   placeArenaBoss(ar.cx + 3, ar.cy);
 }
 function placeArenaBoss(x, y) {
-  const e = eff(), k = DEEP_DMG ** deep(), kind = ARENA_KINDS[(S.depth / 10 - 1) % ARENA_KINDS.length], t = ARENA_BOSS[kind];
-  const hp = Math.round((60 + e * 9) * S.D.hp * (S.D.bossHp || 1) * (kind === 'lich' ? .8 : 1)); // the Lich spends turns blinking away
+  const e = eff(), k = DEEP_DMG ** deep(), kind = nextArenaKind(), t = ARENA_BOSS[kind];
+  const hp = Math.round((60 + e * 9) * S.D.hp * (S.D.bossHp || 1) * ({ lich: .65, wyrm: 1.2 }[kind] || 1) * DEEP_HP ** (deep() * .75)); // the Lich spends turns blinking away
   S.mons = S.mons.filter(m => m.x < S.arena.x0 - 1);
-  S.mons.push({ ch: t.ch, name: t.name, kind, arena: true, boss: true, hp, maxhp: hp, atk: [Math.round(t.atk[0] * k), Math.round(t.atk[1] * k)], bonus: Math.round(Math.floor(e / 3) * k), x, y, timer: 0, awake: false, flash: 0, xp: 40 + e * 3 });
+  S.mons.push({ ch: t.ch, name: t.name, kind, arena: true, boss: true, poison: t.poison, hp, maxhp: hp, atk: [Math.round(t.atk[0] * k), Math.round(t.atk[1] * k)], bonus: Math.round(Math.floor(e / 3) * k), x, y, timer: 0, awake: false, flash: 0, xp: (40 + e * 3) * (kind === 'wyrm' ? 2 : 1) });
   S.stairsLocked = true;
 }
 const cheb = (a, x, y) => Math.max(Math.abs(a.x - x), Math.abs(a.y - y));
@@ -1650,20 +1669,22 @@ function arenaCharge(b, turns, cells, strike, msg, warn) {
   say(warn, 'bad'); SND.play('rumble');
 }
 async function arenaStrike(b) {
-  const fire = b.kind === 'drake', cells = [...S.danger].map(k => k.split(',').map(Number));
-  SND.play(fire ? 'fire' : 'slam');
+  const fire = b.kind === 'drake' || (b.kind === 'wyrm' && !b.tail), dark = b.kind === 'shadow', cells = [...S.danger].map(k => k.split(',').map(Number));
+  SND.play(fire ? 'fire' : dark ? 'vanish' : 'slam');
   for (let f = 0; f < (reduce ? 1 : 3); f++) {
-    for (const [x, y] of cells) setFx(x, y, pick(fire ? ['▓', '▒', '░', '█'] : ['▓', '▒', '#']), fire ? 'fire' + rnd(0, 2) : 'slam', 150);
+    for (const [x, y] of cells) setFx(x, y, pick(fire ? ['▓', '▒', '░', '█'] : dark ? ['░', '▒', '/', '\\'] : ['▓', '▒', '#']), fire ? 'fire' + rnd(0, 2) : dark ? 'puff' : 'slam', 150);
     render(); if (!reduce) await sleep(70);
   }
   shake(!fire);
   const hit = S.danger.has(key(S.px, S.py));
-  S.danger = new Set();
-  if (!hit) { say(fire ? 'Fire roars past you.' : 'The ground shakes, but you are clear.', 'hl'); return; }
+  S.danger = new Set(); b.tail = false;
+  if (dark) { const spot = DIRS4.map(([dx, dy]) => [S.px + dx, S.py + dy]).find(([x, y]) => free(x, y)); if (spot) [b.x, b.y] = spot; }
+  if (!hit) { say(fire ? 'Fire roars past you.' : dark ? "The Shadow's blades cut only air." : 'The ground shakes, but you are clear.', 'hl'); return; }
   const dmg = Math.max(3, Math.round((rnd(b.strike[0], b.strike[1]) + Math.floor(eff() / 2)) * S.D.dmg * DEEP_DMG ** deep()) - Math.floor(stats().def / 2));
   damagePlayer(dmg, b.strikeMsg.replace('#', dmg), 'the ' + b.name);
   if (fire && S.hp > 0) applyStatus('burn', 3);
 }
+const arenaFoes = () => S.mons.filter(m => m.minion).length;
 const brittle = m => ({ ...m, hp: Math.ceil(m.maxhp / 2), maxhp: Math.ceil(m.maxhp / 2), atk: m.atk.map(v => Math.max(1, Math.round(v * .6))), bonus: Math.round(m.bonus * .5), xp: 1, awake: true, minion: true });
 const ARENA_AI = {
   // Slow and heavy. Stomp (everything within 2 tiles) up close, boulders at range; both give 2 turns to get clear.
@@ -1707,13 +1728,13 @@ const ARENA_AI = {
         b.blinkAt = b.hp - b.maxhp * .25; SND.play('teleport'); say('The Lich folds into shadow and appears across the room.', 'hl'); return;
       }
     }
-    if (b.timer >= 6 && S.mons.filter(m => m.minion).length < 3) {
+    if (b.timer >= 6 && S.mons.filter(m => m.minion).length < 2) {
       b.timer = 0; let n = 0;
       const skel = MONS.find(t => t.name === 'skeleton');
       for (const [dx, dy] of DIRS8) { if (n >= 2) break; const x = b.x + dx, y = b.y + dy; if (free(x, y)) { S.mons.push(brittle(makeMon(skel, x, y))); setFx(x, y, '*', 'raise', 350); n++; } }
       if (n) { SND.play('raise'); say('The Lich raises its staff. Bones claw out of the floor.', 'bad'); return; }
     }
-    if (c >= 2 && c <= 8 && clear(b.x, b.y, S.px, S.py) && Math.random() < .6) {
+    if (c >= 2 && c <= 8 && clear(b.x, b.y, S.px, S.py) && Math.random() < .45) {
       SND.play('bolt');
       await fly(line(b.x, b.y, S.px, S.py).slice(1, -1), '*', 'bolt', 24);
       const dmg = Math.max(1, Math.round((rnd(b.atk[0], b.atk[1]) + b.bonus) * S.D.dmg) - stats().def);
@@ -1724,6 +1745,63 @@ const ARENA_AI = {
     if (c < 4) { if (!stepAway(b)) stepToward(b, d); } else if (c > 6) stepToward(b, d);
   },
 };
+Object.assign(ARENA_AI, {
+  // Spits webs around you (a web slows you for 2 turns, then it's gone) and lays spiderlings. Her bite poisons.
+  async brood(b, d) {
+    const c = cheb(b, S.px, S.py);
+    b.lay = (b.lay || 0) + 1;
+    if (b.lay >= 6 && arenaFoes() < 4) {
+      b.lay = 0; let n = 0;
+      const sp = MONS.find(t => t.name === 'cave spider');
+      for (const [dx, dy] of DIRS8) { if (n >= 2) break; const x = b.x + dx, y = b.y + dy; if (free(x, y)) { S.mons.push(brittle(makeMon(sp, x, y))); setFx(x, y, '*', 'raise', 350); n++; } }
+      if (n) { SND.play('raise'); say('Spiderlings pour out of the Brood Mother.', 'bad'); return; }
+    }
+    if (b.timer >= 4 && c <= 8 && clear(b.x, b.y, S.px, S.py)) {
+      b.timer = 0;
+      const spots = [];
+      for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const x = S.px + dx, y = S.py + dy; if ((dx || dy) && free(x, y) && !S.traps.some(t => t.x === x && t.y === y)) spots.push([x, y]); }
+      for (let i = 0; i < 4 && spots.length; i++) { const [x, y] = spots.splice(Math.floor(Math.random() * spots.length), 1)[0]; S.traps.push({ x, y, kind: 'web', web: true, seen: true }); setFx(x, y, '*', 'web', 300); }
+      while (S.traps.filter(t => t.web).length > 12) S.traps.splice(S.traps.findIndex(t => t.web), 1);
+      SND.play('poison'); say('The Brood Mother spits sticky webs around you.', 'bad'); return;
+    }
+    if (manh(b, S.px, S.py) === 1) { monHit(b); return; }
+    stepToward(b, d);
+  },
+  // Fast (two steps when far). Every few turns it melts into the dark and strikes the X around you: step straight
+  // up, down, left or right to dodge. Then it stands beside you.
+  async shadow(b, d) {
+    if (b.timer >= 4) {
+      const ar = S.arena, spots = [];
+      if (ar) for (let y = ar.y0; y <= ar.y1; y++) for (let x = ar.x0; x <= ar.x1; x++) if (free(x, y) && manh({ x, y }, S.px, S.py) >= 5) spots.push([x, y]);
+      if (spots.length) { setFx(b.x, b.y, '░', 'puff', 400); [b.x, b.y] = pick(spots); }
+      const cells = [[0, 0], [1, 1], [-1, -1], [1, -1], [-1, 1]].map(([dx, dy]) => [S.px + dx, S.py + dy]);
+      return arenaCharge(b, 1, cells, [7, 11], 'The Shadow strikes out of the dark for #!', 'The Shadow melts into the dark. Blades gather around you. Step straight out!');
+    }
+    if (manh(b, S.px, S.py) === 1) { monHit(b); return; }
+    stepToward(b, d); if (cheb(b, S.px, S.py) > 3) stepToward(b, d);
+  },
+  // The big bad. A wide breath with 2 turns' warning, a tail sweep up close, minions at half HP, and faster breath
+  // when it enrages below 30%.
+  async wyrm(b, d) {
+    const c = cheb(b, S.px, S.py);
+    if (!b.summoned && b.hp < b.maxhp / 2) {
+      b.summoned = true; let n = 0;
+      for (const [dx, dy] of DIRS8) { if (n >= 3) break; const x = b.x + dx * 2, y = b.y + dy * 2; if (free(x, y)) { S.mons.push(brittle(makeMon(pick(MONS.slice(1, 6)), x, y))); setFx(x, y, '*', 'puff', 300); n++; } }
+      say('The Wyrm shrieks. Things crawl out of the cracks.', 'bad'); SND.play('roar'); shake(true); return;
+    }
+    if (!b.enraged && b.hp < b.maxhp * .3) { b.enraged = true; say('The Wyrm enrages! Its scales split with light.', 'bad'); SND.play('roar'); shake(true); }
+    if (b.timer >= (b.enraged ? 3 : 4) && c >= 2 && c <= 12) {
+      const dx = Math.sign(S.px - b.x), dy = Math.sign(S.py - b.y), side = dx && dy ? [[dx, 0], [0, dy]] : [[-dy, dx], [dy, -dx]], cells = [];
+      for (let i = 1; i <= 12; i++) { const cx = b.x + dx * i, cy = b.y + dy * i; if (!floor(cx, cy)) break; cells.push([cx, cy]); for (const [sx, sy] of side) cells.push([cx + sx, cy + sy]); }
+      return arenaCharge(b, 2, cells, [9, 14], "The Wyrm's fire engulfs you for #!", 'The Wyrm draws a deep breath. Get out of the glowing path!');
+    }
+    if (manh(b, S.px, S.py) === 1) {
+      if (b.timer >= 3) { b.tail = true; const cells = DIRS8.map(([dx, dy]) => [b.x + dx, b.y + dy]); return arenaCharge(b, 1, cells, [7, 11], "The Wyrm's tail smashes you for #!", 'The Wyrm coils its tail. Step back!'); }
+      monHit(b); return;
+    }
+    if (b.timer % 2 === 0) stepToward(b, d);
+  },
+});
 async function arenaTurn(b, d) {
   if (!b.awake) {
     if (S.vis[b.y][b.x] && !S.invis) {
@@ -1732,7 +1810,7 @@ async function arenaTurn(b, d) {
     }
     return;
   }
-  if (b.charge > 0) { if (--b.charge > 0) { say(b.kind === 'cyclops' ? 'The Cyclops winds up...' : 'It gathers itself...', 'bad'); return; } await arenaStrike(b); return; }
+  if (b.charge > 0) { if (--b.charge > 0) { say(`The ${b.name} gathers itself...`, 'bad'); return; } await arenaStrike(b); return; }
   if (S.invis) return;
   b.timer++;
   await ARENA_AI[b.kind](b, d);
@@ -1740,7 +1818,8 @@ async function arenaTurn(b, d) {
 function arenaDown(m) {
   S.stairsLocked = false; S.danger = new Set();
   for (const o of S.mons.filter(o => o.minion)) setFx(o.x, o.y, '%', 'crack', 400);
-  S.mons = S.mons.filter(o => !o.minion);
+  S.mons = S.mons.filter(o => !o.minion); S.traps = S.traps.filter(t => !t.web);
+  const big = m.kind === 'wyrm';
   for (let r = 1; r <= 3; r++) for (const [dx, dy] of DIRS8) setFx(m.x + dx * r, m.y + dy * r, pick(['.', ':', '*']), 'crack', 250 + r * 120);
   shake(true); SND.play('crumble'); SND.play('level');
   say(ARENA_BOSS[m.kind].down, 'good');
@@ -1748,14 +1827,14 @@ function arenaDown(m) {
   gainXp(m.xp);
   const kind = Math.random() < .5 ? 'weapon' : 'armor';
   const loot = gear(kind, Math.floor(eff() / 2) + 4, pick(kind === 'weapon' ? ['keen', 'vampiric'] : ['vigor', 'thorns']));
-  loot.plus = (loot.plus || 0) + 2; loot.val += 2; // boss loot beats a Golem's at the same depth
+  const extra = big ? 3 : 2; loot.plus = (loot.plus || 0) + extra; loot.val += extra; // boss loot beats a Golem's at the same depth
   S.items = S.items.filter(e => !(e.x === m.x && e.y === m.y));
   S.items.push({ x: m.x, y: m.y, it: loot });
-  const g = Math.round(rnd(40, 60) * eff() * S.D.gold);
+  const g = Math.round(rnd(40, 60) * eff() * S.D.gold * (big ? 1.5 : 1));
   S.gold += g; PROF.gold += g; rs().gold += g; floatText(m.x, m.y, '+' + g, 'gold');
   say(`It leaves behind ${g} gold and a ${itemName(loot)}.`, 'gold');
-  findRelic(m.x, m.y, .75);
-  S.boonPicks = 2; S.boonFrom = m.name; offerBoons();
+  findRelic(m.x, m.y, big ? 1 : .75);
+  S.boonPicks = S.boonTotal = big ? 3 : 2; S.boonFrom = m.name; offerBoons();
 }
 function isMidBossFloor() {
   const F = S.M.floors, d = S.depth;
@@ -1901,7 +1980,7 @@ function placeGolem() {
   for (const [dx, dy] of DIRS8) { const x = S.sx + dx, y = S.sy + dy; if (free(x, y) && !itemAt(x, y)) { p = [x, y]; break; } }
   if (!p) p = [S.sx, S.sy];
   S.mons = S.mons.filter(m => Math.abs(m.x - S.sx) + Math.abs(m.y - S.sy) > 4);
-  const hp = Math.round((40 + e * 6) * S.D.hp * (S.D.bossHp || 1)), k = DEEP_DMG ** deep();
+  const hp = Math.round((40 + e * 6) * S.D.hp * (S.D.bossHp || 1) * DEEP_HP ** (deep() / 2)), k = DEEP_DMG ** deep();
   S.mons.push({ ch: 'G', name: 'Stone Golem', hp, maxhp: hp, atk: [Math.round(3 * k), Math.round(6 * k)], bonus: Math.round(Math.floor(e / 3) * k), x: p[0], y: p[1], boss: true, golem: true, timer: 0, awake: false, flash: 0, xp: 20 + e * 2 });
   S.stairsLocked = true;
 }
@@ -1999,7 +2078,7 @@ function makeMon(t, x, y) {
   const e = eff(), over = Math.max(0, e - t.tier);
   const hp = Math.max(1, Math.round((t.hp + Math.floor(over * 1.5) + Math.floor(e / 2)) * S.D.hp));
   const elite = S.asc >= 1 && !t.boss && Math.random() < .15;
-  const fh = elite ? Math.round(hp * 1.5) : hp, k = DEEP_DMG ** deep();
+  const fh = Math.round((elite ? hp * 1.5 : hp) * DEEP_HP ** deep()), k = DEEP_DMG ** deep();
   return { ...t, x, y, hp: fh, maxhp: fh, atk: [Math.round(t.atk[0] * k), Math.round(t.atk[1] * k)], bonus: Math.round((Math.floor(e / 3) + Math.floor(over / 3) + (elite ? 2 : 0)) * k), xp: t.xp + Math.floor(e / 2) + (elite ? 5 : 0), awake: S.asc >= 8, flash: 0, elite };
 }
 
@@ -2242,7 +2321,11 @@ async function playerMove(dx, dy) {
   if (!floor(nx, ny)) { if (m && m.ally) { m.x = nx; m.y = ny; } return false; }
   S.px = nx; S.py = ny;
   const tr = S.traps.find(t => t.x === nx && t.y === ny);
-  if (tr && !tr.mine) {
+  if (tr && tr.web) {
+    S.traps = S.traps.filter(t => t !== tr);
+    if (S.cls === 'trapper') say('You cut through the web.');
+    else { applyStatus('slow', 2); say('You blunder into a sticky web!', 'bad'); }
+  } else if (tr && !tr.mine) {
     if (S.cls === 'trapper') {
       S.traps = S.traps.filter(t => t !== tr);
       const g = 3 * eff(); S.gold += g;
@@ -3170,7 +3253,7 @@ function render() {
       else { ch = '.'; cls = v ? 'l' + lv : 'f'; }
       if (S.stairs && x === S.sx && y === S.sy) { ch = '>'; cls = S.stairsLocked ? 'stl' : v ? 'st' : 'stf'; }
       const trap = S.traps.find(t => t.seen && t.x === x && t.y === y);
-      if (trap) { ch = trap.mine ? '×' : '^'; cls = trap.mine ? 'snare' : v ? 'trap' : 'f'; }
+      if (trap) { ch = trap.web ? '"' : trap.mine ? '×' : '^'; cls = trap.web ? 'web' : trap.mine ? 'snare' : v ? 'trap' : 'f'; }
       if (v) {
         if (S.danger.has(k)) { ch = ((now / 160) | 0) % 2 ? '≈' : '~'; cls = 'dg'; }
         const cp = S.corpses.length && S.corpses.find(c => c.x === x && c.y === y);
