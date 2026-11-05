@@ -7,7 +7,7 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v28 (merged 5 Nov 2026, commit `de55c6e`): everything so far, now with text styles, the
 wall-colour fix and the run stats panel. Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** nothing.
+**On `staging`, not live yet:** v29: fix for the Challenges menu reopening on every click (see *What's new*).
 **Next up:** Sam plays deep Hard Endless and says how the curve and the upgrades feel (too strong, too weak, missing picks?).
 
 ## To do
@@ -22,9 +22,13 @@ wall-colour fix and the run stats panel. Built from `src/` with `node src/build.
 - More classes, a second wave of relics, cosmetic titles on the daily share text.
 - **Echo** (reveal everything within 8 tiles for a few turns) as an upgrade or scroll; spare from the Mole design.
 - Leaderboards (would need a backend).
-- **Endless boss floors, step 2 (Sam's plan, 5 Nov 2026; not built yet):** every 10th floor a half-size dungeon with a roomy stair
-  area: the boss gets a small arena, then the upgrade pick. Different mini-bosses instead of always the Golem.
+- **Endless boss floors, step 2 (Sam's plan, 5 Nov 2026; not built yet):** Golems stay on every 5th floor (they already
+  are). Every 10th floor becomes a half-size dungeon with a boss arena and one of 3 bigger bosses with their own attacks
+  (Sam: a Cyclops, a mini dragon, one more). Bigger boss = better reward: pick 2 upgrades, or pick from 4, plus better
+  loot. Builds on new floors, so a run in progress gets it from its next 10th floor after a reload.
   Other ideas: a "new depth record" moment, deep-only monsters or elite abilities past floor 15-20.
+- **Map/ASCII-art font options (Sam, 5 Nov 2026; probably not worth it):** the map needs a monospace font with
+  box-drawing glyphs, or the grid breaks; only a few fit (e.g. IBM Plex Mono, Fira Mono). Small win, some risk.
 - **More upgrades for the pool** as they come up (e.g. thorns, faster ability recharge, potion strength).
 - **Trade-off gear bonuses** like a "Reckless" weapon (+50% damage dealt, +25% taken), left over from the deep-loot
   idea (the +N gear itself is done).
@@ -52,4 +56,5 @@ wall-colour fix and the run stats panel. Built from `src/` with `node src/build.
 
 ## What's new at the next merge
 
-- 
+- Fixed: with the Clean or Readable text style (or a non-amber screen colour), the Challenges menu's ✕ didn't
+  close it, and any click (even in the game) reopened it.

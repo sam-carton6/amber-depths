@@ -1278,8 +1278,8 @@ function openChal() {
   }).join('')}</div>`;
   const ascTxt = `<p class="gtxt" style="color:var(--dim);font-size:.72rem">Slay the Wyrm on Nightmare to unlock Ascension 1. Each Ascension win unlocks the next level, up to 10. Highest unlocked: ${PROF.ascMax ? 'A' + PROF.ascMax : 'none yet'}.</p>`;
   $('chalbody').innerHTML = fontRow + crt + rel + grp('Unlocks') + grp('Hard challenges') + mast + `<div class="chal-grp"><h3 class="sub">ASCENSION</h3>${ascTxt}${CH.filter(c => c.grp === 'Ascension').map(item).join('')}</div>` + secretGrp + grp('Milestones');
-  document.querySelectorAll('[data-font]').forEach(b => b.onclick = () => { PROF.font = b.dataset.font; saveProf(); applyFont(); openChal(); SND.play('click'); });
-  document.querySelectorAll('[data-crt]').forEach(b => b.onclick = () => { if (!crtOk(b.dataset.crt)) return; PROF.crt = b.dataset.crt; saveProf(); applyCrt(); openChal(); SND.play('click'); });
+  $('chalbody').querySelectorAll('[data-font]').forEach(b => b.onclick = () => { PROF.font = b.dataset.font; saveProf(); applyFont(); openChal(); SND.play('click'); });
+  $('chalbody').querySelectorAll('[data-crt]').forEach(b => b.onclick = () => { if (!crtOk(b.dataset.crt)) return; PROF.crt = b.dataset.crt; saveProf(); applyCrt(); openChal(); SND.play('click'); });
   $('chal').hidden = false;
   setTimeout(() => $('chalclose').focus(), 30);
 }
