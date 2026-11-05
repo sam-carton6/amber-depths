@@ -106,10 +106,11 @@ window.__runGame = async (cls, mode, diff, maxTurns, relic, asc, alt) => {
       const use = { warrior: adj.length >= 1, rogue: adj.length >= 2 || (hostiles.some(m => m.boss) && Math.random() < .3), mage: hostiles.length > 0, necro: S.corpses.some(c => S.vis[c.y][c.x]),
         trapper: hostiles.length > 0 && !adj.length, alch: hostiles.length > 0 && S.pack.filter(i => i.type === 'potion').reduce((a, i) => a + (i.n || 1), 0) >= 2,
         ranger: hostiles.some(m => (m.x === S.px || m.y === S.py) && Math.abs(m.x - S.px) + Math.abs(m.y - S.py) <= 8 && T.clear(S.px, S.py, m.x, m.y)),
-        berserker: adj.length > 0, paladin: S.hp < st.max * .7 || hostiles.some(m => ['skeleton','wraith','ghoul'].includes(m.name)), gambler: hostiles.length > 0 && S.gold > 60 }[S.cls];
+        berserker: adj.length > 0, paladin: S.hp < st.max * .7 || hostiles.some(m => ['skeleton','wraith','ghoul'].includes(m.name)), gambler: hostiles.length > 0 && S.gold > 60, mole: S.alt ? S.mons.some(m => !m.ally && Math.max(Math.abs(m.x - S.px), Math.abs(m.y - S.py)) <= 8) : Math.random() < .15 }[S.cls];
       if (use) {
         const t0 = S.turn; trail.push('ability'); await T.ability();
-        if (T.S.aiming) { const m = hostiles.find(m => (m.x === S.px || m.y === S.py) && Math.abs(m.x - S.px) + Math.abs(m.y - S.py) <= 8); if (m) await T.act(Math.sign(m.x - S.px), Math.sign(m.y - S.py)); else await T.act(0, 0); }
+        if (T.S.aiming && S.cls === 'mole') { const d = DIRS.find(([dx, dy]) => S.map[S.py + dy] && S.map[S.py + dy][S.px + dx] === '#') || [0, 0]; await T.act(d[0], d[1]); }
+        else if (T.S.aiming) { const m = hostiles.find(m => (m.x === S.px || m.y === S.py) && Math.abs(m.x - S.px) + Math.abs(m.y - S.py) <= 8); if (m) await T.act(Math.sign(m.x - S.px), Math.sign(m.y - S.py)); else await T.act(0, 0); }
         if (T.S.turn !== t0) continue;
       }
     }

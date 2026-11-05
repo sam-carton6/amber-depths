@@ -8,7 +8,7 @@ under *Ideas (later)*; ask before building one.
 **Live on `main`:** v21 (merged 5 Nov 2026, commit `8b52381`): deadlier Endless, Golem upgrades, Rogue dodge,
 Backup button, Phoenix Feather and Pack Mule relics, Sell all junk, free equipping out of combat, numpad and
 arrow-cluster keys. Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** nothing.
+**On `staging`, not live yet:** v22, the Mole class.
 **Next up:** Sam plays deep Hard Endless and says how the curve and the upgrades feel (too strong, too weak, missing picks?).
 
 ## To do
@@ -21,11 +21,7 @@ arrow-cluster keys. Built from `src/` with `node src/build.mjs`.
 ## Ideas (later)
 
 - More classes, a second wave of relics, cosmetic titles on the daily share text.
-- **New class: the Mole (Sam, 5 Nov 2026):** sight only ~3 tiles. Ability Dig: pick a direction (aimed like the
-  Ranger's Volley), tunnel through up to 3 wall tiles (not the map edge; can't skip a Golem, the stairs stay locked).
-  Passive tremor sense: feels monsters within ~6 tiles through walls (dim letters), folding in the Seer idea.
-  Possible unlock: win a run on Ascension 4+ (Darkness). Spare ideas: Echo (reveal 8 tiles for a few turns) as an
-  upgrade or scroll; the Lurker overlaps the Rogue, so skip it.
+- **Echo** (reveal everything within 8 tiles for a few turns) as an upgrade or scroll; spare from the Mole design.
 - Leaderboards (would need a backend).
 - **Endless boss floors, step 2 (Sam's plan, 5 Nov 2026):** every 10th floor a half-size dungeon with a roomy stair
   area: the boss gets a small arena, then the upgrade pick. Different mini-bosses instead of always the Golem.
@@ -57,4 +53,6 @@ arrow-cluster keys. Built from `src/` with `node src/build.mjs`.
 
 ## What's new at the next merge
 
-- 
+- New class, the Mole (unlock: reach floor 15 in Endless). Sees only 3 tiles but feels every monster within 8 through
+  the walls. Dig tunnels through up to 3 wall tiles in a direction you choose. Alternate ability Cave-in hits every
+  enemy you can feel, even through walls.

@@ -87,6 +87,7 @@ button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 .daily .res { font-size: .78rem; color: var(--gold); }
 .daily button, .copyb { font-family: var(--font-display); font-size: 1.25rem; padding: 6px 14px; border-color: var(--amber); color: var(--hot); background: #2a1c0e; }
 .copybox { width: 100%; min-height: 5.5em; font: .75rem/1.4 var(--font-ui); color: var(--amber); background: #0b0805; border: 1px solid var(--line); border-radius: 6px; padding: 8px; resize: none; }
+.tremor { color: var(--dim); opacity: .55; }
 .ally { color: #8ff0c8; font-weight: 700; text-shadow: 0 0 6px #3fd09a; }
 .corpse { color: #8a3020; }
 .raise { color: #8ff0c8; text-shadow: 0 0 8px #3fd09a; }
@@ -622,6 +623,8 @@ const CLASSES = {
     desc: 'Fire a piercing arrow down a line you choose, hitting every enemy in it. Sees farther and spots traps easily.' },
   trapper: { name: 'Trapper', sig: '@^', hp: 26, hpLv: 5, atk: 1, def: 1, crit: .05, ability: 'Set Snare', cd: 3, unlock: 'c_trapper',
     desc: 'Lay a snare that roots and wounds the first enemy to step in it. Walks over dungeon traps to disarm them for gold.' },
+  mole: { name: 'Mole', sig: '@:', hp: 28, hpLv: 5, atk: 1, def: 1, crit: .08, ability: 'Dig', cd: 4, unlock: 'c_mole',
+    desc: 'Tunnels through walls in a direction you choose. Sees only 3 tiles, but feels every monster within 8, even through walls.' },
   alch: { name: 'Alchemist', sig: '@~', hp: 22, hpLv: 4, atk: 1, def: 0, crit: .05, ability: 'Brew', cd: 3, unlock: 'c_alch',
     desc: 'Turn a potion into a bomb: fire, frost, then poison, in rotation. Potions heal 50% more.' },
 };
@@ -650,6 +653,7 @@ const ABIL_DETAIL = {
   necro: () => 'Raise Dead turns the nearest corpse (,) in sight into a thrall for 30 turns. You can have 2 at once, and they follow you downstairs. Walk into a thrall to swap places. Every kill heals you 1 HP. Recharges in 6 turns.',
   berserker: () => `Frenzy lasts 4 turns: every attack strikes twice, but you can't drink potions. Rage is always on: up to +50% damage as your HP drops${S && S.cls === 'berserker' ? ` (right now: +${Math.round(50 * (1 - Math.max(0, S.hp) / stats().max))}%)` : ''}. Recharges in 10 turns.`,
   paladin: () => `Holy Light heals you for 6 + 2 × level and cures burning, then deals 5 + 2 × level to every skeleton, wraith and ghoul in sight${S && S.cls === 'paladin' ? ` (right now: ${6 + 2 * S.lv})` : ''}. Poison can't touch you. Recharges in 7 turns.`,
+  mole: () => `Dig: press the ability, then a direction. You tunnel through up to ${DIG_LEN} wall tiles in a straight line (never the outer wall). Moles see only 3 tiles, but feel every monster within ${TREMOR} tiles through the walls (shown dim). Recharges in 4 turns.`,
   ranger: () => `Volley: press the ability, then a direction. The arrow flies up to 8 tiles and pierces everything in its path for 4 + level + half your weapon bonus${S && S.cls === 'ranger' ? ` (right now: ${4 + S.lv + Math.floor((S.weapon ? S.weapon.val : 0) / 2)})` : ''}. It can crit. Press the ability again, or wait, to cancel. Rangers see 2 tiles farther and spot traps as well as rogues. Recharges in 4 turns.`,
   trapper: () => `Set Snare places a snare (×) on the tile next to you closest to an enemy. The first enemy to step in is rooted for 3 turns and takes 3 + level damage. Up to 3 snares at once. You disarm any dungeon trap you walk over and salvage a little gold. Monsters set off traps too. Recharges in 3 turns.`,
   alch: () => `Brew uses up a potion and throws a bomb at the nearest enemy in sight, hitting everything around it. The bombs rotate: Fire (4 + level damage and burning), Frost (freezes for 3 turns), Poison (poisons for 6 turns)${S && S.cls === 'alch' ? `. Next up: ${BOMBS[S.brew || 0]}` : ''}. Your potions heal 50% more. Recharges in 3 turns.`,
@@ -690,6 +694,7 @@ const CH = [
   { id: 'c_red', grp: 'Unlocks', name: 'Creature of Habit', desc: 'Play 7 daily runs', reward: 'Red alarm screen', prog: () => [P('dailies'), 7] },
   { id: 'c_ranger', grp: 'Unlocks', name: 'Deep Diver', desc: 'Reach floor 7 on any run', reward: 'Unlocks the Ranger', prog: () => [P('maxDepth'), 7] },
   { id: 'c_trapper', grp: 'Unlocks', name: 'Trip Hazard', desc: 'Set off 10 traps (across all runs)', reward: 'Unlocks the Trapper', prog: () => [P('traps'), 10] },
+  { id: 'c_mole', grp: 'Unlocks', name: 'Burrower', desc: 'Reach floor 15 in Endless', reward: 'Unlocks the Mole', prog: () => [P('maxEndless'), 15] },
   { id: 'c_alch', grp: 'Unlocks', name: 'Thirsty', desc: 'Drink 25 potions (across all runs)', reward: 'Unlocks the Alchemist', prog: () => [P('potions'), 25] },
   { id: 'c_white', grp: 'Unlocks', name: 'Bottomless', desc: 'Reach floor 20 in Endless', reward: 'White phosphor screen', prog: () => [P('maxEndless'), 20] },
   { id: 'h_naked', grp: 'Hard challenges', name: 'Bare Bones', desc: 'Slay the Wyrm without changing your starting gear', reward: 'Badge' },
@@ -795,6 +800,7 @@ const ALT = {
   berserker: { name: 'Whirlwind', cd: 7, desc: 'Attack every enemy around you twice.' },
   paladin: { name: 'Divine Shield', cd: 14, desc: 'You take no damage at all for 2 turns.' },
   gambler: { name: 'Golden Shot', cd: 3, desc: 'Flick a fistful of gold at the nearest enemy for 10 + 2 × level damage. Costs 15 gold + 2 per floor (4 per floor on Short).' },
+  mole: { name: 'Cave-in', cd: 8, desc: 'Shake the earth: every enemy you can feel within 8 tiles takes 2 + level damage, even through walls.' },
   ranger: { name: 'Rain of Arrows', cd: 8, desc: 'Every enemy in sight takes 3 + level damage.' },
   trapper: { name: 'Minefield', cd: 8, desc: 'Lays a snare on every open tile next to you.' },
   alch: { name: 'Elixir', cd: 15, desc: 'Heal half your max HP and cure every status effect. No potion needed.' },
@@ -1504,7 +1510,8 @@ function descend() {
   RNG = S.daily ? seeded(hashStr(S.daily) + S.depth * 7919) : Math.random;
   try { if (isHollow) genHollow(); else if (isBoss) genBoss(); else genFloor(); } finally { RNG = Math.random; }
   if (S.cls === 'ranger' && !isBoss) S.fovR = 9; // before Darkness, so A4 dims the Ranger too
-  if (S.asc >= 4 && !isBoss && !isHollow) S.fovR = Math.max(4, S.fovR - 2);
+  if (S.cls === 'mole' && !isBoss) S.fovR = 3;
+  if (S.asc >= 4 && !isBoss && !isHollow) S.fovR = Math.max(Math.min(4, S.fovR), S.fovR - 2); // never raises a short sight
   S.corpses = [];
   for (const a of allies) {
     let spot = null;
@@ -1955,12 +1962,35 @@ const arrowCh = (dx, dy) => Math.abs(dx) > 2 * Math.abs(dy) ? '-' : Math.abs(dy)
 /* ================= player actions ================= */
 const canAct = () => S && !busy && !S.dead && !S.won && $('pack').hidden && $('shop').hidden && $('boon').hidden && $('end').hidden && $('guide').hidden && screenNow === 'game';
 
+/* Mole: Dig tunnels through walls; tremor sense shows monsters within TREMOR tiles through walls. */
+const DIG_LEN = 3, TREMOR = 8;
+const senses = m => S.cls === 'mole' && !m.ally && Math.max(Math.abs(m.x - S.px), Math.abs(m.y - S.py)) <= TREMOR;
+const lowerAim = () => say(S.cls === 'mole' ? 'You stop digging.' : 'You lower your bow.');
+async function dig(dx, dy) {
+  const edge = (x, y) => x <= 0 || y <= 0 || x >= W - 1 || y >= H - 1;
+  let n = 0;
+  for (let i = 1; n < DIG_LEN; i++) {
+    const x = S.px + dx * i, y = S.py + dy * i;
+    if (!inb(x, y) || edge(x, y) || S.map[y][x] !== '#') break;
+    S.map[y][x] = '.'; S.secret.delete(key(x, y)); S.torches.delete(key(x, y)); n++;
+    setFx(x, y, pick(['░', '▒', ':']), 'puff', 260 + i * 80);
+  }
+  S.aiming = false;
+  if (!n) { say(floor(S.px + dx, S.py + dy) ? 'There is no wall there to dig.' : 'This rock is too hard to dig.'); return false; }
+  SND.play('rumble'); shake();
+  say(`You tunnel through ${n} tile${n > 1 ? 's' : ''} of rock.`, 'hl');
+  S.cd = Math.max(1, S.C.cd - (S.relic === 'idol' ? 1 : 0));
+  computeFov();
+  return true;
+}
+
 async function act(dx, dy) {
   if (!canAct()) return;
   busy = true;
   if (S.aiming) {
     try {
-      if (!dx && !dy) { S.aiming = false; say('You lower your bow.'); }
+      if (!dx && !dy) { S.aiming = false; lowerAim(); }
+      else if (S.cls === 'mole') { if (await dig(dx, dy)) await endTurn(); }
       else { await volley(dx, dy); await endTurn(); }
     } finally { busy = false; update(); }
     return;
@@ -2329,6 +2359,15 @@ async function altAbility() {
       hurtMon(t, 10 + 2 * lv, false, true);
       return true;
     }
+    case 'mole': {
+      const felt = S.mons.filter(m => senses(m) || (!m.ally && S.vis[m.y][m.x] && Math.max(Math.abs(m.x - S.px), Math.abs(m.y - S.py)) <= TREMOR));
+      if (!felt.length) { say('You feel nothing moving nearby.'); return false; }
+      SND.play('rumble'); shake(true);
+      for (const m of felt) setFx(m.x, m.y, pick(['░', '▒', '▓']), 'crack', 380);
+      say(`The cave shakes! Rock falls on ${felt.length} ${felt.length > 1 ? 'enemies' : 'enemy'}.`, 'hl');
+      for (const m of felt) hurtMon(m, 2 + lv, false, true);
+      return true;
+    }
     case 'ranger': {
       if (!foes.length) { say('No enemies in sight.'); return false; }
       SND.play('arrow');
@@ -2368,9 +2407,9 @@ async function ability() {
   busy = true;
   try {
     let used = false;
-    if (S.cls === 'ranger') {
-      if (S.aiming) { S.aiming = false; say('You lower your bow.'); }
-      else { S.aiming = true; say('Choose a direction to fire. Press the ability again, or wait, to cancel.', 'hl'); SND.play('click'); }
+    if (S.cls === 'ranger' || S.cls === 'mole') {
+      if (S.aiming) { S.aiming = false; lowerAim(); }
+      else { S.aiming = true; say(S.cls === 'mole' ? 'Choose a direction to dig. Press the ability again, or wait, to cancel.' : 'Choose a direction to fire. Press the ability again, or wait, to cancel.', 'hl'); SND.play('click'); }
     } else if (S.cls === 'trapper') {
       const foes = S.mons.filter(m => !m.ally && S.vis[m.y][m.x]);
       if (!foes.length) say('No enemies in sight to trap.');
@@ -2882,8 +2921,9 @@ function render() {
       const fx = S.fx.get(k);
       if (fx) { if (fx.until > now) { out += `<span class="${fx.cls}">${esc(fx.ch)}</span>`; continue; } S.fx.delete(k); }
       if (S.proj && S.proj.x === x && S.proj.y === y) { out += `<span class="${S.proj.cls}">${esc(S.proj.ch)}</span>`; continue; }
-      if (!S.seen[y][x]) { out += ' '; continue; }
       const v = S.vis[y][x];
+      if (!v && S.cls === 'mole') { const m = monAt(x, y); if (m && senses(m)) { out += `<span class="tremor">${esc(m.ch)}</span>`; continue; } }
+      if (!S.seen[y][x]) { out += ' '; continue; }
       const dist = Math.hypot(x - S.px, (y - S.py) * 1.3);
       const lv = dist < 2.5 ? 0 : dist < 4.5 ? 1 : dist < 6.5 ? 2 : 3;
       let ch, cls;

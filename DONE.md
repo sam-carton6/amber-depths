@@ -7,6 +7,14 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v22: the Mole class (on staging)
+- `CLASSES.mole`: sight 3 (`descend()`; the A4 Darkness cut no longer raises short sight), Dig aims like Volley
+  (`S.aiming`, `dig()`): up to `DIG_LEN` 3 wall tiles, never the outer wall, no cooldown if there's no wall.
+  Tremor sense: `render()` draws monsters within `TREMOR` 8 tiles that aren't in view as dim `.tremor` letters, even
+  on unexplored tiles. Alternate: Cave-in (2 + level to every enemy felt within 8). Unlock `c_mole` "Burrower":
+  reach floor 15 in Endless (checked at startup, so existing progress counts).
+- Tested in the browser (dig, no-wall case, tremor near/far, Cave-in); bot taught to dig; Mole bot games below.
+
 ### 2026-11-05 — v21 merged to `main` (commit 8b52381)
 - Deploy passed; live index.html and sw.js match `main` (VERSION v21). Includes v20 and v21.
 
