@@ -346,6 +346,9 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
 #classes .card .st { animation: statglow 4.5s ease-in-out infinite; }
 @keyframes statglow { 50% { color: #b8925a; text-shadow: 0 0 3px rgba(255,181,71,.2); } }
 @media (prefers-reduced-motion: reduce) { #classes .card .st { animation: none; } body::after { display: none; } }
+/* Text style presets (Challenges screen). JetBrains Mono at 100% is what the layout was first sized for. */
+:root[data-font="clean"] { --font-ui: "JetBrains Mono", "Courier New", monospace; }
+:root[data-font="readable"] { --font-ui: "Atkinson Hyperlegible Mono", "JetBrains Mono", "Courier New", monospace; }
 </style>
 
 <!-- ================= TITLE ================= -->
@@ -398,7 +401,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
       <li>Poison and burning hurt every turn, and frost slows you. Potions cure poison and burns. Water puts out flames.</li>
       <li>Partway down, a Stone Golem guards the stairs (every 5 floors in Endless). When it raises its fists, step out of the glowing ring. In Standard and Endless, beating it lets you choose one of 3 upgrades that last the whole run.</li>
       <li><b>Relics</b> are rare finds that join your collection forever. Pick one on this screen to start a run with it.</li>
-      <li><b>Challenges</b> unlock new classes, screen colors and a Nightmare difficulty. Press <b>C</b> on this screen to see them, and <b>G</b> any time for the guide.</li>
+      <li><b>Challenges</b> unlock new classes, screen colors and a Nightmare difficulty. Press <b>C</b> on this screen to see them and to change the text style or screen color, and <b>G</b> any time for the guide.</li>
       <li>The <b>Daily Run</b> gives everyone the same dungeon, class and settings for the day. You get one try. Copy your result to compare with friends.</li>
       <li>On the last floor the Amber Wyrm breathes fire in a line. When the floor glows <b>≈</b>, step out of it.</li>
       <li>Your run saves after every turn, but only in this browser. Use <b>Backup</b> on this screen to keep a copy of your progress or move it to another device. <b>Esc</b> returns to the menu. <b>B</b> toggles music and <b>M</b> mutes all sound.</li>
@@ -654,7 +657,7 @@ try { unlocks = JSON.parse(localStorage.getItem('amber-depths-unlocks') || '{}')
 
 /* ================= profile + challenges ================= */
 const PROF_KEY = 'amber-depths-profile';
-const PDEF = { kills: {}, totalKills: 0, potions: 0, traps: 0, secrets: 0, chests: 0, mimics: 0, golems: 0, wyrms: 0, floors: 0, gold: 0, runs: 0, dailies: 0, maxEndless: 0, seen: {}, won: {}, done: {}, crt: 'amber', relics: {}, maxDepth: 0, runes: {}, ascMax: 0, ascWon: {} };
+const PDEF = { kills: {}, totalKills: 0, potions: 0, traps: 0, secrets: 0, chests: 0, mimics: 0, golems: 0, wyrms: 0, floors: 0, gold: 0, runs: 0, dailies: 0, maxEndless: 0, seen: {}, won: {}, done: {}, crt: 'amber', relics: {}, maxDepth: 0, font: 'pixel', runes: {}, ascMax: 0, ascWon: {} };
 let PROF = (() => { let o = null; try { o = JSON.parse(localStorage.getItem(PROF_KEY) || 'null'); } catch (e) {} return Object.assign(JSON.parse(JSON.stringify(PDEF)), o || {}); })();
 for (const k in PDEF) if (typeof PROF[k] !== typeof PDEF[k] || (typeof PDEF[k] === 'object' && (!PROF[k] || Array.isArray(PROF[k])))) PROF[k] = JSON.parse(JSON.stringify(PDEF[k])); // damaged save data
 if (unlocks.necro && !PROF.done.c_necro) { PROF.done.c_necro = Date.now(); PROF.wyrms = Math.max(1, PROF.wyrms); }
@@ -701,6 +704,9 @@ const MASTERY = [['short', 'Bronze', 'Slay the Wyrm on Short'], ['standard', 'Si
 const isLocked = id => !!CLASSES[id].unlock && !PROF.done[CLASSES[id].unlock];
 const CRTS = { amber: { name: 'Amber', unlock: null }, heart: { name: 'Heartlight', unlock: 's_heart' }, green: { name: 'Green', unlock: 'c_green' }, ice: { name: 'Ice', unlock: 'c_ice' }, red: { name: 'Red alarm', unlock: 'c_red' }, white: { name: 'White', unlock: 'c_white' } };
 const crtOk = id => CRTS[id] && (!CRTS[id].unlock || PROF.done[CRTS[id].unlock]);
+// Text style: swaps the UI font. The map always stays on JetBrains Mono (it needs box-drawing glyphs).
+const FONTS = { pixel: { name: 'Pixel' }, clean: { name: 'Clean' }, readable: { name: 'Readable' } };
+function applyFont() { const f = FONTS[PROF.font] ? PROF.font : 'pixel'; if (f === 'pixel') delete document.documentElement.dataset.font; else document.documentElement.dataset.font = f; if (typeof fit === 'function' && S) fit(); }
 function applyCrt() { const c = crtOk(PROF.crt) ? PROF.crt : 'amber'; if (c === 'amber') delete document.documentElement.dataset.crt; else document.documentElement.dataset.crt = c; }
 let runNew = [];
 function complete(id) {
@@ -1230,6 +1236,7 @@ function openChal() {
     return `<div class="chal${done ? ' done' : ''}"><div class="top"><span class="nm">${esc(c.name)}</span><span class="rw">${esc(c.reward)}</span></div><div class="ds">${esc(c.desc)}</div>${bar}</div>`;
   };
   const grp = g => `<div class="chal-grp"><h3 class="sub">${g.toUpperCase()}</h3>${CH.filter(c => c.grp === g).map(item).join('')}</div>`;
+  const fontRow = `<div class="chal-grp"><h3 class="sub">TEXT STYLE</h3><div class="crtrow">${Object.entries(FONTS).map(([id, f]) => `<button data-font="${id}" aria-pressed="${(FONTS[PROF.font] ? PROF.font : 'pixel') === id}">${f.name}</button>`).join('')}</div><p class="gtxt" style="color:var(--dim);font-size:.72rem">Pixel is the old-school look. Clean is sharper, and Readable is built to be easy on the eyes. The map stays the same.</p></div>`;
   const crt = `<div class="chal-grp"><h3 class="sub">SCREEN COLOR</h3><div class="crtrow">${Object.entries(CRTS).map(([id, c]) => `<button data-crt="${id}" aria-pressed="${(crtOk(PROF.crt) ? PROF.crt : 'amber') === id}"${crtOk(id) ? '' : ' disabled'}>${crtOk(id) ? '' : '🔒 '}${c.name}</button>`).join('')}</div></div>`;
   const mast = `<div class="chal-grp"><h3 class="sub">CLASS MASTERY</h3><p class="gtxt" style="color:var(--dim);font-size:.72rem">Bronze: slay the Wyrm on Short. Silver: on Standard. Gold: on Hard or Nightmare. Gold unlocks that class's alternate ability, which you can pick on the title screen.</p>
     <div class="mast"><span class="h">CLASS</span><span class="h">BRONZE</span><span class="h">SILVER</span><span class="h">GOLD</span>${Object.entries(CLASSES).map(([id, c]) => { const w = PROF.won[id] || {}; return `<span>${esc(c.name)}</span>${['short', 'standard', 'hard'].map(k => `<span class="m ${w[k] ? 'on' : 'off'}">${w[k] ? '●' : '○'}</span>`).join('')}`; }).join('')}</div></div>`;
@@ -1240,7 +1247,8 @@ function openChal() {
     return item(c);
   }).join('')}</div>`;
   const ascTxt = `<p class="gtxt" style="color:var(--dim);font-size:.72rem">Slay the Wyrm on Nightmare to unlock Ascension 1. Each Ascension win unlocks the next level, up to 10. Highest unlocked: ${PROF.ascMax ? 'A' + PROF.ascMax : 'none yet'}.</p>`;
-  $('chalbody').innerHTML = crt + rel + grp('Unlocks') + grp('Hard challenges') + mast + `<div class="chal-grp"><h3 class="sub">ASCENSION</h3>${ascTxt}${CH.filter(c => c.grp === 'Ascension').map(item).join('')}</div>` + secretGrp + grp('Milestones');
+  $('chalbody').innerHTML = fontRow + crt + rel + grp('Unlocks') + grp('Hard challenges') + mast + `<div class="chal-grp"><h3 class="sub">ASCENSION</h3>${ascTxt}${CH.filter(c => c.grp === 'Ascension').map(item).join('')}</div>` + secretGrp + grp('Milestones');
+  document.querySelectorAll('[data-font]').forEach(b => b.onclick = () => { PROF.font = b.dataset.font; saveProf(); applyFont(); openChal(); SND.play('click'); });
   document.querySelectorAll('[data-crt]').forEach(b => b.onclick = () => { if (!crtOk(b.dataset.crt)) return; PROF.crt = b.dataset.crt; saveProf(); applyCrt(); openChal(); SND.play('click'); });
   $('chal').hidden = false;
   setTimeout(() => $('chalclose').focus(), 30);
@@ -3083,7 +3091,7 @@ bind('bakrestore', () => restoreBackup($('bakin').value)); bind('bakopen', () =>
 $('bakpick').addEventListener('change', async e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) restoreBackup(await f.text()); }); bind('tguide', openGuide); bind('guidebtn', () => { if (!busy) openGuide(); }); bind('guideclose', closeGuide);
 $('chal').addEventListener('click', e => { if (e.target === $('chal')) closeChal(); });
 $('guide').addEventListener('click', e => { if (e.target === $('guide')) closeGuide(); });
-applyCrt(); checkProgress();
+applyCrt(); applyFont(); checkProgress();
 $('hist').addEventListener('click', e => { if (e.target === $('hist')) closeHist(); }); bind('menu', toTitle); bind('cont', loadGame);
 bind('shopclose', closeShop); bind('menubtn', () => { if (!busy && !(S && (S.dead || S.won) && $('end').hidden)) toTitle(); }); // not during the death/win animation
 bind('sndbtn', () => { SND.toggle(); update(); });

@@ -1,6 +1,6 @@
 // Amber Depths service worker: works offline, and picks up new versions whenever you're online.
-const VERSION = 'amber-depths-v23';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './vt323.woff2', './jbm-400.woff2', './jbm-700.woff2',
+const VERSION = 'amber-depths-v25';
+const ASSETS = ['./', './index.html', './manifest.webmanifest', './vt323.woff2', './jbm-400.woff2', './jbm-700.woff2', './ahm-400.woff2', './ahm-700.woff2',
   './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

@@ -7,7 +7,7 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v23 (merged 5 Nov 2026, commit `529df11`): everything so far, now with the Mole and Endless
 gear past +7. Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** nothing.
+**On `staging`, not live yet:** v25, text style picker (Pixel, Clean, Readable).
 **Next up:** Sam plays deep Hard Endless and says how the curve and the upgrades feel (too strong, too weak, missing picks?).
 
 ## To do
@@ -22,7 +22,7 @@ gear past +7. Built from `src/` with `node src/build.mjs`.
 - More classes, a second wave of relics, cosmetic titles on the daily share text.
 - **Echo** (reveal everything within 8 tiles for a few turns) as an upgrade or scroll; spare from the Mole design.
 - Leaderboards (would need a backend).
-- **Endless boss floors, step 2 (Sam's plan, 5 Nov 2026):** every 10th floor a half-size dungeon with a roomy stair
+- **Endless boss floors, step 2 (Sam's plan, 5 Nov 2026; not built yet):** every 10th floor a half-size dungeon with a roomy stair
   area: the boss gets a small arena, then the upgrade pick. Different mini-bosses instead of always the Golem.
   Other ideas: a "new depth record" moment, deep-only monsters or elite abilities past floor 15-20.
 - **More upgrades for the pool** as they come up (e.g. thorns, faster ability recharge, potion strength).
@@ -38,10 +38,7 @@ gear past +7. Built from `src/` with `node src/build.mjs`.
   run in the Worker, same refactor as the bot project). Anti-abuse: Cloudflare rate limits + Turnstile on submits,
   generated or filtered names, prepared statements, size caps, long random sync codes stored hashed, admin key as a
   Worker secret (never in this public repo).
-- **Font options (Sam, 5 Nov 2026):** a "Text style" picker on the title next to the screen colours, saved in the
-  profile like `crt`. Presets swap the `--font-ui` / `--font-mono` variables: Pixel (VT323, default), Clean (JetBrains
-  Mono), Readable (Atkinson Hyperlegible Mono). Map fonts must have box-drawing glyphs. Fonts are local woff2 files
-  in `app/` (add to `ASSETS`), open licences only. Could be unlocks like the colours.
+- **More text styles as unlocks (optional):** extra novelty fonts earned from challenges, like the screen colours.
 - **Key rebinding screen:** choose your own keys (numpad is built in for now).
 - **Sprite pack option:** swap ASCII cells for tiles (e.g. Kenney's free 1-bit pack tinted amber). ~25-40% of a window.
   Sam may draw his own: 16×16 tiles (bosses 32×32), white/greyscale on transparent so the game can tint them for each
@@ -55,4 +52,5 @@ gear past +7. Built from `src/` with `node src/build.mjs`.
 
 ## What's new at the next merge
 
-- 
+- Text style picker on the Challenges screen (C): Pixel (the old-school look), Clean, or Readable (Atkinson
+  Hyperlegible Mono, easy on the eyes). The map stays the same.

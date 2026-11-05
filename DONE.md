@@ -7,6 +7,13 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v25: text style picker (on staging)
+- `FONTS` / `applyFont()`: `PROF.font` sets `data-font` on the page root, and CSS swaps `--font-ui` (Clean = JetBrains
+  Mono, Readable = Atkinson Hyperlegible Mono, local `app/ahm-400/700.woff2`, in `ASSETS`). The map always stays on
+  JetBrains Mono. Picker is on the Challenges screen next to Screen color; all three are free (readability shouldn't
+  be locked). `app/FONTS-LICENSE.txt` holds the OFL text for all three fonts. Headings stay pixel in every style.
+- Checked on a 375×812 screen: no overflow with any style, the setting is saved in the profile and backups.
+
 ### 2026-11-05 — v23 merged to `main` (commit 529df11)
 - Deploy passed; live index.html and sw.js match `main` (VERSION v23).
 
