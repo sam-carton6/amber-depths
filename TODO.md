@@ -5,10 +5,9 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v21 (merged 5 Nov 2026, commit `8b52381`): deadlier Endless, Golem upgrades, Rogue dodge,
-Backup button, Phoenix Feather and Pack Mule relics, Sell all junk, free equipping out of combat, numpad and
-arrow-cluster keys. Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** v22, the Mole class.
+**Live on `main`:** v22 (merged 5 Nov 2026, commit `ddaf2c3`): everything so far, now with the Mole class.
+Built from `src/` with `node src/build.mjs`.
+**On `staging`, not live yet:** nothing.
 **Next up:** Sam plays deep Hard Endless and says how the curve and the upgrades feel (too strong, too weak, missing picks?).
 
 ## To do
@@ -53,6 +52,4 @@ arrow-cluster keys. Built from `src/` with `node src/build.mjs`.
 
 ## What's new at the next merge
 
-- New class, the Mole (unlock: reach floor 15 in Endless). Sees only 3 tiles but feels every monster within 8 through
-  the walls. Dig tunnels through up to 3 wall tiles in a direction you choose. Alternate ability Cave-in hits every
-  enemy you can feel, even through walls.
+- 

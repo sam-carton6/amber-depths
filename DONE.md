@@ -7,6 +7,9 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v22 merged to `main` (commit ddaf2c3)
+- Deploy passed; live index.html and sw.js match `main` (VERSION v22).
+
 ### 2026-11-05 — v22: the Mole class (on staging)
 - `CLASSES.mole`: sight 3 (`descend()`; the A4 Darkness cut no longer raises short sight), Dig aims like Volley
   (`S.aiming`, `dig()`): up to `DIG_LEN` 3 wall tiles, never the outer wall, no cooldown if there's no wall.
