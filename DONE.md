@@ -7,6 +7,9 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v28 merged to `main` (commit de55c6e)
+- Deploy passed; live index.html, sw.js and the new font files match `main` (VERSION v28). Includes v25-v28.
+
 ### 2026-11-05 — v28: run stats panel (on staging)
 - `rs()` keeps per-run counters in `S.rs` (created lazily, so older saves work): damage dealt (in `hurtMon`, capped at
   the monster's HP, not counting allies via `allyDmg`), damage and hits taken (`damagePlayer`, `hurtSelf`), crits,

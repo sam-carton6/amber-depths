@@ -5,9 +5,9 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v23 (merged 5 Nov 2026, commit `529df11`): everything so far, now with the Mole and Endless
-gear past +7. Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** v28: text style picker, wall-colour fix, run stats panel.
+**Live on `main`:** v28 (merged 5 Nov 2026, commit `de55c6e`): everything so far, now with text styles, the
+wall-colour fix and the run stats panel. Built from `src/` with `node src/build.mjs`.
+**On `staging`, not live yet:** nothing.
 **Next up:** Sam plays deep Hard Endless and says how the curve and the upgrades feel (too strong, too weak, missing picks?).
 
 ## To do
@@ -52,8 +52,4 @@ gear past +7. Built from `src/` with `node src/build.mjs`.
 
 ## What's new at the next merge
 
-- Text style picker on the Challenges screen (C): Pixel (the old-school look), Clean, or Readable (Atkinson
-  Hyperlegible Mono, easy on the eyes). The map stays the same.
-- Fixed: walls next to an item (like #! or #[) no longer turn the item's colour.
-- A STATS panel on computer screens (turns, kills, damage dealt and taken, best and worst hit, crits, dodges, hits
-  taken, potions, gold found, upgrades), plus Dodge % under Equipped. On phones the same stats are in the Guide (G).
+- 
