@@ -28,6 +28,8 @@ numpad, Backup button, Phoenix Feather relic. Built from `src/` with `node src/b
 - **Endless loot that keeps mattering:** gear caps at +7 (Runeblade / Amberplate) by about floor 10 and bonuses are
   flat. Ideas: "+N" gear or tiers past the cap; bonuses that grow with depth; trade-off bonuses like "Reckless"
   (+50% damage dealt, +25% taken) so you can choose to be a glass cannon.
+- **Cross-device sync without moving (option):** a Worker on a free workers.dev address can store saves for the game
+  where it is now, with a short sync code, so no domain move and no lost progress. Mostly Sam playing for now.
 - **Cloudflare move (Sam, 5 Nov 2026):** own domain (~$11/yr) on Cloudflare, Worker + D1/KV for leaderboards and
   cross-device saves (a sync code instead of accounts), Ko-fi link (like Popsicle CAD's). Moving domains wipes localStorage, so players
   must Backup on the old address and restore on the new one. Ask Sam before creating anything in Cloudflare.
@@ -41,6 +43,9 @@ numpad, Backup button, Phoenix Feather relic. Built from `src/` with `node src/b
   Sam may draw his own: 16×16 tiles (bosses 32×32), white/greyscale on transparent so the game can tint them for each
   screen colour, one PNG sheet on a grid. Needs square map cells; on phones the 40×21 map would be ~9 px a tile, so
   add a camera that follows the player there (~20×11 tiles visible).
+  Unlock plan (Sam, 5 Nov 2026): ASCII stays the default; a greyscale pixel pack tinted by the screen colour you've
+  unlocked (so the existing colour challenges carry over); full-colour pixel art as its own medium-hard challenge.
+  Draw once in full colour: the game can make the greyscale version itself.
 - **Learning project (Sam):** write a smarter bot: rule-based first, then look-ahead search, then reinforcement learning
   (needs the game logic split out to run headless in Node).
 
