@@ -7,6 +7,11 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v26: walls no longer take an item's colour (on staging)
+- Cause: JetBrains Mono's code ligatures joined pairs like `#!`, `#?`, `#[`, `]#` into one glyph across the map's
+  spans and painted it in the item's colour. Fix: `font-variant-ligatures: none` plus `liga`/`calt` off on `#map`,
+  `.ascii` and `pre`. Shown side by side at 56px before the fix: the walls took the item colour; after: correct.
+
 ### 2026-11-05 — v25: text style picker (on staging)
 - `FONTS` / `applyFont()`: `PROF.font` sets `data-font` on the page root, and CSS swaps `--font-ui` (Clean = JetBrains
   Mono, Readable = Atkinson Hyperlegible Mono, local `app/ahm-400/700.woff2`, in `ASSETS`). The map always stays on

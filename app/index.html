@@ -217,6 +217,8 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 @keyframes flashred { from { box-shadow: inset 0 0 60px rgba(255,60,30,.55); } to { box-shadow: inset 0 0 50px rgba(0,0,0,.85); } }
 .mapwrap { position: relative; width: max-content; max-width: 100%; margin: 0 auto; }
 #map { margin: 0; font-family: var(--font-mono); line-height: 1.15; white-space: pre; text-shadow: 0 0 5px rgba(255,181,71,.25); color: var(--amber); }
+/* No ligatures on the map: JetBrains Mono joins pairs like #[ #! #? into one glyph, painting the wall in the item's color. */
+#map, .ascii, pre { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
 #fx { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
 .focus-hint { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 4; font-size: .72rem; background: rgba(11,8,5,.9); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; color: var(--amber); white-space: nowrap; }
 

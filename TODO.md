@@ -7,7 +7,7 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v23 (merged 5 Nov 2026, commit `529df11`): everything so far, now with the Mole and Endless
 gear past +7. Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** v25, text style picker (Pixel, Clean, Readable).
+**On `staging`, not live yet:** v26, text style picker (Pixel, Clean, Readable) and the wall-colour fix.
 **Next up:** Sam plays deep Hard Endless and says how the curve and the upgrades feel (too strong, too weak, missing picks?).
 
 ## To do
@@ -54,3 +54,4 @@ gear past +7. Built from `src/` with `node src/build.mjs`.
 
 - Text style picker on the Challenges screen (C): Pixel (the old-school look), Clean, or Readable (Atkinson
   Hyperlegible Mono, easy on the eyes). The map stays the same.
+- Fixed: walls next to an item (like #! or #[) no longer turn the item's colour.
