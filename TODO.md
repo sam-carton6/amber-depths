@@ -5,11 +5,10 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v13 (10 classes, relics, Ascension, the Hollow, all the tester's bugs fixed, pixel font, scanlines
-everywhere, CRT sweep, updates arrive at once), built from `src/` with `node src/build.mjs` (merged 28 Oct 2026,
-commit `905e9af`).
-**On `staging`, not live yet:** v17: Endless deadlier past floor 12, Golem upgrades (pick 1 of 3), Rogue dodge,
-numpad controls, longer Frost Nova (say "merge" to put it live).
+**Live on `main`:** v17 (merged 5 Nov 2026, commit `031a7c4`): everything up to Endless getting deadlier past
+floor 12, Golem upgrades (pick 1 of 3), Rogue dodge, numpad controls, longer Frost Nova. Built from `src/` with
+`node src/build.mjs`.
+**On `staging`, not live yet:** nothing.
 **Next up:** Sam plays deep Hard Endless and says how the curve and the upgrades feel (too strong, too weak, missing picks?).
 
 ## To do
@@ -38,10 +37,4 @@ numpad controls, longer Frost Nova (say "merge" to put it live).
 
 ## What's new at the next merge
 
-- Endless gets deadlier past floor 12: monsters hit about 4% harder every floor (it adds up fast) and drop fewer
-  potions. Deep runs now end in a real fight instead of you giving up.
-- Beat the Stone Golem in Endless (every 5 floors) or Standard (once) to pick 1 of 3 upgrades for the run: Might,
-  Vitality, Keen Eye, Evasion, Iron Skin, Regeneration, Bloodthirst or Reckless. Deeper golems give stronger ones.
-- The Rogue now dodges 10% of monster attacks and arrows.
-- Numpad controls: 8 4 5 6 move, 7 ability, 9 potion, . pack, 0 wait.
-- Frost Nova (Mage's alternate ability) freezes for 5 turns instead of 3 (bosses 2).
+- 

@@ -7,6 +7,9 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v17 merged to `main` (commit 031a7c4)
+- Deploy passed; live index.html and sw.js match `main` (VERSION v17). Includes v14-v17.
+
 ### 2026-11-05 — v17: numpad . and 0 swapped (. pack, 0 wait); Frost Nova freezes 5 turns, bosses 2 (on staging)
 - Checked: two enemies frozen by Nova stay frozen for 4 of your turns after the cast (was 2).
 
