@@ -121,7 +121,7 @@ window.__runGame = async (cls, mode, diff, maxTurns, relic, asc, alt) => {
     if (adj.length) { const m = adj.sort((a, b) => a.hp - b.hp)[0]; trail.push('attack ' + m.name); await T.act(m.x - S.px, m.y - S.py); continue; }
     // 7. move: items > enemies > stairs/golem > explore
     let mv = null;
-    const golem = S.stairsLocked && S.mons.find(m => m.golem);
+    const golem = S.stairsLocked && S.mons.find(m => m.golem || m.arena);
     mv = bfs((x, y) => { const e = T.itemAt(x, y); return e && S.seen[y][x] && (e.it.type !== 'gear' || T.gearScore(e.it) > T.gearScore(S[e.it.kind]) || S.pack.length < T.PACK - 2); });
     if (mv && mv[2] > 60) mv = null;
     if (!mv && hostiles.length) mv = bfs((x, y) => hostiles.some(m => m.x === x && m.y === y));

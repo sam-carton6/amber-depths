@@ -7,7 +7,7 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v31 (merged 5 Nov 2026, commit `51b1a6d`): everything so far, plus the version tag and Controls.
 Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** nothing.
+**On `staging`, not live yet:** v40: Endless boss floors (see *What's new*).
 **Next up:** Sam is on floor 24+ of Hard Endless (Rogue), says it's no longer a blitz; he reports his final depth
 and whether the menu fix and the new Controls work on his iPhone. Then the curve tuning, then boss floors step 2.
 
@@ -23,11 +23,10 @@ and whether the menu fix and the new Controls work on his iPhone. Then the curve
 - More classes, a second wave of relics, cosmetic titles on the daily share text.
 - **Echo** (reveal everything within 8 tiles for a few turns) as an upgrade or scroll; spare from the Mole design.
 - Leaderboards (would need a backend).
-- **Endless boss floors, step 2 (Sam's plan, 5 Nov 2026; not built yet):** Golems stay on every 5th floor (they already
-  are). Every 10th floor becomes a half-size dungeon with a boss arena and one of 3 bigger bosses with their own attacks
-  (Sam: a Cyclops, a mini dragon, one more). Bigger boss = better reward: pick 2 upgrades, or pick from 4, plus better
-  loot. Builds on new floors, so a run in progress gets it from its next 10th floor after a reload.
-  Other ideas: a "new depth record" moment, deep-only monsters or elite abilities past floor 15-20.
+- **More boss-floor bosses (Sam liked all of these, 5 Nov 2026):** a Brood Mother (webs and spiderlings) and a Shadow
+  (teleports around the arena) to join the Cyclops, Drake and Lich in the rotation (`ARENA_KINDS`).
+- Other deep-Endless ideas: a "new depth record" moment, deep-only monsters or elite abilities past floor 15-20,
+  a challenge for beating each boss (`PROF.bosses` already counts kills).
 - **Map/ASCII-art font options (Sam, 5 Nov 2026; probably not worth it):** the map needs a monospace font with
   box-drawing glyphs, or the grid breaks; only a few fit (e.g. IBM Plex Mono, Fira Mono). Small win, some risk.
 - **More upgrades for the pool** as they come up (e.g. thorns, faster ability recharge, potion strength).
@@ -66,4 +65,9 @@ and whether the menu fix and the new Controls work on his iPhone. Then the curve
 
 ## What's new at the next merge
 
-- 
+- **Endless boss floors:** every 10th floor is a short dungeon (left) and a lit arena with pillars (right) where a
+  boss holds the stairs, in turn: Cyclops (slow; stomp within 2 tiles and boulders, both 2 turns' warning), Drake
+  (fast; thin line of fire with 1 turn's warning, sets you alight, leaps back), Lich (bolts, brittle skeletons, blinks
+  away after each quarter of its HP; 80% HP). Beating it: 2 upgrade picks in a row, gear with +2 extra, double Golem
+  gold, 75% relic chance. Golems now on floors 5, 15, 25... Tested with bot runs and a scripted rush at floors 10-50:
+  Cyclops and Drake beaten every time with fair stats; the Lich is the hardest (2 of 3 at strong stats, no potions).

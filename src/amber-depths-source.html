@@ -421,7 +421,8 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
       <li>Watch your step. Hidden traps <b>^</b> spike, poison, burn or set off alarms. Rogues spot them far more often.</li>
       <li>Cracked walls <b>▒</b> hide secret rooms. Walk into one to break it. Chests <b>=</b> hold loot, though some bite back.</li>
       <li>Poison and burning hurt every turn, and frost slows you. Potions cure poison and burns. Water puts out flames.</li>
-      <li>Partway down, a Stone Golem guards the stairs (every 5 floors in Endless). When it raises its fists, step out of the glowing ring. In Standard and Endless, beating it lets you choose one of 3 upgrades that last the whole run.</li>
+      <li>Partway down, a Stone Golem guards the stairs (floors 5, 15, 25… in Endless). When it raises its fists, step out of the glowing ring. In Standard and Endless, beating it lets you choose one of 3 upgrades that last the whole run.</li>
+      <li>In Endless, every 10th floor is a <b>boss floor</b>: a short dungeon, then an arena where a Cyclops, a Drake or a Lich holds the stairs. Watch for the glowing tiles and get clear. Beating it gives better loot and <b>2</b> upgrade picks. Monsters get deadlier past floor 12.</li>
       <li><b>Relics</b> are rare finds that join your collection forever. Pick one on this screen to start a run with it.</li>
       <li><b>Challenges</b> unlock new classes, screen colors and a Nightmare difficulty. Press <b>C</b> on this screen to see them and to change the text style or screen color, and <b>G</b> any time for the guide.</li>
       <li>The <b>Daily Run</b> gives everyone the same dungeon, class and settings for the day. You get one try. Copy your result to compare with friends.</li>
@@ -507,7 +508,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
 <div class="modal" id="boon" hidden>
   <div class="sheet" role="dialog" aria-label="Choose an upgrade">
     <header><h2>Choose an upgrade</h2><span class="cnt" id="boonfloor"></span></header>
-    <p class="greet">The golem's core still glows. Take one power with you. It lasts the whole run, and deeper golems give stronger ones.</p>
+    <p class="greet" id="boongreet"></p>
     <ol class="plist" id="blist"></ol>
     <div id="bhave"></div>
     <p class="hint">Pick one to take it. <span class="k">1–3</span></p>
@@ -670,19 +671,22 @@ const MON_NOTES = {
   orc: 'Hits hard. Don\'t trade blows at low HP.', wraith: 'Undead. Erratic and vicious.', troll: 'Regenerates 1 HP every turn. Burst it down.',
   'cave spider': 'Its bite can poison you.', 'fire imp': 'Can set you on fire. Water puts it out.', 'frost wisp': 'Can slow you, giving monsters extra moves.',
   ghoul: 'Undead. Tough, and its claws poison.', mimic: 'Pretends to be a chest. About 1 in 4 chests is one.',
-  'Stone Golem': 'Guards the stairs partway down, and every 5 floors in Endless. Step out of its glowing ring when it raises its fists. Beat it in Standard or Endless to choose an upgrade.',
+  'Stone Golem': 'Guards the stairs partway down, and on floors 5, 15, 25… in Endless. Step out of its glowing ring when it raises its fists. Beat it in Standard or Endless to choose an upgrade.',
+  Cyclops: 'Endless boss floors. Slow, with heavy fists. Its stomp hits everything within 2 tiles and its boulders land where you stand: both give you 2 turns to get clear.',
+  Drake: 'Endless boss floors. Quick. Breathes a long, thin line of fire that sets you alight: step sideways or put a pillar between you. Leaps back if you crowd it.',
+  Lich: 'Endless boss floors. Shoots bolts from afar, raises brittle skeletons, and blinks across the room each time it loses a quarter of its HP. Rush it: its skeletons fall when it does.',
   'Amber Wyrm': 'Breathes fire down a line, and calls in minions at half HP. Leave the glowing line.',
   'amber shard': 'Splinters of the Heart. Erratic, and they burn.',
   'Amber Heart': 'The thing the Wyrm was guarding. It never moves. Watch the light it gathers and stand clear.',
 };
-const BESTIARY = ['rat', 'bat', 'goblin', 'kobold archer', 'cave spider', 'fire imp', 'skeleton', 'frost wisp', 'orc', 'ghoul', 'wraith', 'troll', 'mimic', 'Stone Golem', 'Amber Wyrm', 'amber shard', 'Amber Heart'];
-const BEST_CH = { rat: 'r', bat: 'b', goblin: 'g', 'kobold archer': 'k', 'cave spider': 'x', 'fire imp': 'i', skeleton: 's', 'frost wisp': 'f', orc: 'o', ghoul: 'z', wraith: 'w', troll: 'T', mimic: 'M', 'Stone Golem': 'G', 'Amber Wyrm': 'D', 'amber shard': 'a', 'Amber Heart': 'Ø' };
+const BESTIARY = ['rat', 'bat', 'goblin', 'kobold archer', 'cave spider', 'fire imp', 'skeleton', 'frost wisp', 'orc', 'ghoul', 'wraith', 'troll', 'mimic', 'Stone Golem', 'Cyclops', 'Drake', 'Lich', 'Amber Wyrm', 'amber shard', 'Amber Heart'];
+const BEST_CH = { rat: 'r', bat: 'b', goblin: 'g', 'kobold archer': 'k', 'cave spider': 'x', 'fire imp': 'i', skeleton: 's', 'frost wisp': 'f', orc: 'o', ghoul: 'z', wraith: 'w', troll: 'T', mimic: 'M', 'Stone Golem': 'G', Cyclops: 'C', Drake: 'd', Lich: 'L', 'Amber Wyrm': 'D', 'amber shard': 'a', 'Amber Heart': 'Ø' };
 let unlocks = {};
 try { unlocks = JSON.parse(localStorage.getItem('amber-depths-unlocks') || '{}') || {}; } catch (e) { unlocks = {}; }
 
 /* ================= profile + challenges ================= */
 const PROF_KEY = 'amber-depths-profile';
-const PDEF = { kills: {}, totalKills: 0, potions: 0, traps: 0, secrets: 0, chests: 0, mimics: 0, golems: 0, wyrms: 0, floors: 0, gold: 0, runs: 0, dailies: 0, maxEndless: 0, seen: {}, won: {}, done: {}, crt: 'amber', relics: {}, maxDepth: 0, font: 'pixel', ctl: 'pad', statsOpen: false, runes: {}, ascMax: 0, ascWon: {} };
+const PDEF = { kills: {}, totalKills: 0, potions: 0, traps: 0, secrets: 0, chests: 0, mimics: 0, golems: 0, wyrms: 0, floors: 0, gold: 0, runs: 0, dailies: 0, maxEndless: 0, seen: {}, won: {}, done: {}, crt: 'amber', relics: {}, maxDepth: 0, bosses: 0, font: 'pixel', ctl: 'pad', statsOpen: false, runes: {}, ascMax: 0, ascWon: {} };
 let PROF = (() => { let o = null; try { o = JSON.parse(localStorage.getItem(PROF_KEY) || 'null'); } catch (e) {} return Object.assign(JSON.parse(JSON.stringify(PDEF)), o || {}); })();
 for (const k in PDEF) if (typeof PROF[k] !== typeof PDEF[k] || (typeof PDEF[k] === 'object' && (!PROF[k] || Array.isArray(PROF[k])))) PROF[k] = JSON.parse(JSON.stringify(PDEF[k])); // damaged save data
 if (unlocks.necro && !PROF.done.c_necro) { PROF.done.c_necro = Date.now(); PROF.wyrms = Math.max(1, PROF.wyrms); }
@@ -766,7 +770,7 @@ const DIFFS = {
 const MODES = {
   short:    { name: 'Short', floors: 5, scale: 2, xpMul: 1.8, bossHp: 70, bossAtk: [4, 8], breath: [8, 11], st: '5 floors · ~10 min' },
   standard: { name: 'Standard', floors: 10, scale: 1, xpMul: 1, bossHp: 115, bossAtk: [5, 9], breath: [11, 15], st: '10 floors · ~25 min' },
-  endless:  { name: 'Endless', floors: Infinity, scale: 1, xpMul: 1, st: 'No bottom · deadlier past floor 12' },
+  endless:  { name: 'Endless', floors: Infinity, scale: 1, xpMul: 1, st: 'No bottom · a boss every 10 floors' },
 };
 const MONS = [
   { ch: 'r', name: 'rat',           hp: 4,  atk: [1, 2], xp: 1,  tier: 1 },
@@ -1368,8 +1372,8 @@ function stats() {
     max: S.baseMax + modVal(a, 'vigor'),
   };
 }
-/* Upgrades ("boons"): beating a Golem in Endless (every 5 floors) or Standard (once) offers 3; you keep 1 for the
-   whole run. Values grow with depth. Kept in S.bn; S.boonOffer holds an unanswered offer so it survives a reload. */
+/* Upgrades ("boons"): beating a Golem in Endless (floors 5, 15, 25...) or Standard (once) offers 3; you keep 1 for the
+   whole run. A boss floor (every 10th in Endless) gives 2 picks, one offer after the other (S.boonPicks). Values grow with depth. Kept in S.bn; S.boonOffer holds an unanswered offer so it survives a reload. */
 const DODGE_MAX = .5;
 const B = k => (S && S.bn && S.bn[k]) || 0;
 const bump = (k, v) => { S.bn = S.bn || {}; S.bn[k] = +((S.bn[k] || 0) + v).toFixed(2); };
@@ -1384,14 +1388,17 @@ const BOONS = {
   thirst:   { name: 'Bloodthirst', desc: t => `Heal ${t} HP for every kill`, take: t => bump('vamp', t) },
   reckless: { name: 'Reckless', desc: () => '+40% attack, but you take 20% more damage', take: () => bump('reckless', 1) },
 };
-function offerBoons() {
-  const ids = Object.keys(BOONS).filter(k => k !== 'evasion' || stats().dodge < DODGE_MAX);
+function offerBoons(skip) {
+  const ids = Object.keys(BOONS).filter(k => k !== skip && (k !== 'evasion' || stats().dodge < DODGE_MAX));
   S.boonOffer = []; S.boonT = boonTier();
   while (S.boonOffer.length < 3 && ids.length) S.boonOffer.push(ids.splice(Math.floor(Math.random() * ids.length), 1)[0]);
   showBoons();
 }
 function showBoons() {
-  $('boonfloor').textContent = 'Floor ' + S.depth;
+  $('boonfloor').textContent = 'Floor ' + S.depth + (S.boonPicks ? ` · pick ${3 - S.boonPicks} of 2` : '');
+  $('boongreet').textContent = S.boonPicks === 2 ? `The ${S.boonFrom || 'boss'} falls, and its power is yours. Choose 2 upgrades, one at a time. They last the whole run.`
+    : S.boonPicks === 1 ? 'Choose one more upgrade.'
+    : "The golem's core still glows. Take one power with you. It lasts the whole run, and deeper golems give stronger ones.";
   $('blist').innerHTML = S.boonOffer.map((id, i) => `<li><button class="use" data-boon="${i}"><span class="num k">${i + 1}</span><span class="gl ig">✦</span><span class="nm">${esc(BOONS[id].name)}</span><span class="ds">${esc(BOONS[id].desc(S.boonT))}</span></button></li>`).join('');
   const have = boonList();
   $('bhave').innerHTML = have ? `<p class="gtxt" style="color:var(--dim);font-size:.75rem">So far: ${esc(have)}</p>` : '';
@@ -1406,6 +1413,8 @@ function takeBoon(i) {
   (S.boons = S.boons || []).push(id);
   S.boonOffer = null; $('boon').hidden = true;
   say(`${BOONS[id].name}: ${BOONS[id].desc(S.boonT)}.`, 'lvl'); SND.play('equip');
+  if (S.boonPicks > 1) { S.boonPicks--; offerBoons(id); saveGame(); update(); return; }
+  S.boonPicks = 0;
   saveGame(); update(); focusGame();
 }
 const boonList = () => { const n = {}; for (const id of (S.boons || [])) n[id] = (n[id] || 0) + 1; return Object.entries(n).map(([id, c]) => BOONS[id].name + (c > 1 ? ' ×' + c : '')).join(', '); };
@@ -1524,14 +1533,14 @@ function newGame(opts) {
 
 function descend() {
   S.depth++;
-  S.danger = new Set(); S.fx = new Map(); S.shop = null; S.traps = []; S.secret = new Set(); S.stairsLocked = false;
+  S.danger = new Set(); S.fx = new Map(); S.shop = null; S.traps = []; S.secret = new Set(); S.stairsLocked = false; S.arena = null;
   const prevTheme = S.theme;
   const isHollow = !!S.hollowOpen && S.depth === S.M.floors + 1;
   S.theme = isHollow ? 'hollow' : themeFor(S.depth);
   const isBoss = S.depth === S.M.floors;
   const allies = S.mons.filter(m => m.ally);
   RNG = S.daily ? seeded(hashStr(S.daily) + S.depth * 7919) : Math.random;
-  try { if (isHollow) genHollow(); else if (isBoss) genBoss(); else genFloor(); } finally { RNG = Math.random; }
+  try { if (isHollow) genHollow(); else if (isBoss) genBoss(); else if (isArenaFloor()) genArena(); else genFloor(); } finally { RNG = Math.random; }
   if (S.cls === 'ranger' && !isBoss) S.fovR = 9; // before Darkness, so A4 dims the Ranger too
   if (S.cls === 'mole' && !isBoss) S.fovR = 3;
   if (S.asc >= 4 && !isBoss && !isHollow) S.fovR = Math.max(Math.min(4, S.fovR), S.fovR - 2); // never raises a short sight
@@ -1557,7 +1566,7 @@ function descend() {
   PROF.maxDepth = Math.max(PROF.maxDepth || 0, S.depth);
   if (S.depth >= 5 && !S.potionsDrunk) complete('c_berserker');
   if (S.depth >= 3 && !S.kills) complete('h_pacifist');
-  if (S.stairsLocked) say('Heavy footsteps shake the floor. Something guards the way down.', 'bad');
+  if (S.stairsLocked) say(S.arena ? `A boss floor. A great chamber lies to the east, and something huge waits in it.` : 'Heavy footsteps shake the floor. Something guards the way down.', 'bad');
   if (S.shop) say('You hear a merchant humming somewhere on this floor.', 'gold');
 }
 
@@ -1566,6 +1575,187 @@ function themeFor(d) {
   const T = ['amber', 'flooded', 'crypt'];
   if (S.M.floors === Infinity) return T[Math.floor((d - 1) / 3) % 3];
   return T[Math.min(2, Math.floor((d - 1) / (S.M.floors - 1) * 3))];
+}
+/* Endless boss floors: every 10th floor is a short dungeon on the left and an arena on the right, where a Cyclops,
+   a Drake or a Lich (in turn) holds the stairs. Beating it gives better loot and 2 upgrade picks. */
+const ARENA_KINDS = ['cyclops', 'drake', 'lich'];
+const ARENA_X = 22; // the arena runs from here to the right wall
+const isArenaFloor = () => S.mode === 'endless' && S.depth % 10 === 0;
+const ARENA_BOSS = {
+  cyclops: { ch: 'C', name: 'Cyclops', atk: [5, 9], intro: 'A Cyclops rises from its pile of bones, one huge eye fixed on you.', down: 'The Cyclops topples like a felled tree. The runes on the stairs go dark.' },
+  drake:   { ch: 'd', name: 'Drake', atk: [3, 6], intro: 'A Drake uncoils from the rafters, embers dripping from its jaws.', down: 'The Drake crashes down in a shower of sparks. The runes on the stairs go dark.' },
+  lich:    { ch: 'L', name: 'Lich', atk: [3, 5], intro: 'A Lich turns toward you. Its bones rattle with laughter.', down: 'The Lich comes apart in a cloud of grave dust. Its servants fall with it.' },
+};
+function genArena() {
+  let map, rooms;
+  do {
+    map = blank(); rooms = [];
+    for (let t = 0; t < 300 && rooms.length < 5; t++) {
+      const w = rnd(4, 7), h = rnd(3, 5), x = rnd(1, ARENA_X - w - 3), y = rnd(1, H - h - 1);
+      if (rooms.some(r => x < r.x + r.w + 1 && x + w + 1 > r.x && y < r.y + r.h + 1 && y + h + 1 > r.y)) continue;
+      rooms.push({ x, y, w, h, cx: x + (w >> 1), cy: y + (h >> 1) });
+      for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) map[j][i] = '.';
+    }
+  } while (rooms.length < 3);
+  rooms.sort((a, b) => a.cx - b.cx);
+  const ar = { x0: ARENA_X, y0: 3, x1: W - 3, y1: H - 4 };
+  ar.cx = (ar.x0 + ar.x1) >> 1; ar.cy = (ar.y0 + ar.y1) >> 1;
+  for (let y = ar.y0; y <= ar.y1; y++) for (let x = ar.x0; x <= ar.x1; x++) map[y][x] = '.';
+  for (const [px, py] of [[ar.x0 + 4, ar.y0 + 3], [ar.x0 + 4, ar.y1 - 3], [ar.x1 - 4, ar.y0 + 3], [ar.x1 - 4, ar.y1 - 3]]) map[py][px] = '#'; // cover
+  const dig = (a, b) => {
+    let x = a.cx, y = a.cy;
+    const sx = () => { while (x !== b.cx) { map[y][x] = '.'; x += Math.sign(b.cx - x); } };
+    const sy = () => { while (y !== b.cy) { map[y][x] = '.'; y += Math.sign(b.cy - y); } };
+    if (RNG() < .5) { sx(); sy(); } else { sy(); sx(); }
+    map[y][x] = '.';
+  };
+  for (let k = 1; k < rooms.length; k++) dig(rooms[k - 1], rooms[k]);
+  dig(rooms[rooms.length - 1], { cx: ar.x0, cy: ar.cy });
+  S.map = map; S.fovR = 7; S.arena = ar;
+  S.seen = Array.from({ length: H }, () => Array(W).fill(false));
+  for (let y = ar.y0 - 1; y <= ar.y1 + 1; y++) for (let x = ar.x0 - 1; x <= ar.x1 + 1; x++) S.seen[y][x] = true; // the arena is lit
+  S.torches = new Set();
+  for (const r of rooms) if (RNG() < .6) { const tx = rnd(r.x, r.x + r.w - 1); if (r.y > 1 && map[r.y - 1][tx] === '#') S.torches.add(key(tx, r.y - 1)); }
+  for (let x = ar.x0 + 1; x < ar.x1; x += 4) { S.torches.add(key(x, ar.y0 - 1)); S.torches.add(key(x, ar.y1 + 1)); }
+  S.px = rooms[0].cx; S.py = rooms[0].cy;
+  S.stairs = true; S.sx = ar.x1 - 1; S.sy = ar.cy;
+  const drop = stock(rooms, .5);
+  if (isShopFloor()) placeShop(rooms);
+  decorate(rooms);
+  placeTraps(rooms);
+  S.traps = S.traps.filter(t => t.x < ar.x0 - 1); // no traps in the arena
+  S.items = S.items.filter(e => e.x < ar.x0 - 1);
+  drop(potion());
+  placeArenaBoss(ar.cx + 3, ar.cy);
+}
+function placeArenaBoss(x, y) {
+  const e = eff(), k = DEEP_DMG ** deep(), kind = ARENA_KINDS[(S.depth / 10 - 1) % ARENA_KINDS.length], t = ARENA_BOSS[kind];
+  const hp = Math.round((60 + e * 9) * S.D.hp * (S.D.bossHp || 1) * (kind === 'lich' ? .8 : 1)); // the Lich spends turns blinking away
+  S.mons = S.mons.filter(m => m.x < S.arena.x0 - 1);
+  S.mons.push({ ch: t.ch, name: t.name, kind, arena: true, boss: true, hp, maxhp: hp, atk: [Math.round(t.atk[0] * k), Math.round(t.atk[1] * k)], bonus: Math.round(Math.floor(e / 3) * k), x, y, timer: 0, awake: false, flash: 0, xp: 40 + e * 3 });
+  S.stairsLocked = true;
+}
+const cheb = (a, x, y) => Math.max(Math.abs(a.x - x), Math.abs(a.y - y));
+const manh = (a, x, y) => Math.abs(a.x - x) + Math.abs(a.y - y);
+function stepAway(m) {
+  const opts = DIRS4.map(([dx, dy]) => [m.x + dx, m.y + dy]).filter(([x, y]) => free(x, y) && !S.danger.has(key(x, y)))
+    .sort((p, q) => (Math.abs(q[0] - S.px) + Math.abs(q[1] - S.py)) - (Math.abs(p[0] - S.px) + Math.abs(p[1] - S.py)));
+  if (opts.length && manh({ x: opts[0][0], y: opts[0][1] }, S.px, S.py) > manh(m, S.px, S.py)) { m.x = opts[0][0]; m.y = opts[0][1]; monStep(m); return true; }
+  return false;
+}
+// Telegraphed attacks: the boss marks S.danger, waits b.charge turns, then everything still on a marked tile is hit.
+function arenaCharge(b, turns, cells, strike, msg, warn) {
+  b.charge = turns; b.timer = 0; b.strike = strike; b.strikeMsg = msg;
+  S.danger = new Set(cells.filter(([x, y]) => floor(x, y)).map(([x, y]) => key(x, y)));
+  say(warn, 'bad'); SND.play('rumble');
+}
+async function arenaStrike(b) {
+  const fire = b.kind === 'drake', cells = [...S.danger].map(k => k.split(',').map(Number));
+  SND.play(fire ? 'fire' : 'slam');
+  for (let f = 0; f < (reduce ? 1 : 3); f++) {
+    for (const [x, y] of cells) setFx(x, y, pick(fire ? ['▓', '▒', '░', '█'] : ['▓', '▒', '#']), fire ? 'fire' + rnd(0, 2) : 'slam', 150);
+    render(); if (!reduce) await sleep(70);
+  }
+  shake(!fire);
+  const hit = S.danger.has(key(S.px, S.py));
+  S.danger = new Set();
+  if (!hit) { say(fire ? 'Fire roars past you.' : 'The ground shakes, but you are clear.', 'hl'); return; }
+  const dmg = Math.max(3, Math.round((rnd(b.strike[0], b.strike[1]) + Math.floor(eff() / 2)) * S.D.dmg * DEEP_DMG ** deep()) - Math.floor(stats().def / 2));
+  damagePlayer(dmg, b.strikeMsg.replace('#', dmg), 'the ' + b.name);
+  if (fire && S.hp > 0) applyStatus('burn', 3);
+}
+const brittle = m => ({ ...m, hp: Math.ceil(m.maxhp / 2), maxhp: Math.ceil(m.maxhp / 2), atk: m.atk.map(v => Math.max(1, Math.round(v * .6))), bonus: Math.round(m.bonus * .5), xp: 1, awake: true, minion: true });
+const ARENA_AI = {
+  // Slow and heavy. Stomp (everything within 2 tiles) up close, boulders at range; both give 2 turns to get clear.
+  async cyclops(b, d) {
+    const c = cheb(b, S.px, S.py);
+    if (b.timer >= 4 && c <= 2) {
+      const cells = []; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (dx || dy) cells.push([b.x + dx, b.y + dy]);
+      return arenaCharge(b, 2, cells, [8, 13], "The Cyclops's stomp crushes you for #!", 'The Cyclops lifts a huge foot. Get two steps away!');
+    }
+    if (b.timer >= 4 && c >= 3 && c <= 10 && clear(b.x, b.y, S.px, S.py)) {
+      const cells = []; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) cells.push([S.px + dx, S.py + dy]);
+      return arenaCharge(b, 2, cells, [6, 10], 'A boulder smashes into you for #!', 'The Cyclops hefts a boulder at you. Move!');
+    }
+    if (manh(b, S.px, S.py) === 1) { monHit(b); return; }
+    if (b.timer % 2 === 0) stepToward(b, d);
+  },
+  // Fast. Breathes a long, thin line of fire (step sideways or hide behind a pillar); leaps back if you crowd it.
+  async drake(b, d) {
+    const c = cheb(b, S.px, S.py);
+    if (b.timer >= 3 && c >= 2 && c <= 12 && clear(b.x, b.y, S.px, S.py)) {
+      const tx = b.x + Math.round((S.px - b.x) * 14 / c), ty = b.y + Math.round((S.py - b.y) * 14 / c), cells = [];
+      for (const [x, y] of line(b.x, b.y, tx, ty).slice(1)) { if (!floor(x, y)) break; cells.push([x, y]); }
+      return arenaCharge(b, 1, cells, [6, 10], "The Drake's fire burns you for #!", 'The Drake rears back, throat glowing. Step out of the line!');
+    }
+    if (manh(b, S.px, S.py) === 1) {
+      if (b.timer >= 2 && Math.random() < .35) { stepAway(b); stepAway(b); b.timer = 3; say('The Drake beats its wings and leaps back.', 'hl'); return; }
+      monHit(b); return;
+    }
+    stepToward(b, d);
+  },
+  // Its raised skeletons are brittle: half HP, weaker hits, almost no XP (so they can't be farmed).
+  // Keeps away and shoots bolts, raises skeletons, and blinks across the room when hurt up close. Rush it.
+  async lich(b, d) {
+    const c = cheb(b, S.px, S.py), ar = S.arena;
+    // It blinks away only after losing each quarter of its HP, so a rush always lands some hits.
+    if (c <= 1 && ar && b.hp <= (b.blinkAt || b.maxhp * .75)) {
+      const spots = [];
+      for (let y = ar.y0; y <= ar.y1; y++) for (let x = ar.x0; x <= ar.x1; x++) if (free(x, y) && manh({ x, y }, S.px, S.py) >= 7) spots.push([x, y]);
+      if (spots.length) {
+        setFx(b.x, b.y, '░', 'puff', 400); [b.x, b.y] = pick(spots); setFx(b.x, b.y, '*', 'raise', 400);
+        b.blinkAt = b.hp - b.maxhp * .25; SND.play('teleport'); say('The Lich folds into shadow and appears across the room.', 'hl'); return;
+      }
+    }
+    if (b.timer >= 6 && S.mons.filter(m => m.minion).length < 3) {
+      b.timer = 0; let n = 0;
+      const skel = MONS.find(t => t.name === 'skeleton');
+      for (const [dx, dy] of DIRS8) { if (n >= 2) break; const x = b.x + dx, y = b.y + dy; if (free(x, y)) { S.mons.push(brittle(makeMon(skel, x, y))); setFx(x, y, '*', 'raise', 350); n++; } }
+      if (n) { SND.play('raise'); say('The Lich raises its staff. Bones claw out of the floor.', 'bad'); return; }
+    }
+    if (c >= 2 && c <= 8 && clear(b.x, b.y, S.px, S.py) && Math.random() < .6) {
+      SND.play('bolt');
+      await fly(line(b.x, b.y, S.px, S.py).slice(1, -1), '*', 'bolt', 24);
+      const dmg = Math.max(1, Math.round((rnd(b.atk[0], b.atk[1]) + b.bonus) * S.D.dmg) - stats().def);
+      if (!dodged(b)) damagePlayer(dmg, `The Lich's bolt hits you for ${dmg}.`, 'the Lich');
+      return;
+    }
+    if (manh(b, S.px, S.py) === 1) { monHit(b); return; }
+    if (c < 4) { if (!stepAway(b)) stepToward(b, d); } else if (c > 6) stepToward(b, d);
+  },
+};
+async function arenaTurn(b, d) {
+  if (!b.awake) {
+    if (S.vis[b.y][b.x] && !S.invis) {
+      b.awake = true;
+      if (!b.met) { b.met = true; say(ARENA_BOSS[b.kind].intro, 'bad'); SND.play('roar'); shake(); }
+    }
+    return;
+  }
+  if (b.charge > 0) { if (--b.charge > 0) { say(b.kind === 'cyclops' ? 'The Cyclops winds up...' : 'It gathers itself...', 'bad'); return; } await arenaStrike(b); return; }
+  if (S.invis) return;
+  b.timer++;
+  await ARENA_AI[b.kind](b, d);
+}
+function arenaDown(m) {
+  S.stairsLocked = false; S.danger = new Set();
+  for (const o of S.mons.filter(o => o.minion)) setFx(o.x, o.y, '%', 'crack', 400);
+  S.mons = S.mons.filter(o => !o.minion);
+  for (let r = 1; r <= 3; r++) for (const [dx, dy] of DIRS8) setFx(m.x + dx * r, m.y + dy * r, pick(['.', ':', '*']), 'crack', 250 + r * 120);
+  shake(true); SND.play('crumble'); SND.play('level');
+  say(ARENA_BOSS[m.kind].down, 'good');
+  PROF.bosses = (PROF.bosses || 0) + 1;
+  gainXp(m.xp);
+  const kind = Math.random() < .5 ? 'weapon' : 'armor';
+  const loot = gear(kind, Math.floor(eff() / 2) + 4, pick(kind === 'weapon' ? ['keen', 'vampiric'] : ['vigor', 'thorns']));
+  loot.plus = (loot.plus || 0) + 2; loot.val += 2; // boss loot beats a Golem's at the same depth
+  S.items = S.items.filter(e => !(e.x === m.x && e.y === m.y));
+  S.items.push({ x: m.x, y: m.y, it: loot });
+  const g = Math.round(rnd(40, 60) * eff() * S.D.gold);
+  S.gold += g; PROF.gold += g; rs().gold += g; floatText(m.x, m.y, '+' + g, 'gold');
+  say(`It leaves behind ${g} gold and a ${itemName(loot)}.`, 'gold');
+  findRelic(m.x, m.y, .75);
+  S.boonPicks = 2; S.boonFrom = m.name; offerBoons();
 }
 function isMidBossFloor() {
   const F = S.M.floors, d = S.depth;
@@ -1608,6 +1798,18 @@ function genFloor() {
   S.px = start.cx; S.py = start.cy;
   const far = rooms.slice(1).reduce((a, r) => (Math.abs(r.cx - S.px) + Math.abs(r.cy - S.py) > Math.abs(a.cx - S.px) + Math.abs(a.cy - S.py) ? r : a), rooms[1]);
   S.stairs = true; S.sx = far.cx; S.sy = far.cy;
+  const drop = stock(rooms, 1);
+  if (isShopFloor()) placeShop(rooms);
+  decorate(rooms);
+  if (RNG() < .3) drop({ type: 'chest', ch: '=', mimic: RNG() < .3 });
+  if (RNG() < .6) placeSecret();
+  placeTraps(rooms);
+  if (isMidBossFloor()) placeGolem();
+}
+
+// Monsters, gold, potions, a scroll and gear in a floor's rooms (never the first one). scale shrinks the monster count.
+// Returns drop(item), which puts an item in a free spot.
+function stock(rooms, scale) {
   S.mons = []; S.items = [];
   const spot = () => {
     for (let t = 0; t < 60; t++) {
@@ -1624,7 +1826,7 @@ function genFloor() {
   if (!pool.length) pool = MONS.filter(okTheme).slice(-4);
   const fav = { crypt: ['skeleton', 'wraith', 'ghoul'], flooded: ['frost wisp', 'cave spider'], amber: ['fire imp'] }[S.theme] || [];
   pool = pool.concat(pool.filter(t => fav.includes(t.name)));
-  const n = clamp(Math.round((4 + Math.floor(e * .9)) * S.D.count), 3, 19);
+  const n = clamp(Math.round((4 + Math.floor(e * .9)) * S.D.count * scale), 3, scale < 1 ? 10 : 19);
   for (let i = 0; i < n; i++) {
     const p = spot(); if (!p) continue;
     const t = pool[Math.max(rnd(0, pool.length - 1), rnd(0, pool.length - 1))];
@@ -1635,12 +1837,7 @@ function genFloor() {
   for (let i = rnd(S.D.floorPots[0], S.D.floorPots[1]); i > 0; i--) drop(potion());
   if (RNG() < .55) drop(scroll());
   drop(rollGear()); if (RNG() < .4) drop(rollGear());
-  if (isShopFloor()) placeShop(rooms);
-  decorate(rooms);
-  if (RNG() < .3) drop({ type: 'chest', ch: '=', mimic: RNG() < .3 });
-  if (RNG() < .6) placeSecret();
-  placeTraps(rooms);
-  if (isMidBossFloor()) placeGolem();
+  return drop;
 }
 
 function decorate(rooms) {
@@ -2055,7 +2252,7 @@ async function playerMove(dx, dy) {
   pickup();
   if (S.map[ny][nx] === '~' && S.status.burn) { S.status.burn = 0; say('The water hisses. The flames go out.', 'good'); }
   if (S.stairs && nx === S.sx && ny === S.sy) {
-    if (S.stairsLocked) say('Glowing runes seal the stairs. The golem holds them shut.', 'bad');
+    if (S.stairsLocked) say(`Glowing runes seal the stairs. ${S.arena ? 'Its guardian' : 'The golem'} holds them shut.`, 'bad');
     else { descend(); return false; }
   }
   return true;
@@ -2202,6 +2399,7 @@ function killMon(m) {
   if (m.final) { if (!m.heart && hollowReady()) { burst(m.x, m.y, 'slash'); wyrmFalls(m); return; } S.trueEnd = !!m.heart; victory(m); return; }
   burst(m.x, m.y, 'slash');
   if (m.golem) { golemDown(m); return; }
+  if (m.arena) { arenaDown(m); return; }
   SND.play('kill');
   say(`The ${m.name} dies.`, 'good');
   if (!m.ally && !m.boss) { S.corpses.push({ x: m.x, y: m.y, ch: m.ch, name: m.name, maxhp: m.maxhp, atk: m.atk, bonus: m.bonus || 0 }); if (S.corpses.length > 8) S.corpses.shift(); }
@@ -2663,6 +2861,7 @@ async function monstersTurn() {
     if (m.frozen > 0) { m.frozen--; continue; }
     if (m.heart) { await heartTurn(m); continue; }
     if (m.golem) { await golemTurn(m, d); continue; }
+    if (m.arena) { await arenaTurn(m, d); continue; }
     if (m.boss) { await bossTurn(m, d); continue; }
     const vis = S.vis[m.y][m.x];
     if (vis && !S.invis && (S.relic !== 'boots' || Math.abs(m.x - S.px) + Math.abs(m.y - S.py) <= 4)) m.awake = true;

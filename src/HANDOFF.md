@@ -68,7 +68,7 @@ The phone picks up a new version the next time the app opens online, because the
   - Generation code must use `RNG()`, `rnd()` and `pick()`, never `Math.random`, so daily dungeons stay deterministic.
 - **Turns:**
   - `act(dx, dy)` calls `playerMove()`, then `endTurn()`. `endTurn()` ticks statuses, spots traps, then runs `monstersTurn()`.
-  - Monster turns branch: `allyTurn`, `heartTurn`, `golemTurn`, `bossTurn` (the Wyrm), or normal AI.
+  - Monster turns branch: `allyTurn`, `heartTurn`, `golemTurn`, `arenaTurn` (Endless boss floors), `bossTurn` (the Wyrm), or normal AI.
   - `monStep()` sets off traps when a monster moves onto one.
 - **Abilities:** `ability()` handles the main abilities, and `altAbility()` the Gold-mastery alternates (in the `ALT` table).
   - The Ranger's aim uses `S.aiming`, and `act()` routes the next direction into `volley()`.
@@ -92,9 +92,9 @@ The phone picks up a new version the next time the app opens online, because the
 - **Difficulties:** Easy, Normal, Hard, and Nightmare (unlockable; no shops, double gold).
 - **Ascension 1–10:** Standard length on Nightmare only. Modifiers are in the `ASC` list.
 - **Zones:** Amber Caves, Flooded Halls, Bone Crypt, the Wyrm's Lair, and the secret Hollow.
-- **Bosses:** Stone Golem (mid-run), Amber Wyrm (final), and Amber Heart (secret).
+- **Bosses:** Stone Golem (mid-run), Amber Wyrm (final), and Amber Heart (secret). Endless boss floors (every 10th): `genArena()` builds a short dungeon plus an arena (`S.arena`), `ARENA_BOSS` / `ARENA_AI` hold the Cyclops, Drake and Lich; telegraphs go through `arenaCharge()` / `arenaStrike()` (`b.charge` turns of warning); `arenaDown()` gives the loot and `S.boonPicks = 2`. Room stocking is shared via `stock(rooms, scale)`.
 - **Mole (11th class, added in Claude Code, Nov 2026):** short sight, `dig()`, tremor sense in `render()` (`senses()`), Cave-in alternate.
-- **Upgrades (added in Claude Code, Nov 2026):** beating the Golem in Standard or Endless (every 5 floors) offers 3 of the `BOONS`; `offerBoons()` / `takeBoon()`, stored in `S.bn`. Endless also gets deadlier past floor 12 (`DEEP_*` constants, `deep()`).
+- **Upgrades (added in Claude Code, Nov 2026):** beating the Golem in Standard or Endless (floors 5, 15, 25...) offers 3 of the `BOONS` (a boss floor gives 2 picks); `offerBoons()` / `takeBoon()`, stored in `S.bn`. Endless also gets deadlier past floor 12 (`DEEP_*` constants, `deep()`).
 - **Secret path:** three runes `¤` can appear in secret rooms, one per zone, only on non-daily Standard or Endless runs. With all three, killing the Wyrm opens stairs to the Hollow instead of ending the run.
 - **Other systems:** 14 relics (Phoenix Feather and Pack Mule added in Claude Code), the daily run, run history, the in-game guide (G), the challenges screen (C), and 5 screen colors.
 
