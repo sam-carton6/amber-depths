@@ -5,9 +5,10 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v19 (merged 5 Nov 2026, commit `0aed9ae`): deadlier Endless, Golem upgrades, Rogue dodge,
-numpad, Backup button, Phoenix Feather relic. Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** v21: pack changes, Pack Mule, Sell all junk, free equipping out of combat, more keys.
+**Live on `main`:** v21 (merged 5 Nov 2026, commit `8b52381`): deadlier Endless, Golem upgrades, Rogue dodge,
+Backup button, Phoenix Feather and Pack Mule relics, Sell all junk, free equipping out of combat, numpad and
+arrow-cluster keys. Built from `src/` with `node src/build.mjs`.
+**On `staging`, not live yet:** nothing.
 **Next up:** Sam plays deep Hard Endless and says how the curve and the upgrades feel (too strong, too weak, missing picks?).
 
 ## To do
@@ -51,8 +52,4 @@ numpad, Backup button, Phoenix Feather relic. Built from `src/` with `node src/b
 
 ## What's new at the next merge
 
-- Swapping gear keeps the pack open when no enemy is in sight.
-- New relic, the Pack Mule: your pack holds 15 items instead of 10.
-- The merchant has a "Sell all junk" button that sells every piece of gear worse than what you're wearing.
-- Equipping is free when no enemy is in sight (still a turn in a fight).
-- More keys for arrow-key players: Delete ability, End wait, Page Down potion, right Ctrl pack.
+- 

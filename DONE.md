@@ -7,6 +7,9 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v21 merged to `main` (commit 8b52381)
+- Deploy passed; live index.html and sw.js match `main` (VERSION v21). Includes v20 and v21.
+
 ### 2026-11-05 — v21: free equipping out of combat; Delete / End / Page Down / right Ctrl keys (on staging)
 - `useItem()` returns before `endTurn()` for gear when no enemy is in sight (and saves). Keys map by `e.code`; right
   Ctrl gets past the ctrl-key guard only on its own keydown (no repeats), so Ctrl+C etc. still do nothing.
