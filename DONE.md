@@ -7,6 +7,9 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v17: numpad . and 0 swapped (. pack, 0 wait); Frost Nova freezes 5 turns, bosses 2 (on staging)
+- Checked: two enemies frozen by Nova stay frozen for 4 of your turns after the cast (was 2).
+
 ### 2026-11-05 — v16: Golem upgrades, Rogue dodge, numpad controls (on staging)
 - Upgrades ("boons", `BOONS` in the source): after a Golem in Endless (every 5 floors) or Standard (floor 5), a sheet
   offers 3 of 8; values scale with `boonTier()` = depth / 5. Stored in `S.bn` (numbers), `S.boons` (names taken);

@@ -387,7 +387,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
   <details class="howto">
     <summary>How to play</summary>
     <ul>
-      <li><b>Move</b> with the arrow keys, WASD, the numpad (<b>8 4 5 6</b>; <b>7</b> ability, <b>9</b> potion, <b>0</b> pack) or the d-pad. Walk into a monster to attack it.</li>
+      <li><b>Move</b> with the arrow keys, WASD, the numpad (<b>8 4 5 6</b>; <b>7</b> ability, <b>9</b> potion, <b>.</b> pack, <b>0</b> wait) or the d-pad. Walk into a monster to attack it.</li>
       <li><b>Q</b> uses your class ability. <b>P</b> drinks a healing potion. <b>I</b> opens your pack. <b>Space</b> waits a turn.</li>
       <li>In the pack, press <b>1–9</b> to use or equip an item, and <b>Shift + number</b> to drop it.</li>
       <li>Find the <b>&gt;</b> on each floor to go deeper. Gear: <b>)</b> weapon, <b>[</b> armor, <b>!</b> potion, <b>?</b> scroll, <b>$</b> gold.</li>
@@ -750,7 +750,7 @@ function buildD(diff, asc) {
 const ALT = {
   warrior: { name: 'Shield Wall', cd: 8, desc: 'For 3 turns, every hit against you does half damage. Poison and burning still hurt in full.' },
   rogue: { name: 'Smoke Bomb', cd: 10, desc: 'Every enemy in sight is stunned for 2 turns, and you vanish for 2 turns.' },
-  mage: { name: 'Frost Nova', cd: 6, desc: 'Freezes every enemy within 2 tiles for 3 turns and deals 3 + level damage.' },
+  mage: { name: 'Frost Nova', cd: 6, desc: 'Freezes every enemy within 2 tiles for 5 turns (bosses 2) and deals 3 + level damage.' },
   necro: { name: 'Corpse Blast', cd: 4, desc: 'Detonates the nearest corpse in sight for 6 + 2 × level damage to everything around it.' },
   berserker: { name: 'Whirlwind', cd: 7, desc: 'Attack every enemy around you twice.' },
   paladin: { name: 'Divine Shield', cd: 14, desc: 'You take no damage at all for 2 turns.' },
@@ -2173,7 +2173,7 @@ async function altAbility() {
       const near = S.mons.filter(m => !m.ally && Math.max(Math.abs(m.x - S.px), Math.abs(m.y - S.py)) <= 2);
       for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (dx || dy) setFx(S.px + dx, S.py + dy, pick(['*', '·', '✦']), 'ice', 340);
       SND.play('freeze'); say(near.length ? 'A frost nova bursts out of you!' : 'Frost bursts out of you, but nothing is close enough.', 'hl');
-      for (const m of near) { m.frozen = Math.max(m.frozen || 0, m.boss ? 1 : 3); hurtMon(m, 3 + lv, false, true); }
+      for (const m of near) { m.frozen = Math.max(m.frozen || 0, m.boss ? 2 : 5); hurtMon(m, 3 + lv, false, true); }
       return true;
     }
     case 'necro': {
@@ -2857,8 +2857,8 @@ const MOVE = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRig
   w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0], k: [0, -1], j: [0, 1], h: [-1, 0], l: [1, 0], '.': [0, 0], ' ': [0, 0], '5': [0, 0] };
 addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
-  // Numpad for one-handed play: 8 4 5 6 move like W A S D, 7 ability, 9 potion, 0 pack, . wait.
-  const np = screenNow === 'game' && { Numpad8: 'w', Numpad4: 'a', Numpad5: 's', Numpad6: 'd', Numpad7: 'q', Numpad9: 'p', Numpad0: 'i', NumpadDecimal: '.' }[e.code];
+  // Numpad for one-handed play: 8 4 5 6 move like W A S D, 7 ability, 9 potion, . pack, 0 wait.
+  const np = screenNow === 'game' && { Numpad8: 'w', Numpad4: 'a', Numpad5: 's', Numpad6: 'd', Numpad7: 'q', Numpad9: 'p', Numpad0: '.', NumpadDecimal: 'i' }[e.code];
   const k = np || (e.key.length === 1 ? e.key.toLowerCase() : e.key);
   if (!$('hist').hidden) {
     if (e.key === 'Escape' || k === 'h') { e.preventDefault(); closeHist(); }
