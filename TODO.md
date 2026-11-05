@@ -5,9 +5,9 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v22 (merged 5 Nov 2026, commit `ddaf2c3`): everything so far, now with the Mole class.
-Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** v23, Endless gear past +7.
+**Live on `main`:** v23 (merged 5 Nov 2026, commit `529df11`): everything so far, now with the Mole and Endless
+gear past +7. Built from `src/` with `node src/build.mjs`.
+**On `staging`, not live yet:** nothing.
 **Next up:** Sam plays deep Hard Endless and says how the curve and the upgrades feel (too strong, too weak, missing picks?).
 
 ## To do
@@ -38,6 +38,10 @@ Built from `src/` with `node src/build.mjs`.
   run in the Worker, same refactor as the bot project). Anti-abuse: Cloudflare rate limits + Turnstile on submits,
   generated or filtered names, prepared statements, size caps, long random sync codes stored hashed, admin key as a
   Worker secret (never in this public repo).
+- **Font options (Sam, 5 Nov 2026):** a "Text style" picker on the title next to the screen colours, saved in the
+  profile like `crt`. Presets swap the `--font-ui` / `--font-mono` variables: Pixel (VT323, default), Clean (JetBrains
+  Mono), Readable (Atkinson Hyperlegible Mono). Map fonts must have box-drawing glyphs. Fonts are local woff2 files
+  in `app/` (add to `ASSETS`), open licences only. Could be unlocks like the colours.
 - **Key rebinding screen:** choose your own keys (numpad is built in for now).
 - **Sprite pack option:** swap ASCII cells for tiles (e.g. Kenney's free 1-bit pack tinted amber). ~25-40% of a window.
   Sam may draw his own: 16×16 tiles (bosses 32×32), white/greyscale on transparent so the game can tint them for each
@@ -51,5 +55,4 @@ Built from `src/` with `node src/build.mjs`.
 
 ## What's new at the next merge
 
-- Endless loot keeps getting better past floor 10: weapons and armour roll a plus (about +1 per 3 floors), so you'll
-  find a Runeblade +10 around floor 19 and +19 gear by floor 45. Vampiric, Vigorous and Thorned bonuses grow with it.
+- 

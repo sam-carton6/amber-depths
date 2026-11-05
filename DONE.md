@@ -7,6 +7,9 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v23 merged to `main` (commit 529df11)
+- Deploy passed; live index.html and sw.js match `main` (VERSION v23).
+
 ### 2026-11-05 — v23: Endless gear past +7 (on staging)
 - `gearPlus()`: in Endless past floor 10, every piece made by `gear()` gets `plus` = (depth - 10) / 3 ± 1, added to
   `val` (so the name reads "Runeblade +10" for base 7 + 3). `modVal()` scales Vampiric (1 + plus/4 per hit),
