@@ -31,8 +31,16 @@ numpad, Backup button, Phoenix Feather relic. Built from `src/` with `node src/b
 - **Cloudflare move (Sam, 5 Nov 2026):** own domain (~$11/yr) on Cloudflare, Worker + D1/KV for leaderboards and
   cross-device saves (a sync code instead of accounts), Ko-fi link (like Popsicle CAD's). Moving domains wipes localStorage, so players
   must Backup on the old address and restore on the new one. Ask Sam before creating anything in Cloudflare.
+  Anti-cheat plan: server checks the score formula and plausibility (turns per floor, kills, gold, level); a run token
+  from the server at start with a time check; later, full replay checks (seeded randomness + game logic split out to
+  run in the Worker, same refactor as the bot project). Anti-abuse: Cloudflare rate limits + Turnstile on submits,
+  generated or filtered names, prepared statements, size caps, long random sync codes stored hashed, admin key as a
+  Worker secret (never in this public repo).
 - **Key rebinding screen:** choose your own keys (numpad is built in for now).
 - **Sprite pack option:** swap ASCII cells for tiles (e.g. Kenney's free 1-bit pack tinted amber). ~25-40% of a window.
+  Sam may draw his own: 16×16 tiles (bosses 32×32), white/greyscale on transparent so the game can tint them for each
+  screen colour, one PNG sheet on a grid. Needs square map cells; on phones the 40×21 map would be ~9 px a tile, so
+  add a camera that follows the player there (~20×11 tiles visible).
 - **Learning project (Sam):** write a smarter bot: rule-based first, then look-ahead search, then reinforcement learning
   (needs the game logic split out to run headless in Node).
 
