@@ -7,6 +7,16 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v16: Golem upgrades, Rogue dodge, numpad controls (on staging)
+- Upgrades ("boons", `BOONS` in the source): after a Golem in Endless (every 5 floors) or Standard (floor 5), a sheet
+  offers 3 of 8; values scale with `boonTier()` = depth / 5. Stored in `S.bn` (numbers), `S.boons` (names taken);
+  an open offer is `S.boonOffer` and reopens after a reload. Old saves just have none. Dodge caps at 50%.
+- Rogue `dodge: .1` (melee and arrows only, not traps or telegraphed attacks). Numpad keys map by `e.code`, only on
+  the game screen (so numpad 6 doesn't start the daily on the title).
+- The test bot now picks a random upgrade. Soak: 40 Hard Endless games plus 10 Standard, no errors. The bot often
+  skips floors it can't solve (and so the Golem), so most bot runs got 0-1 upgrades: it checks safety, not balance.
+  Gotcha: `test/soak.js` must fetch the bot with no-store, or the browser hands back an old copy.
+
 ### 2026-11-05 — v14: Endless gets deadlier past floor 12 (on staging)
 - Measured first: on Hard Endless the danger climbed to floor 12, then went flat (about 11 average hits to kill you from
   floor 12 to 80; potions piled to 50). Now, in Endless past floor 12, monster damage is multiplied by 1.04 per floor

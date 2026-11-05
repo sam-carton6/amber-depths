@@ -70,6 +70,8 @@ window.__runGame = async (cls, mode, diff, maxTurns, relic, asc, alt) => {
       if (wi >= 0 && S.gold >= S.shop.stock[wi].price) T.buy(wi);
       T.closeShop(); S.shopDone = S.depth;
     }
+    const boon = document.getElementById('boon');
+    if (boon && !boon.hidden) { const bs = document.querySelectorAll('[data-boon]'); if (bs.length) bs[Math.floor(Math.random() * bs.length)].click(); else note('boon sheet empty'); continue; }
     if (S.depth !== lastDepth) {
       lastDepth = S.depth; floorTurns = 0;
       if (!stairsReachable()) note('stairs unreachable', `${mode} floor ${S.depth} theme ${S.theme}`);

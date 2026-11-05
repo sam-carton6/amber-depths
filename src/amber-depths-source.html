@@ -387,7 +387,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
   <details class="howto">
     <summary>How to play</summary>
     <ul>
-      <li><b>Move</b> with the arrow keys, WASD, or the d-pad. Walk into a monster to attack it.</li>
+      <li><b>Move</b> with the arrow keys, WASD, the numpad (<b>8 4 5 6</b>; <b>7</b> ability, <b>9</b> potion, <b>0</b> pack) or the d-pad. Walk into a monster to attack it.</li>
       <li><b>Q</b> uses your class ability. <b>P</b> drinks a healing potion. <b>I</b> opens your pack. <b>Space</b> waits a turn.</li>
       <li>In the pack, press <b>1–9</b> to use or equip an item, and <b>Shift + number</b> to drop it.</li>
       <li>Find the <b>&gt;</b> on each floor to go deeper. Gear: <b>)</b> weapon, <b>[</b> armor, <b>!</b> potion, <b>?</b> scroll, <b>$</b> gold.</li>
@@ -395,7 +395,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
       <li>Watch your step. Hidden traps <b>^</b> spike, poison, burn or set off alarms. Rogues spot them far more often.</li>
       <li>Cracked walls <b>▒</b> hide secret rooms. Walk into one to break it. Chests <b>=</b> hold loot, though some bite back.</li>
       <li>Poison and burning hurt every turn, and frost slows you. Potions cure poison and burns. Water puts out flames.</li>
-      <li>Partway down, a Stone Golem guards the stairs. When it raises its fists, step out of the glowing ring.</li>
+      <li>Partway down, a Stone Golem guards the stairs (every 5 floors in Endless). When it raises its fists, step out of the glowing ring. In Standard and Endless, beating it lets you choose one of 3 upgrades that last the whole run.</li>
       <li><b>Relics</b> are rare finds that join your collection forever. Pick one on this screen to start a run with it.</li>
       <li><b>Challenges</b> unlock new classes, screen colors and a Nightmare difficulty. Press <b>C</b> on this screen to see them, and <b>G</b> any time for the guide.</li>
       <li>The <b>Daily Run</b> gives everyone the same dungeon, class and settings for the day. You get one try. Copy your result to compare with friends.</li>
@@ -472,6 +472,16 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
     <ol class="plist" id="slist"></ol>
     <div id="sellwrap"><h3 class="sub">SELL GEAR</h3><ol class="plist" id="sell"></ol></div>
     <p class="hint">Buying doesn't use a turn. <span class="k">1–9</span> buy · <span class="k">Esc</span> leave</p>
+  </div>
+</div>
+
+<div class="modal" id="boon" hidden>
+  <div class="sheet" role="dialog" aria-label="Choose an upgrade">
+    <header><h2>Choose an upgrade</h2><span class="cnt" id="boonfloor"></span></header>
+    <p class="greet">The golem's core still glows. Take one power with you. It lasts the whole run, and deeper golems give stronger ones.</p>
+    <ol class="plist" id="blist"></ol>
+    <div id="bhave"></div>
+    <p class="hint">Pick one to take it. <span class="k">1–3</span></p>
   </div>
 </div>
 
@@ -558,8 +568,8 @@ const LOGO = [
 const CLASSES = {
   warrior: { name: 'Warrior', sig: '@)', hp: 32, hpLv: 6, atk: 1, def: 1, crit: .05, ability: 'Cleave', cd: 5,
     desc: 'Hits every enemy around you at once.' },
-  rogue:   { name: 'Rogue', sig: '@/', hp: 24, hpLv: 4, atk: 2, def: 0, crit: .22, ability: 'Vanish', cd: 12,
-    desc: 'Turn invisible for 5 turns. Your next hit deals triple damage.' },
+  rogue:   { name: 'Rogue', sig: '@/', hp: 24, hpLv: 4, atk: 2, def: 0, crit: .22, ability: 'Vanish', cd: 12, dodge: .1,
+    desc: 'Turn invisible for 5 turns. Your next hit deals triple damage. Dodges 10% of attacks.' },
   mage:    { name: 'Mage', sig: '@*', hp: 20, hpLv: 3, atk: 0, def: 0, crit: .05, ability: 'Firebolt', cd: 4,
     desc: 'Hurls fire at the nearest enemy in sight. Damage grows with level.' },
   necro:   { name: 'Necromancer', sig: '@%', hp: 22, hpLv: 4, atk: 1, def: 0, crit: .05, ability: 'Raise Dead', cd: 6, unlock: 'c_necro',
@@ -595,7 +605,7 @@ const BOMBS = ['fire', 'frost', 'poison'];
 const UNDEAD = new Set(['skeleton', 'wraith', 'ghoul']);
 const ABIL_DETAIL = {
   warrior: () => 'Cleave makes a normal attack against every enemy next to you, diagonals included. Recharges in 5 turns.',
-  rogue: () => 'Vanish makes you invisible for 5 turns, and most monsters lose track of you. Your next hit deals triple damage. Recharges in 12 turns. Rogues spot hidden traps far more often.',
+  rogue: () => 'Vanish makes you invisible for 5 turns, and most monsters lose track of you. Your next hit deals triple damage. Recharges in 12 turns. Rogues dodge 10% of monster attacks and arrows, and spot hidden traps far more often.',
   mage: () => `Firebolt hits the nearest enemy in sight for 3 + 1.5 × your level + half your weapon bonus${S && S.cls === 'mage' ? ` (right now: ${3 + Math.round(S.lv * 1.5) + Math.floor((S.weapon ? S.weapon.val : 0) / 2)})` : ''}. It can crit. Recharges in 4 turns.`,
   necro: () => 'Raise Dead turns the nearest corpse (,) in sight into a thrall for 30 turns. You can have 2 at once, and they follow you downstairs. Walk into a thrall to swap places. Every kill heals you 1 HP. Recharges in 6 turns.',
   berserker: () => `Frenzy lasts 4 turns: every attack strikes twice, but you can't drink potions. Rage is always on: up to +50% damage as your HP drops${S && S.cls === 'berserker' ? ` (right now: +${Math.round(50 * (1 - Math.max(0, S.hp) / stats().max))}%)` : ''}. Recharges in 10 turns.`,
@@ -611,7 +621,7 @@ const MON_NOTES = {
   orc: 'Hits hard. Don\'t trade blows at low HP.', wraith: 'Undead. Erratic and vicious.', troll: 'Regenerates 1 HP every turn. Burst it down.',
   'cave spider': 'Its bite can poison you.', 'fire imp': 'Can set you on fire. Water puts it out.', 'frost wisp': 'Can slow you, giving monsters extra moves.',
   ghoul: 'Undead. Tough, and its claws poison.', mimic: 'Pretends to be a chest. About 1 in 4 chests is one.',
-  'Stone Golem': 'Guards the stairs partway down. Step out of its glowing ring when it raises its fists.',
+  'Stone Golem': 'Guards the stairs partway down, and every 5 floors in Endless. Step out of its glowing ring when it raises its fists. Beat it in Standard or Endless to choose an upgrade.',
   'Amber Wyrm': 'Breathes fire down a line, and calls in minions at half HP. Leave the glowing line.',
   'amber shard': 'Splinters of the Heart. Erratic, and they burn.',
   'Amber Heart': 'The thing the Wyrm was guarding. It never moves. Watch the light it gathers and stand clear.',
@@ -964,12 +974,13 @@ function loadGame() {
   S.theme = o.theme || themeFor(S.depth);
   for (const m of S.mons) m.flash = 0;
   normalizePack();
-  $('end').hidden = true; $('pack').hidden = true; $('shop').hidden = true; $('fx').innerHTML = '';
+  $('end').hidden = true; $('pack').hidden = true; $('shop').hidden = true; $('boon').hidden = true; $('fx').innerHTML = '';
   showScreen('game');
   computeFov();
   say('You pick up where you left off.', 'hl');
   update();
   focusGame();
+  if (S.boonOffer) showBoons();
 }
 
 let S = null, busy = false, screenNow = 'title', cellW = 10, cellH = 14;
@@ -1152,7 +1163,7 @@ function openGuide() {
   const cur = S ? S.cls : sel.cls;
   const c = CLASSES[cur];
   const st = S ? stats() : null;
-  const me = `<div class="chal-grp"><h3 class="sub">YOUR CLASS: ${esc(c.name.toUpperCase())}</h3><p class="gtxt">${S && S.alt ? `<b>★ ${esc(ALT[cur].name)}</b> (alternate ability): ${esc(ALT[cur].desc)} Recharges in ${ALT[cur].cd} turns.` : ABIL_DETAIL[cur]()}</p>${S && S.asc ? `<p class="gtxt"><b>Ascension ${S.asc}</b>: ${ASC.slice(1, S.asc + 1).map(esc).join('; ')}.</p>` : ''}${st ? `<p class="gtxt">Right now: <b>ATK ${st.atk}</b> (class +${c.atk}, levels &amp; whetstones +${S.atk - c.atk}, weapon +${S.weapon ? S.weapon.val : 0}) · <b>DEF ${st.def}</b> · <b>CRIT ${Math.round(st.crit * 100)}%</b>. A normal hit does <b>${2 + st.atk}–${4 + st.atk}</b>.</p>` : ''}</div>`;
+  const me = `<div class="chal-grp"><h3 class="sub">YOUR CLASS: ${esc(c.name.toUpperCase())}</h3><p class="gtxt">${S && S.alt ? `<b>★ ${esc(ALT[cur].name)}</b> (alternate ability): ${esc(ALT[cur].desc)} Recharges in ${ALT[cur].cd} turns.` : ABIL_DETAIL[cur]()}</p>${S && S.asc ? `<p class="gtxt"><b>Ascension ${S.asc}</b>: ${ASC.slice(1, S.asc + 1).map(esc).join('; ')}.</p>` : ''}${st ? `<p class="gtxt">Right now: <b>ATK ${st.atk}</b> (class +${c.atk}, levels, whetstones &amp; upgrades +${S.atk - c.atk}, weapon +${S.weapon ? S.weapon.val : 0}${B('reckless') ? `, Reckless ×${(1 + .4 * B('reckless')).toFixed(1)}` : ''}) · <b>DEF ${st.def}</b> · <b>CRIT ${Math.round(st.crit * 100)}%</b>${st.dodge ? ` · <b>DODGE ${Math.round(st.dodge * 100)}%</b>` : ''}. A normal hit does <b>${2 + st.atk}–${4 + st.atk}</b>.</p>` : ''}</div>`;
   const dmg = `<div class="chal-grp"><h3 class="sub">HOW DAMAGE WORKS</h3><p class="gtxt">Every hit does a base <b>2–4</b>, plus your <b>ATK</b>. A class showing ATK +0 still hits for 2–4.<br>ATK = class bonus + <b>1 per level-up</b> + your <b>weapon</b> + any <b>Whetstones</b> bought from the merchant.<br><b>Crits</b> deal double. <b>DEF</b> (from armor and class) lowers every hit you take, but never below 1.<br>Monsters get tougher with each floor and with difficulty. They have no armor.</p></div>`;
   const all = `<div class="chal-grp"><h3 class="sub">CLASSES</h3><div class="gcls">${Object.entries(CLASSES).map(([id, k]) => isLocked(id)
     ? `<div class="c"><b>@? ${esc(k.name)}</b> · locked<br><span style="color:var(--dim)">Unlock: ${esc(CHI[k.unlock].desc)}.</span></div>`
@@ -1164,7 +1175,8 @@ function openGuide() {
   const best = `<div class="chal-grp"><h3 class="sub">BESTIARY</h3><div class="gbest">${BESTIARY.map(n => PROF.seen[n] || PROF.kills[n]
     ? `<div><b class="m">${esc(BEST_CH[n])}</b><span><b style="color:var(--hot)">${esc(n.charAt(0).toUpperCase() + n.slice(1))}</b> · ${esc(MON_NOTES[n])}</span><span class="kc">${PROF.kills[n] || 0} slain</span></div>`
     : `<div class="unk"><b>?</b><span>Not yet encountered</span><span></span></div>`).join('')}</div></div>`;
-  $('guidebody').innerHTML = me + relicTxt + dmg + all + sym + stat + best;
+  const boonTxt = S && S.boons && S.boons.length ? `<div class="chal-grp"><h3 class="sub">YOUR UPGRADES</h3><p class="gtxt">${esc(boonList())}.${B('regen') ? ` Regeneration heals ${B('regen')} every 3 turns.` : ''}${B('vamp') ? ` Bloodthirst heals ${B('vamp')} per kill.` : ''}${B('reckless') ? ` Reckless: you take ${Math.round(20 * B('reckless'))}% more damage.` : ''}</p></div>` : '';
+  $('guidebody').innerHTML = me + relicTxt + boonTxt + dmg + all + sym + stat + best;
   $('guide').hidden = false;
   setTimeout(() => $('guideclose').focus(), 30);
 }
@@ -1219,13 +1231,60 @@ const free = (x, y) => floor(x, y) && !monAt(x, y) && !shopAt(x, y) && !chestAt(
 function stats() {
   const w = S.weapon, a = S.armor;
   return {
-    atk: S.atk + (w ? w.val : 0),
-    def: S.def + (a ? a.val : 0),
-    crit: S.C.crit + (w && w.mod === 'keen' ? .15 : 0),
+    atk: Math.round((S.atk + (w ? w.val : 0)) * (1 + .4 * B('reckless'))),
+    def: S.def + (a ? a.val : 0) + B('def'),
+    crit: S.C.crit + (w && w.mod === 'keen' ? .15 : 0) + B('crit'),
+    dodge: Math.min(DODGE_MAX, (S.C.dodge || 0) + B('dodge')),
     vamp: !!(w && w.mod === 'vampiric'),
     thorns: a && a.mod === 'thorns' ? 2 : 0,
     max: S.baseMax + (a && a.mod === 'vigor' ? 8 : 0),
   };
+}
+/* Upgrades ("boons"): beating a Golem in Endless (every 5 floors) or Standard (once) offers 3; you keep 1 for the
+   whole run. Values grow with depth. Kept in S.bn; S.boonOffer holds an unanswered offer so it survives a reload. */
+const DODGE_MAX = .5;
+const B = k => (S && S.bn && S.bn[k]) || 0;
+const bump = (k, v) => { S.bn = S.bn || {}; S.bn[k] = +((S.bn[k] || 0) + v).toFixed(2); };
+const boonTier = () => Math.max(1, Math.round(S.depth / 5));
+const BOONS = {
+  might:    { name: 'Might', desc: t => `+${2 * t} attack`, take: t => { S.atk += 2 * t; } },
+  vitality: { name: 'Vitality', desc: t => `+${8 * t} max HP, and heal that much`, take: t => { S.baseMax += 8 * t; S.hp += 8 * t; } },
+  keen:     { name: 'Keen Eye', desc: () => '+6% crit chance', take: () => bump('crit', .06) },
+  evasion:  { name: 'Evasion', desc: () => `+6% chance to dodge monster attacks and arrows (up to ${DODGE_MAX * 100}%)`, take: () => bump('dodge', .06) },
+  skin:     { name: 'Iron Skin', desc: t => `+${1 + Math.ceil(t / 2)} defense`, take: t => bump('def', 1 + Math.ceil(t / 2)) },
+  regen:    { name: 'Regeneration', desc: t => `Heal ${Math.ceil(t / 2)} HP every 3 turns`, take: t => bump('regen', Math.ceil(t / 2)) },
+  thirst:   { name: 'Bloodthirst', desc: t => `Heal ${t} HP for every kill`, take: t => bump('vamp', t) },
+  reckless: { name: 'Reckless', desc: () => '+40% attack, but you take 20% more damage', take: () => bump('reckless', 1) },
+};
+function offerBoons() {
+  const ids = Object.keys(BOONS).filter(k => k !== 'evasion' || stats().dodge < DODGE_MAX);
+  S.boonOffer = []; S.boonT = boonTier();
+  while (S.boonOffer.length < 3 && ids.length) S.boonOffer.push(ids.splice(Math.floor(Math.random() * ids.length), 1)[0]);
+  showBoons();
+}
+function showBoons() {
+  $('boonfloor').textContent = 'Floor ' + S.depth;
+  $('blist').innerHTML = S.boonOffer.map((id, i) => `<li><button class="use" data-boon="${i}"><span class="num k">${i + 1}</span><span class="gl ig">✦</span><span class="nm">${esc(BOONS[id].name)}</span><span class="ds">${esc(BOONS[id].desc(S.boonT))}</span></button></li>`).join('');
+  const have = boonList();
+  $('bhave').innerHTML = have ? `<p class="gtxt" style="color:var(--dim);font-size:.75rem">So far: ${esc(have)}</p>` : '';
+  document.querySelectorAll('[data-boon]').forEach(b => b.onclick = () => takeBoon(+b.dataset.boon));
+  $('boon').hidden = false;
+  SND.play('level');
+  setTimeout(() => { const b = document.querySelector('[data-boon]'); if (b) b.focus(); }, 30);
+}
+function takeBoon(i) {
+  const id = S && !S.dead && S.boonOffer && S.boonOffer[i]; if (!id) return;
+  BOONS[id].take(S.boonT); S.hp = Math.min(stats().max, S.hp);
+  (S.boons = S.boons || []).push(id);
+  S.boonOffer = null; $('boon').hidden = true;
+  say(`${BOONS[id].name}: ${BOONS[id].desc(S.boonT)}.`, 'lvl'); SND.play('equip');
+  saveGame(); update(); focusGame();
+}
+const boonList = () => { const n = {}; for (const id of (S.boons || [])) n[id] = (n[id] || 0) + 1; return Object.entries(n).map(([id, c]) => BOONS[id].name + (c > 1 ? ' ×' + c : '')).join(', '); };
+function dodged(m) {
+  if (Math.random() >= stats().dodge) return false;
+  say(`You dodge the ${m.name}.`, 'good'); floatText(S.px, S.py, 'dodge', 'lvl');
+  return true;
 }
 function gear(kind, i, mod) {
   const tbl = kind === 'weapon' ? WEAPONS : ARMORS;
@@ -1319,7 +1378,7 @@ function newGame(opts) {
   if (cls === 'mage') { S.weapon = gear('weapon', 0, null); addToPack(scroll('fire')); }
   for (let i = 0; i < D.pots; i++) addToPack(potion());
   S.hp = stats().max;
-  $('end').hidden = true; $('pack').hidden = true; $('shop').hidden = true;
+  $('end').hidden = true; $('pack').hidden = true; $('shop').hidden = true; $('boon').hidden = true;
   $('fx').innerHTML = '';
   showScreen('game');
   descend();
@@ -1779,7 +1838,7 @@ async function fly(path, ch, cls, ms = 26) {
 const arrowCh = (dx, dy) => Math.abs(dx) > 2 * Math.abs(dy) ? '-' : Math.abs(dy) > 2 * Math.abs(dx) ? '|' : (Math.sign(dx) === Math.sign(dy) ? '\\' : '/');
 
 /* ================= player actions ================= */
-const canAct = () => S && !busy && !S.dead && !S.won && $('pack').hidden && $('shop').hidden && $('end').hidden && $('guide').hidden && screenNow === 'game';
+const canAct = () => S && !busy && !S.dead && !S.won && $('pack').hidden && $('shop').hidden && $('boon').hidden && $('end').hidden && $('guide').hidden && screenNow === 'game';
 
 async function act(dx, dy) {
   if (!canAct()) return;
@@ -1912,6 +1971,7 @@ async function endTurn() {
   if (S.cd > 0) S.cd--;
   if (S.invis > 0) { S.invis--; if (!S.invis) say('You fade back into view.'); }
   if (S.shield > 0) { S.shield--; if (!S.shield) say('You lower your shield.'); }
+  if (B('regen') && S.turn % 3 === 0 && S.hp > 0 && S.hp < stats().max) S.hp = Math.min(stats().max, S.hp + B('regen'));
   if (S.invuln > 0) { S.invuln--; if (!S.invuln) say('The divine shield fades.'); }
   if (S.frenzy > 0) { S.frenzy--; if (!S.frenzy) say('The frenzy fades.'); }
   const st = S.status;
@@ -1968,6 +2028,7 @@ function killMon(m) {
   say(`The ${m.name} dies.`, 'good');
   if (!m.ally && !m.boss) { S.corpses.push({ x: m.x, y: m.y, ch: m.ch, name: m.name, maxhp: m.maxhp, atk: m.atk, bonus: m.bonus || 0 }); if (S.corpses.length > 8) S.corpses.shift(); }
   if (S.cls === 'necro' && S.hp < stats().max) { S.hp++; floatText(S.px, S.py, '+1', 'heal'); }
+  if (B('vamp') && !m.ally && S.hp > 0 && S.hp < stats().max) S.hp = Math.min(stats().max, S.hp + B('vamp'));
   gainXp(m.xp);
   const r = Math.random();
   const pc = .16 * DEEP_POTS ** deep();
@@ -1988,6 +2049,7 @@ function golemDown(m) {
   const g = Math.round(rnd(20, 30) * eff() * S.D.gold);
   S.gold += g; PROF.gold += g; floatText(m.x, m.y, '+' + g, 'gold');
   say(`It leaves behind ${g} gold and a ${itemName(loot)}.`, 'gold');
+  if (S.mode === 'endless' || S.mode === 'standard') offerBoons();
   findRelic(m.x, m.y, .5);
 }
 
@@ -2336,6 +2398,7 @@ async function volley(dx, dy) {
 /* ================= monsters ================= */
 function damagePlayer(dmg, msg, src) {
   if (S.invuln > 0) { say('Your divine shield turns the blow aside.', 'good'); setFx(S.px, S.py, '+', 'ring', 200); return false; }
+  if (B('reckless')) { dmg = Math.round(dmg * (1 + .2 * B('reckless'))); msg = msg.replace(/\d+/, dmg); }
   if (S.shield > 0) { dmg = Math.ceil(dmg / 2); msg = msg.replace(/\d+/, dmg) + ' (shielded)'; }
   S.hp -= dmg; S.hurtAt = performance.now(); SND.play('hurt');
   floatText(S.px, S.py, '-' + dmg, 'hurt');
@@ -2346,6 +2409,7 @@ function damagePlayer(dmg, msg, src) {
 }
 function monHit(m) {
   const st = stats();
+  if (dodged(m)) return;
   const dmg = Math.max(1, Math.round((rnd(m.atk[0], m.atk[1]) + m.bonus) * S.D.dmg) - st.def);
   if (damagePlayer(dmg, `The ${m.name} hits you for ${dmg}.`, m.name)) return;
   if (m.poison && Math.random() < .45) applyStatus('poison', m.poison);
@@ -2418,7 +2482,7 @@ async function monstersTurn() {
         SND.play('arrow');
         await fly(line(m.x, m.y, S.px, S.py).slice(0, -1), arrowCh(S.px - m.x, S.py - m.y), 'arrow', 24);
         const dmg = Math.max(1, Math.round((rnd(m.atk[0], m.atk[1]) + m.bonus) * S.D.dmg) - stats().def);
-        damagePlayer(dmg, `An arrow from the ${m.name} hits you for ${dmg}.`, m.name);
+        if (!dodged(m)) damagePlayer(dmg, `An arrow from the ${m.name} hits you for ${dmg}.`, m.name);
         continue;
       }
       if (m.erratic && Math.random() < .4) { wander(m); continue; }
@@ -2568,7 +2632,7 @@ function record() {
 
 async function die(by) {
   const run = S;
-  S.dead = true; S.hp = 0;
+  S.dead = true; S.hp = 0; $('boon').hidden = true;
   clearSave(); SND.play('death'); syncMusic();
   const rec = record(); finishRun(by);
   update();
@@ -2647,7 +2711,7 @@ function showEnd(won, by, rec) {
   setTimeout(() => $('again').focus(), 60);
 }
 
-function toTitle() { saveGame(); $('end').hidden = true; $('pack').hidden = true; $('shop').hidden = true; S = null; showScreen('title'); }
+function toTitle() { saveGame(); $('end').hidden = true; $('pack').hidden = true; $('shop').hidden = true; $('boon').hidden = true; S = null; showScreen('title'); }
 
 /* ================= pack UI ================= */
 function tossWeaker() {
@@ -2793,7 +2857,9 @@ const MOVE = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRig
   w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0], k: [0, -1], j: [0, 1], h: [-1, 0], l: [1, 0], '.': [0, 0], ' ': [0, 0], '5': [0, 0] };
 addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
-  const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  // Numpad for one-handed play: 8 4 5 6 move like W A S D, 7 ability, 9 potion, 0 pack, . wait.
+  const np = screenNow === 'game' && { Numpad8: 'w', Numpad4: 'a', Numpad5: 's', Numpad6: 'd', Numpad7: 'q', Numpad9: 'p', Numpad0: 'i', NumpadDecimal: '.' }[e.code];
+  const k = np || (e.key.length === 1 ? e.key.toLowerCase() : e.key);
   if (!$('hist').hidden) {
     if (e.key === 'Escape' || k === 'h') { e.preventDefault(); closeHist(); }
     return;
@@ -2806,7 +2872,7 @@ addEventListener('keydown', e => {
     if (e.key === 'Escape' || k === 'g') { e.preventDefault(); closeGuide(); }
     return;
   }
-  if (k === 'g' && $('pack').hidden && $('shop').hidden && $('end').hidden && !busy) { e.preventDefault(); openGuide(); return; }
+  if (k === 'g' && $('pack').hidden && $('shop').hidden && $('boon').hidden && $('end').hidden && !busy) { e.preventDefault(); openGuide(); return; }
   if (screenNow === 'title') {
     if (k === 'h') { e.preventDefault(); openHist(); return; }
     if (k === 'c') { e.preventDefault(); openChal(); return; }
@@ -2821,6 +2887,11 @@ addEventListener('keydown', e => {
   if (!$('end').hidden) {
     if (e.key === 'Enter' || k === 'r') { e.preventDefault(); newGame(); }
     else if (e.key === 'Escape') { e.preventDefault(); toTitle(); }
+    return;
+  }
+  if (!$('boon').hidden) {
+    const dm = /^(?:Digit|Numpad)([1-3])$/.exec(e.code);
+    if (dm) { e.preventDefault(); takeBoon(+dm[1] - 1); }
     return;
   }
   if (k === 'm') { e.preventDefault(); SND.toggle(); update(); return; }
