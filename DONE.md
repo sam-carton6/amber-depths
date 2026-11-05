@@ -7,6 +7,13 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v28: run stats panel (on staging)
+- `rs()` keeps per-run counters in `S.rs` (created lazily, so older saves work): damage dealt (in `hurtMon`, capped at
+  the monster's HP, not counting allies via `allyDmg`), damage and hits taken (`damagePlayer`, `hurtSelf`), crits,
+  dodges, biggest hits, gold found. `statRows()` feeds the STATS side panel (wide screens only, like Equipped) and a
+  THIS RUN section in the guide. Checked: numbers match a 400-turn bot run; 1024×768 and 375×812 layouts OK (the 11px
+  of extra height at 1024×768 was there before).
+
 ### 2026-11-05 — v26: walls no longer take an item's colour (on staging)
 - Cause: JetBrains Mono's code ligatures joined pairs like `#!`, `#?`, `#[`, `]#` into one glyph across the map's
   spans and painted it in the item's colour. Fix: `font-variant-ligatures: none` plus `liga`/`calt` off on `#map`,

@@ -253,6 +253,8 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 @keyframes rise { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -30px); } }
 
 /* sidebar */
+.statgrid { display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 3px 8px; font-size: .72rem; }
+.statgrid .sl { color: var(--dim); white-space: nowrap; } .statgrid .sv { color: var(--hot); font-weight: 700; }
 .side { grid-area: side; display: grid; gap: 12px; align-content: start; min-width: 0; }
 .panel h3 { margin: 0 0 6px; font-family: var(--font-display); font-weight: 400; font-size: 1.2rem; letter-spacing: .06em; color: var(--dim); }
 .gear { font-size: .78rem; display: grid; gap: 4px; }
@@ -441,6 +443,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
   <aside class="side">
     <div class="panel"><h3>LOG</h3><div class="log" id="log" aria-live="polite"></div></div>
     <div class="panel gear-panel"><h3>EQUIPPED</h3><div class="gear" id="gearside"></div></div>
+    <div class="panel gear-panel"><h3>STATS</h3><div class="statgrid" id="statside"></div></div>
   </aside>
 
   <div class="controls">
@@ -1274,7 +1277,8 @@ function openGuide() {
     ? `<div><b class="m">${esc(BEST_CH[n])}</b><span><b style="color:var(--hot)">${esc(n.charAt(0).toUpperCase() + n.slice(1))}</b> · ${esc(MON_NOTES[n])}</span><span class="kc">${PROF.kills[n] || 0} slain</span></div>`
     : `<div class="unk"><b>?</b><span>Not yet encountered</span><span></span></div>`).join('')}</div></div>`;
   const boonTxt = S && S.boons && S.boons.length ? `<div class="chal-grp"><h3 class="sub">YOUR UPGRADES</h3><p class="gtxt">${esc(boonList())}.${B('regen') ? ` Regeneration heals ${B('regen')} every 3 turns.` : ''}${B('vamp') ? ` Bloodthirst heals ${B('vamp')} per kill.` : ''}${B('reckless') ? ` Reckless: you take ${Math.round(20 * B('reckless'))}% more damage.` : ''}</p></div>` : '';
-  $('guidebody').innerHTML = me + relicTxt + boonTxt + dmg + all + sym + stat + best;
+  const runStats = S ? `<div class="chal-grp"><h3 class="sub">THIS RUN</h3><p class="gtxt">${statRows().map(([l, v]) => `${l} <b>${v}</b>`).join(' · ')}</p></div>` : '';
+  $('guidebody').innerHTML = me + relicTxt + boonTxt + runStats + dmg + all + sym + stat + best;
   $('guide').hidden = false;
   setTimeout(() => $('guideclose').focus(), 30);
 }
@@ -1381,6 +1385,7 @@ function takeBoon(i) {
 const boonList = () => { const n = {}; for (const id of (S.boons || [])) n[id] = (n[id] || 0) + 1; return Object.entries(n).map(([id, c]) => BOONS[id].name + (c > 1 ? ' ×' + c : '')).join(', '); };
 function dodged(m) {
   if (Math.random() >= stats().dodge) return false;
+  rs().dodges++;
   say(`You dodge the ${m.name}.`, 'good'); floatText(S.px, S.py, 'dodge', 'lvl');
   return true;
 }
@@ -2056,7 +2061,7 @@ function openChest(e) {
   const kind = Math.random() < .5 ? 'weapon' : 'armor';
   const mod = Math.random() < (rich ? .6 : .35) ? pick(kind === 'weapon' ? ['keen', 'vampiric'] : ['vigor', 'thorns']) : null;
   const loot = gear(kind, Math.floor(eff() / 2) + 1 + (rich ? 1 : 0), mod);
-  S.gold += g; e.it = loot; PROF.gold += g; PROF.chests++;
+  S.gold += g; e.it = loot; PROF.gold += g; rs().gold += g; PROF.chests++;
   findRelic(e.x, e.y, rich ? .35 : .08);
   floatText(e.x, e.y, '+' + g, 'gold');
   for (const [dx, dy] of DIRS8) setFx(e.x + dx, e.y + dy, '✦', 'ig', 300);
@@ -2094,8 +2099,17 @@ function applyStatus(kind, turns) {
   if (kind === 'burn') { say('You catch fire! Find water or drink a potion.', 'bad'); SND.play('fire'); }
   if (kind === 'slow') { say('Frost numbs your legs. You are slowed.', 'bad'); SND.play('freeze'); }
 }
+// Run stats for the STATS panel and the guide. Lazily created so older saves get them too.
+const rs = () => (S.rs = S.rs || { dealt: 0, taken: 0, hitsTaken: 0, crits: 0, dodges: 0, bigDealt: 0, bigTaken: 0, gold: 0 });
+let allyDmg = false; // set while an ally attacks, so its damage isn't counted as yours
+function statRows() {
+  const r = rs(), n = x => Math.round(x).toLocaleString();
+  return [['Turns', n(S.turn)], ['Kills', n(S.kills)], ['Dealt', n(r.dealt)], ['Taken', n(r.taken)], ['Best hit', n(r.bigDealt)], ['Worst hit', n(r.bigTaken)],
+    ['Crits', n(r.crits)], ['Dodges', n(r.dodges)], ['Hits taken', n(r.hitsTaken)], ['Potions', n(S.potionsDrunk || 0)], ['Gold found', n(r.gold)], ['Upgrades', n((S.boons || []).length)]];
+}
 function hurtSelf(dmg, src) {
   if (S.invuln > 0) return false;
+  rs().taken += dmg;
   S.hp -= dmg; S.hurtAt = performance.now();
   floatText(S.px, S.py, '-' + dmg, 'hurt');
   if (S.hp <= 0) { die(src); return true; }
@@ -2146,6 +2160,7 @@ function attack(m) {
 }
 
 function hurtMon(m, dmg, crit, quiet) {
+  if (!m.ally && !allyDmg) { const r = rs(); r.dealt += Math.max(0, Math.min(dmg, m.hp)); r.bigDealt = Math.max(r.bigDealt, dmg); if (crit) r.crits++; }
   m.hp -= dmg; m.flash = performance.now(); m.awake = true;
   floatText(m.x, m.y, '-' + dmg, crit ? 'crit' : 'dmg');
   if (!quiet || crit) SND.play(crit ? 'crit' : 'hit');
@@ -2184,7 +2199,7 @@ function golemDown(m) {
   S.items = S.items.filter(e => !(e.x === m.x && e.y === m.y));
   S.items.push({ x: m.x, y: m.y, it: loot });
   const g = Math.round(rnd(20, 30) * eff() * S.D.gold);
-  S.gold += g; PROF.gold += g; floatText(m.x, m.y, '+' + g, 'gold');
+  S.gold += g; PROF.gold += g; rs().gold += g; floatText(m.x, m.y, '+' + g, 'gold');
   say(`It leaves behind ${g} gold and a ${itemName(loot)}.`, 'gold');
   if (S.mode === 'endless' || S.mode === 'standard') offerBoons();
   findRelic(m.x, m.y, .5);
@@ -2221,7 +2236,7 @@ function pickup() {
     if (n === 3) say('The three runes sing together. Far below the Wyrm\'s lair, something has woken.', 'lvl');
     return;
   }
-  if (it.type === 'gold') { const n = Math.round(it.n * (S.cls === 'gambler' ? 1.5 : 1) * (S.relic === 'purse' ? 1.3 : 1)); S.gold += n; PROF.gold += n; take(); floatText(S.px, S.py, '+' + n, 'gold'); say(`You pick up ${n} gold.`, 'gold'); SND.play('gold'); return; }
+  if (it.type === 'gold') { const n = Math.round(it.n * (S.cls === 'gambler' ? 1.5 : 1) * (S.relic === 'purse' ? 1.3 : 1)); S.gold += n; PROF.gold += n; rs().gold += n; take(); floatText(S.px, S.py, '+' + n, 'gold'); say(`You pick up ${n} gold.`, 'gold'); SND.play('gold'); return; }
   if (it.type === 'gear' && !S[it.kind]) { S[it.kind] = it; S.gearChanged = true; take(); say(`You equip the ${itemName(it)}.`, 'good'); SND.play('equip'); return; }
   if (!canAdd(it)) { say(`Your pack is full. The ${itemName(it)} stays on the floor.`, 'bad'); return; }
   addToPack(it); take(); SND.play('pickup');
@@ -2552,6 +2567,7 @@ function damagePlayer(dmg, msg, src) {
   if (S.invuln > 0) { say('Your divine shield turns the blow aside.', 'good'); setFx(S.px, S.py, '+', 'ring', 200); return false; }
   if (B('reckless')) { dmg = Math.round(dmg * (1 + .2 * B('reckless'))); msg = msg.replace(/\d+/, dmg); }
   if (S.shield > 0) { dmg = Math.ceil(dmg / 2); msg = msg.replace(/\d+/, dmg) + ' (shielded)'; }
+  { const r = rs(); r.taken += dmg; r.hitsTaken++; r.bigTaken = Math.max(r.bigTaken, dmg); }
   S.hp -= dmg; S.hurtAt = performance.now(); SND.play('hurt');
   floatText(S.px, S.py, '-' + dmg, 'hurt');
   say(msg, 'bad');
@@ -2693,7 +2709,7 @@ async function allyTurn(a, d) {
   const near = foes.filter(h => Math.abs(h.x - a.x) + Math.abs(h.y - a.y) === 1).sort((p, q) => p.hp - q.hp);
   if (near.length) {
     const h = near[0];
-    hurtMon(h, Math.max(1, rnd(a.atk[0], a.atk[1]) + a.bonus), false, true);
+    allyDmg = true; hurtMon(h, Math.max(1, rnd(a.atk[0], a.atk[1]) + a.bonus), false, true); allyDmg = false;
     return;
   }
   const seen = foes.filter(h => S.vis[h.y][h.x] && Math.abs(h.x - a.x) + Math.abs(h.y - a.y) <= 10)
@@ -2982,7 +2998,8 @@ function update() {
   $('sndbtn').setAttribute('aria-pressed', String(SND.muted));
   $('sndbtn').setAttribute('aria-label', SND.muted ? 'Sound is off. Turn on' : 'Sound is on. Mute');
   saveGame();
-  $('gearside').innerHTML = gl('Weapon', S.weapon) + gl('Armor', S.armor) + `<div class="row"><span class="lab">Crit</span><span class="val">${Math.round(st.crit * 100)}%</span></div><div class="row"><span class="lab">Kills</span><span class="val">${S.kills}</span></div>`;
+  $('gearside').innerHTML = gl('Weapon', S.weapon) + gl('Armor', S.armor) + `<div class="row"><span class="lab">Crit</span><span class="val">${Math.round(st.crit * 100)}%</span></div><div class="row"><span class="lab">Dodge</span><span class="val">${Math.round(st.dodge * 100)}%</span></div>`;
+  $('statside').innerHTML = statRows().map(([l, v]) => `<span class="sl">${l}</span><span class="sv">${v}</span>`).join('');
   render();
 }
 
