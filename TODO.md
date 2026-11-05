@@ -5,10 +5,9 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v17 (merged 5 Nov 2026, commit `031a7c4`): everything up to Endless getting deadlier past
-floor 12, Golem upgrades (pick 1 of 3), Rogue dodge, numpad controls, longer Frost Nova. Built from `src/` with
-`node src/build.mjs`.
-**On `staging`, not live yet:** v19: Backup button, Phoenix Feather relic, Golem gets the deep curve.
+**Live on `main`:** v19 (merged 5 Nov 2026, commit `0aed9ae`): deadlier Endless, Golem upgrades, Rogue dodge,
+numpad, Backup button, Phoenix Feather relic. Built from `src/` with `node src/build.mjs`.
+**On `staging`, not live yet:** nothing.
 **Next up:** Sam plays deep Hard Endless and says how the curve and the upgrades feel (too strong, too weak, missing picks?).
 
 ## To do
@@ -39,7 +38,4 @@ floor 12, Golem upgrades (pick 1 of 3), Rogue dodge, numpad controls, longer Fro
 
 ## What's new at the next merge
 
-- A Backup button on the title screen: copy your progress as a code or save it as a file, and restore it on any
-  device. The game also asks the browser to keep its data instead of clearing it.
-- New relic, the Phoenix Feather: once per run, when you would die, you rise again with half your HP.
-- In Endless, the Golem now gets deadlier past floor 12 like everything else.
+- 

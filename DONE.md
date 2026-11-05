@@ -7,6 +7,9 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v19 merged to `main` (commit 0aed9ae)
+- Deploy passed; live index.html and sw.js match `main` (VERSION v19). Includes v18 and v19.
+
 ### 2026-11-05 — v19: Phoenix Feather relic, Golem gets the deep curve (on staging)
 - Phoenix Feather (`phoenix` in `RELICS`): `die()` checks it first; once per run (`S.revived`) you come back at half
   max HP with statuses cleared. Collector II now counts every relic (13), so players who had all 12 keep the badge.
