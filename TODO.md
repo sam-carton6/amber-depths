@@ -35,7 +35,9 @@ and whether the menu fix and the new Controls work on his iPhone. Then the curve
   idea (the +N gear itself is done).
 - **Cross-device sync without moving (option):** a Worker on a free workers.dev address can store saves for the game
   where it is now, with a short sync code, so no domain move and no lost progress. Mostly Sam playing for now.
-- **Cloudflare move (Sam, 5 Nov 2026):** own domain (~$11/yr) on Cloudflare, Worker + D1/KV for leaderboards and
+- **Cloudflare move (Sam, 5 Nov 2026):** the repo can go private then (Cloudflare deploys from private repos;
+  GitHub Pages was the only reason it is public). Unless Sam wants it public as a portfolio piece.
+  Plan: own domain (~$11/yr) on Cloudflare, Worker + D1/KV for leaderboards and
   cross-device saves (a sync code instead of accounts), Ko-fi link (like Popsicle CAD's). Moving domains wipes localStorage, so players
   must Backup on the old address and restore on the new one. Ask Sam before creating anything in Cloudflare.
   Anti-cheat plan: server checks the score formula and plausibility (turns per floor, kills, gold, level); a run token
@@ -53,6 +55,8 @@ and whether the menu fix and the new Controls work on his iPhone. Then the curve
   unlocked (so the existing colour challenges carry over); full-colour pixel art as its own medium-hard challenge.
   Draw once in full colour: the game can make the greyscale version itself.
 - **Learning project (Sam):** write a smarter bot: rule-based first, then look-ahead search, then reinforcement learning
+  How (decided 5 Nov 2026): Sam writes the strategy as plain rules or pseudocode, Claude turns it into JavaScript in
+  this repo (a `bot/` folder, outside `app/` so it never goes live), with comments Sam can tweak.
   (needs the game logic split out to run headless in Node).
   Uses (Sam, 5 Nov 2026): (1) a smarter soak: a bot that plays well (fights Golems, uses upgrades, kites) gives
   real difficulty numbers, e.g. "a good player dies around floor N", so the curve can be tuned against it; the
