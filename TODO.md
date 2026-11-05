@@ -54,6 +54,11 @@ and whether the menu fix and the new Controls work on his iPhone. Then the curve
   Draw once in full colour: the game can make the greyscale version itself.
 - **Learning project (Sam):** write a smarter bot: rule-based first, then look-ahead search, then reinforcement learning
   (needs the game logic split out to run headless in Node).
+  Uses (Sam, 5 Nov 2026): (1) a smarter soak: a bot that plays well (fights Golems, uses upgrades, kites) gives
+  real difficulty numbers, e.g. "a good player dies around floor N", so the curve can be tuned against it; the
+  current bot skips stuck floors and Golems, so its numbers are rough. (2) Tougher enemies: reuse its pathfinding
+  and danger checks for smarter monster behaviour (archers keep distance, packs surround, the wounded flee),
+  rule-based and telegraphed so it stays fair; not a learned AI (hard to tune, can feel cheap).
 
 ## What's new at the next merge
 
