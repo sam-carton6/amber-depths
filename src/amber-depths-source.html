@@ -750,7 +750,9 @@ const MONS = [
 const WEAPONS = [['Dagger', 1], ['Short sword', 2], ['Mace', 3], ['Longsword', 4], ['War axe', 5], ['Runeblade', 7]];
 const ARMORS = [['Leather', 1], ['Studded leather', 2], ['Chain mail', 3], ['Scale mail', 4], ['Plate', 5], ['Amberplate', 7]];
 const MODNAME = { keen: 'Keen', vampiric: 'Vampiric', vigor: 'Vigorous', thorns: 'Thorned', cursed: 'Cursed' };
-const MODDESC = { keen: '+15% crit', vampiric: 'heal 1 per hit', vigor: '+8 max HP', thorns: 'attackers take 2', cursed: 'weaker than it looks' };
+// Bonus sizes grow with a piece's plus (deep Endless gear): see gearPlus().
+const modVal = (it, mod) => { const p = it && it.mod === mod ? it.plus || 0 : -1; return p < 0 ? 0 : { vampiric: 1 + Math.floor(p / 4), vigor: 8 + 2 * p, thorns: 2 + Math.floor(p / 2) }[mod]; };
+const modDesc = it => ({ keen: '+15% crit', vampiric: `heal ${modVal(it, 'vampiric')} per hit`, vigor: `+${modVal(it, 'vigor')} max HP`, thorns: `attackers take ${modVal(it, 'thorns')}`, cursed: 'weaker than it looks' })[it.mod];
 const ASC = [null,
   'Elite monsters: about 1 in 7 has 50% more HP and hits harder',
   'Monsters hit 15% harder',
@@ -1321,9 +1323,9 @@ function stats() {
     def: S.def + (a ? a.val : 0) + B('def'),
     crit: S.C.crit + (w && w.mod === 'keen' ? .15 : 0) + B('crit'),
     dodge: Math.min(DODGE_MAX, (S.C.dodge || 0) + B('dodge')),
-    vamp: !!(w && w.mod === 'vampiric'),
-    thorns: a && a.mod === 'thorns' ? 2 : 0,
-    max: S.baseMax + (a && a.mod === 'vigor' ? 8 : 0),
+    vamp: modVal(w, 'vampiric'),
+    thorns: modVal(a, 'thorns'),
+    max: S.baseMax + modVal(a, 'vigor'),
   };
 }
 /* Upgrades ("boons"): beating a Golem in Endless (every 5 floors) or Standard (once) offers 3; you keep 1 for the
@@ -1372,12 +1374,15 @@ function dodged(m) {
   say(`You dodge the ${m.name}.`, 'good'); floatText(S.px, S.py, 'dodge', 'lvl');
   return true;
 }
+// Endless past floor 10: gear rolls a plus on top of its base, about +1 per 3 floors (a Runeblade +10 is base 7, plus 3).
+const gearPlus = () => S && S.mode === 'endless' && S.depth > 10 ? Math.max(0, Math.floor((S.depth - 10) / 3) + rnd(-1, 1)) : 0;
 function gear(kind, i, mod) {
   const tbl = kind === 'weapon' ? WEAPONS : ARMORS;
   i = clamp(i, 0, tbl.length - 1);
   if (mod === undefined && S && S.asc >= 5 && RNG() < .2) mod = 'cursed';
   if (mod === undefined) mod = RNG() < .18 ? pick(kind === 'weapon' ? ['keen', 'vampiric'] : ['vigor', 'thorns']) : null;
-  return { type: 'gear', kind, name: tbl[i][0], val: tbl[i][1], mod, ch: kind === 'weapon' ? ')' : '[' };
+  const plus = gearPlus();
+  return { type: 'gear', kind, name: tbl[i][0], val: tbl[i][1] + plus, ...(plus ? { plus } : {}), mod, ch: kind === 'weapon' ? ')' : '[' };
 }
 const rollGear = () => gear(RNG() < .5 ? 'weapon' : 'armor', Math.floor(eff() / 2) + rnd(-1, 1));
 const potion = () => ({ type: 'potion', ch: '!' });
@@ -1418,7 +1423,7 @@ function itemName(it) {
   return SCROLLS[it.kind];
 }
 function itemDesc(it) {
-  if (it.type === 'gear') return `+${it.val} ${it.kind === 'weapon' ? 'attack' : 'defense'}${it.mod ? ' · ' + MODDESC[it.mod] : ''}`;
+  if (it.type === 'gear') return `+${it.val} ${it.kind === 'weapon' ? 'attack' : 'defense'}${it.mod ? ' · ' + modDesc(it) : ''}`;
   if (it.type === 'potion') return `Restores ${healAmt()} HP`;
   return { fire: 'Burns every enemy in sight', frost: 'Freezes every enemy in sight for 4 turns', teleport: 'Moves you somewhere else on this floor', mapping: 'Reveals the whole floor' }[it.kind];
 }
@@ -2127,7 +2132,7 @@ function attack(m) {
   else if (Math.random() < st.crit) { dmg *= 2; crit = true; }
   hurtMon(m, dmg, crit);
   if (S.relic === 'fang' && S.mons.includes(m) && Math.random() < .25) { m.poison = Math.max(m.poison || 0, 3); setFx(m.x, m.y, '•', 'mpois', 200); }
-  if (st.vamp && S.hp < st.max) S.hp++;
+  if (st.vamp && S.hp < st.max) S.hp = Math.min(st.max, S.hp + st.vamp);
 }
 
 function hurtMon(m, dmg, crit, quiet) {

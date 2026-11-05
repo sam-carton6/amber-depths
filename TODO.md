@@ -7,7 +7,7 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v22 (merged 5 Nov 2026, commit `ddaf2c3`): everything so far, now with the Mole class.
 Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** nothing.
+**On `staging`, not live yet:** v23, Endless gear past +7.
 **Next up:** Sam plays deep Hard Endless and says how the curve and the upgrades feel (too strong, too weak, missing picks?).
 
 ## To do
@@ -26,9 +26,8 @@ Built from `src/` with `node src/build.mjs`.
   area: the boss gets a small arena, then the upgrade pick. Different mini-bosses instead of always the Golem.
   Other ideas: a "new depth record" moment, deep-only monsters or elite abilities past floor 15-20.
 - **More upgrades for the pool** as they come up (e.g. thorns, faster ability recharge, potion strength).
-- **Endless loot that keeps mattering:** gear caps at +7 (Runeblade / Amberplate) by about floor 10 and bonuses are
-  flat. Ideas: "+N" gear or tiers past the cap; bonuses that grow with depth; trade-off bonuses like "Reckless"
-  (+50% damage dealt, +25% taken) so you can choose to be a glass cannon.
+- **Trade-off gear bonuses** like a "Reckless" weapon (+50% damage dealt, +25% taken), left over from the deep-loot
+  idea (the +N gear itself is done).
 - **Cross-device sync without moving (option):** a Worker on a free workers.dev address can store saves for the game
   where it is now, with a short sync code, so no domain move and no lost progress. Mostly Sam playing for now.
 - **Cloudflare move (Sam, 5 Nov 2026):** own domain (~$11/yr) on Cloudflare, Worker + D1/KV for leaderboards and
@@ -52,4 +51,5 @@ Built from `src/` with `node src/build.mjs`.
 
 ## What's new at the next merge
 
-- 
+- Endless loot keeps getting better past floor 10: weapons and armour roll a plus (about +1 per 3 floors), so you'll
+  find a Runeblade +10 around floor 19 and +19 gear by floor 45. Vampiric, Vigorous and Thorned bonuses grow with it.
