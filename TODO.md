@@ -5,10 +5,11 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v28 (merged 5 Nov 2026, commit `de55c6e`): everything so far, now with text styles, the
-wall-colour fix and the run stats panel. Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** v29: fix for the Challenges menu reopening on every click (see *What's new*).
-**Next up:** Sam plays deep Hard Endless and says how the curve and the upgrades feel (too strong, too weak, missing picks?).
+**Live on `main`:** v29 (merged 5 Nov 2026, commit `e94f223`): everything so far, plus the Challenges menu fix.
+Built from `src/` with `node src/build.mjs`.
+**On `staging`, not live yet:** nothing.
+**Next up:** Sam is on floor 24+ of Hard Endless (Rogue), says it's no longer a blitz; he reports his final depth
+and whether the menu fix worked. Then the curve tuning, then boss floors step 2.
 
 ## To do
 
@@ -56,5 +57,4 @@ wall-colour fix and the run stats panel. Built from `src/` with `node src/build.
 
 ## What's new at the next merge
 
-- Fixed: with the Clean or Readable text style (or a non-amber screen colour), the Challenges menu's ✕ didn't
-  close it, and any click (even in the game) reopened it.
+- 

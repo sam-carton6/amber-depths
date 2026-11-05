@@ -169,3 +169,9 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 
 ### 2026-10-27 — Deploy from `app/` instead of a zip (commit b11b3cb)
 - The app files moved out of `amber-depths-app.zip` into `app/`; the Pages workflow publishes that folder as-is.
+## 5 Nov 2026: v29, Challenges menu fix (merged, `e94f223`)
+
+- With the Clean/Readable text style or a non-amber screen colour, the page root carried `data-font`/`data-crt`,
+  so the pickers' click handler (which reopens the menu) landed on the whole page: ✕ didn't close the menu and any
+  click reopened it. Both pickers are now scoped to the menu body.
+
