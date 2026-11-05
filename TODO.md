@@ -21,6 +21,11 @@ arrow-cluster keys. Built from `src/` with `node src/build.mjs`.
 ## Ideas (later)
 
 - More classes, a second wave of relics, cosmetic titles on the daily share text.
+- **New class: the Mole (Sam, 5 Nov 2026):** sight only ~3 tiles. Ability Dig: pick a direction (aimed like the
+  Ranger's Volley), tunnel through up to 3 wall tiles (not the map edge; can't skip a Golem, the stairs stay locked).
+  Passive tremor sense: feels monsters within ~6 tiles through walls (dim letters), folding in the Seer idea.
+  Possible unlock: win a run on Ascension 4+ (Darkness). Spare ideas: Echo (reveal 8 tiles for a few turns) as an
+  upgrade or scroll; the Lurker overlaps the Rogue, so skip it.
 - Leaderboards (would need a backend).
 - **Endless boss floors, step 2 (Sam's plan, 5 Nov 2026):** every 10th floor a half-size dungeon with a roomy stair
   area: the boss gets a small arena, then the upgrade pick. Different mini-bosses instead of always the Golem.
