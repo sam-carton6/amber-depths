@@ -22,8 +22,13 @@ commit `905e9af`).
 
 - More classes, a second wave of relics, cosmetic titles on the daily share text.
 - Leaderboards (would need a backend).
-- **Endless, more ceremony:** a special floor or mini-boss every 10 floors, a "new depth record" moment, deep-only
+- **Endless, more ceremony:** the Stone Golem already guards the stairs every 5 floors, but it's the same Golem each
+  time and doesn't get the deep damage curve (it's made outside `makeMon`), so deep down it's weaker than normal
+  monsters. Ideas: give it the curve, a different boss every 10 floors, a "new depth record" moment, deep-only
   monsters or elite abilities past floor 15-20.
+- **Endless loot that keeps mattering:** gear caps at +7 (Runeblade / Amberplate) by about floor 10 and bonuses are
+  flat. Ideas: "+N" gear or tiers past the cap; bonuses that grow with depth; trade-off bonuses like "Reckless"
+  (+50% damage dealt, +25% taken) so you can choose to be a glass cannon.
 - **Endless build choices:** a pick every few levels (e.g. big damage for less HP) so you can spec a glass cannon. Biggest
   piece; do after the curve feels right.
 - **Sprite pack option:** swap ASCII cells for tiles (e.g. Kenney's free 1-bit pack tinted amber). ~25-40% of a window.
