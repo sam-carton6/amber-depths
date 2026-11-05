@@ -279,6 +279,22 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 .pad button { font-family: var(--font-display); font-size: 1.6rem; }
 .pad .wait { font-family: var(--font-ui); font-size: .7rem; color: var(--dim); }
 .acts { display: grid; gap: 6px; grid-template-rows: repeat(3, 56px); width: 150px; }
+/* Big arrows: cells grow with the screen (about 68px on a 375px phone), the buttons share what's left of the row. */
+:root[data-controls="big"] .pad { --cell: min(84px, calc((100vw - 176px) / 3)); grid-template-columns: repeat(3, var(--cell)); grid-template-rows: repeat(3, var(--cell)); gap: 7px; }
+:root[data-controls="big"] .pad button { font-size: 2rem; }
+:root[data-controls="big"] .pad .wait { font-size: .8rem; }
+:root[data-controls="big"] .acts { --cell: min(84px, calc((100vw - 176px) / 3)); grid-template-rows: repeat(3, var(--cell)); width: auto; min-width: 104px; max-width: 170px; flex: 1; gap: 7px; }
+/* Tap the map: no d-pad, the three buttons in one row, stats under them. */
+:root[data-controls="tap"] .pad { display: none; }
+:root[data-controls="tap"] .acts { grid-template-rows: 64px; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
+:root[data-controls="tap"] .screen { touch-action: manipulation; cursor: pointer; }
+.tapguide { display: none; position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.tapguide svg { width: 100%; height: 100%; fill: none; stroke: var(--amber); stroke-width: 1; opacity: .13; }
+:root[data-controls="tap"] .tapguide { display: block; }
+.phstats { display: none; width: 100%; font-size: .74rem; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
+.phstats summary { color: var(--dim); cursor: pointer; }
+.phstats .statgrid { margin-top: 6px; }
+@media (max-width: 899px) { :root[data-controls="tap"] .phstats { display: block; } }
 .acts button { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 10px; font-size: .8rem; text-align: left; }
 .acts button b { font-family: var(--font-display); font-weight: 400; font-size: 1.3rem; color: var(--hot); }
 .acts button small { font-size: .65rem; color: var(--dim); }
@@ -397,7 +413,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
   <details class="howto">
     <summary>How to play</summary>
     <ul>
-      <li><b>Move</b> with the arrow keys, WASD, the numpad (<b>8 4 5 6</b>; <b>7</b> ability, <b>9</b> potion, <b>.</b> pack, <b>0</b> wait) or the d-pad. With the arrow keys, <b>Delete</b> uses your ability, <b>End</b> waits, <b>Page Down</b> drinks a potion and <b>right Ctrl</b> opens the pack. Walk into a monster to attack it.</li>
+      <li><b>Move</b> with the arrow keys, WASD, the numpad (<b>8 4 5 6</b>; <b>7</b> ability, <b>9</b> potion, <b>.</b> pack, <b>0</b> wait) or the d-pad. On a phone you can pick big arrows, or tap the map instead (top, bottom, left or right part to move, middle to wait), under <b>Controls</b> in the Challenges menu. With the arrow keys, <b>Delete</b> uses your ability, <b>End</b> waits, <b>Page Down</b> drinks a potion and <b>right Ctrl</b> opens the pack. Walk into a monster to attack it.</li>
       <li><b>Q</b> uses your class ability. <b>P</b> drinks a healing potion. <b>I</b> opens your pack. <b>Space</b> waits a turn.</li>
       <li>In the pack, press <b>1–9</b> to use or equip an item, and <b>Shift + number</b> to drop it.</li>
       <li>Find the <b>&gt;</b> on each floor to go deeper. Gear: <b>)</b> weapon, <b>[</b> armor, <b>!</b> potion, <b>?</b> scroll, <b>$</b> gold.</li>
@@ -439,6 +455,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
       <pre id="map"></pre>
       <div id="fx"></div>
     </div>
+    <div class="tapguide" aria-hidden="true"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 0L37.5 37.5M100 0L62.5 37.5M0 100L37.5 62.5M100 100L62.5 62.5" vector-effect="non-scaling-stroke"/><rect x="37.5" y="37.5" width="25" height="25" vector-effect="non-scaling-stroke"/></svg></div>
     <div class="focus-hint" id="focushint" hidden>Click here to play with the keyboard</div>
   </div>
 
@@ -459,6 +476,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
       <button id="quaff"><span><b>Potion</b><small id="quaffn">0 left</small></span><span class="k">P</span></button>
       <button id="packbtn"><span><b>Pack</b><small id="packn">0/10</small></span><span class="k">I</span></button>
     </div>
+    <details class="phstats" id="phstats"><summary>Run stats</summary><div class="statgrid" id="statph"></div></details>
   </div>
 </section>
 
@@ -664,7 +682,7 @@ try { unlocks = JSON.parse(localStorage.getItem('amber-depths-unlocks') || '{}')
 
 /* ================= profile + challenges ================= */
 const PROF_KEY = 'amber-depths-profile';
-const PDEF = { kills: {}, totalKills: 0, potions: 0, traps: 0, secrets: 0, chests: 0, mimics: 0, golems: 0, wyrms: 0, floors: 0, gold: 0, runs: 0, dailies: 0, maxEndless: 0, seen: {}, won: {}, done: {}, crt: 'amber', relics: {}, maxDepth: 0, font: 'pixel', runes: {}, ascMax: 0, ascWon: {} };
+const PDEF = { kills: {}, totalKills: 0, potions: 0, traps: 0, secrets: 0, chests: 0, mimics: 0, golems: 0, wyrms: 0, floors: 0, gold: 0, runs: 0, dailies: 0, maxEndless: 0, seen: {}, won: {}, done: {}, crt: 'amber', relics: {}, maxDepth: 0, font: 'pixel', ctl: 'pad', statsOpen: false, runes: {}, ascMax: 0, ascWon: {} };
 let PROF = (() => { let o = null; try { o = JSON.parse(localStorage.getItem(PROF_KEY) || 'null'); } catch (e) {} return Object.assign(JSON.parse(JSON.stringify(PDEF)), o || {}); })();
 for (const k in PDEF) if (typeof PROF[k] !== typeof PDEF[k] || (typeof PDEF[k] === 'object' && (!PROF[k] || Array.isArray(PROF[k])))) PROF[k] = JSON.parse(JSON.stringify(PDEF[k])); // damaged save data
 if (unlocks.necro && !PROF.done.c_necro) { PROF.done.c_necro = Date.now(); PROF.wyrms = Math.max(1, PROF.wyrms); }
@@ -713,6 +731,10 @@ const CRTS = { amber: { name: 'Amber', unlock: null }, heart: { name: 'Heartligh
 const crtOk = id => CRTS[id] && (!CRTS[id].unlock || PROF.done[CRTS[id].unlock]);
 // Text style: swaps the UI font. The map always stays on JetBrains Mono (it needs box-drawing glyphs).
 const FONTS = { pixel: { name: 'Pixel' }, clean: { name: 'Clean' }, readable: { name: 'Readable' } };
+// Controls: the d-pad, a bigger d-pad, or tapping the map (top/bottom/left/right moves, the middle waits).
+const CTLS = { pad: { name: 'Arrows' }, big: { name: 'Big arrows' }, tap: { name: 'Tap the map' } };
+const ctlNow = () => CTLS[PROF.ctl] ? PROF.ctl : 'pad';
+function applyCtl() { const c = ctlNow(); if (c === 'pad') delete document.documentElement.dataset.controls; else document.documentElement.dataset.controls = c; if (typeof fit === 'function' && S) fit(); }
 function applyFont() { const f = FONTS[PROF.font] ? PROF.font : 'pixel'; if (f === 'pixel') delete document.documentElement.dataset.font; else document.documentElement.dataset.font = f; if (typeof fit === 'function' && S) fit(); }
 function applyCrt() { const c = crtOk(PROF.crt) ? PROF.crt : 'amber'; if (c === 'amber') delete document.documentElement.dataset.crt; else document.documentElement.dataset.crt = c; }
 let runNew = [];
@@ -1244,6 +1266,7 @@ function openChal() {
   };
   const grp = g => `<div class="chal-grp"><h3 class="sub">${g.toUpperCase()}</h3>${CH.filter(c => c.grp === g).map(item).join('')}</div>`;
   const fontRow = `<div class="chal-grp"><h3 class="sub">TEXT STYLE</h3><div class="crtrow">${Object.entries(FONTS).map(([id, f]) => `<button data-font="${id}" aria-pressed="${(FONTS[PROF.font] ? PROF.font : 'pixel') === id}">${f.name}</button>`).join('')}</div><p class="gtxt" style="color:var(--dim);font-size:.72rem">Pixel is the old-school look. Clean is sharper, and Readable is built to be easy on the eyes. The map stays the same.</p></div>`;
+  const ctlRow = `<div class="chal-grp"><h3 class="sub">CONTROLS</h3><div class="crtrow">${Object.entries(CTLS).map(([id, c]) => `<button data-ctl="${id}" aria-pressed="${ctlNow() === id}">${c.name}</button>`).join('')}</div><p class="gtxt" style="color:var(--dim);font-size:.72rem">For touch screens. Big arrows makes the d-pad larger. Tap the map hides the d-pad: tap the top, bottom, left or right part of the dungeon to move that way, and the middle to wait. Your ability, potion and pack buttons move to one row, with your run stats below.</p></div>`;
   const crt = `<div class="chal-grp"><h3 class="sub">SCREEN COLOR</h3><div class="crtrow">${Object.entries(CRTS).map(([id, c]) => `<button data-crt="${id}" aria-pressed="${(crtOk(PROF.crt) ? PROF.crt : 'amber') === id}"${crtOk(id) ? '' : ' disabled'}>${crtOk(id) ? '' : '🔒 '}${c.name}</button>`).join('')}</div></div>`;
   const mast = `<div class="chal-grp"><h3 class="sub">CLASS MASTERY</h3><p class="gtxt" style="color:var(--dim);font-size:.72rem">Bronze: slay the Wyrm on Short. Silver: on Standard. Gold: on Hard or Nightmare. Gold unlocks that class's alternate ability, which you can pick on the title screen.</p>
     <div class="mast"><span class="h">CLASS</span><span class="h">BRONZE</span><span class="h">SILVER</span><span class="h">GOLD</span>${Object.entries(CLASSES).map(([id, c]) => { const w = PROF.won[id] || {}; return `<span>${esc(c.name)}</span>${['short', 'standard', 'hard'].map(k => `<span class="m ${w[k] ? 'on' : 'off'}">${w[k] ? '●' : '○'}</span>`).join('')}`; }).join('')}</div></div>`;
@@ -1254,8 +1277,9 @@ function openChal() {
     return item(c);
   }).join('')}</div>`;
   const ascTxt = `<p class="gtxt" style="color:var(--dim);font-size:.72rem">Slay the Wyrm on Nightmare to unlock Ascension 1. Each Ascension win unlocks the next level, up to 10. Highest unlocked: ${PROF.ascMax ? 'A' + PROF.ascMax : 'none yet'}.</p>`;
-  $('chalbody').innerHTML = fontRow + crt + rel + grp('Unlocks') + grp('Hard challenges') + mast + `<div class="chal-grp"><h3 class="sub">ASCENSION</h3>${ascTxt}${CH.filter(c => c.grp === 'Ascension').map(item).join('')}</div>` + secretGrp + grp('Milestones');
+  $('chalbody').innerHTML = ctlRow + fontRow + crt + rel + grp('Unlocks') + grp('Hard challenges') + mast + `<div class="chal-grp"><h3 class="sub">ASCENSION</h3>${ascTxt}${CH.filter(c => c.grp === 'Ascension').map(item).join('')}</div>` + secretGrp + grp('Milestones');
   $('chalbody').querySelectorAll('[data-font]').forEach(b => b.onclick = () => { PROF.font = b.dataset.font; saveProf(); applyFont(); openChal(); SND.play('click'); });
+  $('chalbody').querySelectorAll('[data-ctl]').forEach(b => b.onclick = () => { PROF.ctl = b.dataset.ctl; saveProf(); applyCtl(); openChal(); SND.play('click'); });
   $('chalbody').querySelectorAll('[data-crt]').forEach(b => b.onclick = () => { if (!crtOk(b.dataset.crt)) return; PROF.crt = b.dataset.crt; saveProf(); applyCrt(); openChal(); SND.play('click'); });
   $('chal').hidden = false;
   setTimeout(() => $('chalclose').focus(), 30);
@@ -3002,6 +3026,7 @@ function update() {
   saveGame();
   $('gearside').innerHTML = gl('Weapon', S.weapon) + gl('Armor', S.armor) + `<div class="row"><span class="lab">Crit</span><span class="val">${Math.round(st.crit * 100)}%</span></div><div class="row"><span class="lab">Dodge</span><span class="val">${Math.round(st.dodge * 100)}%</span></div>`;
   $('statside').innerHTML = statRows().map(([l, v]) => `<span class="sl">${l}</span><span class="sv">${v}</span>`).join('');
+  if (ctlNow() === 'tap') $('statph').innerHTML = $('statside').innerHTML;
   render();
 }
 
@@ -3011,7 +3036,7 @@ function fit() {
     const sc = $('screen');
     const avail = sc.clientWidth - 22;
     const wide = innerWidth >= 900;
-    let fs = Math.min(avail / (W * 0.6), (innerHeight * (wide ? .62 : .4)) / (H * 1.15));
+    let fs = Math.min(avail / (W * 0.6), (innerHeight * (wide ? .62 : ctlNow() === 'tap' ? .5 : .4)) / (H * 1.15));
     fs = clamp(fs, 7, 24);
     $('map').style.fontSize = fs + 'px';
     // On phones, shrink the map if the whole game (safe areas included) still doesn't fit the screen.
@@ -3029,6 +3054,15 @@ function focusGame() { try { window.focus(); $('screen').focus({ preventScroll: 
 function checkFocus() { $('focushint').hidden = !(finePointer && screenNow === 'game' && !document.hasFocus()); }
 addEventListener('focus', checkFocus); addEventListener('blur', checkFocus);
 $('screen').addEventListener('pointerdown', () => { try { window.focus(); } catch (e) {} setTimeout(checkFocus, 0); });
+// Tap the map: split like an X; the middle square (a quarter of each side) waits.
+const TAP_MID = .25;
+function tapDir(e) {
+  const r = $('screen').getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+  if (Math.abs(x) < TAP_MID / 2 && Math.abs(y) < TAP_MID / 2) return [0, 0];
+  return Math.abs(x) > Math.abs(y) ? [Math.sign(x), 0] : [0, Math.sign(y)];
+}
+$('screen').addEventListener('click', e => { if (ctlNow() !== 'tap' || !canAct()) return; const [dx, dy] = tapDir(e); act(dx, dy); });
 
 /* ================= input ================= */
 const MOVE = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0],
@@ -3101,6 +3135,8 @@ addEventListener('keydown', e => {
 });
 const bind = (id, fn) => $(id).addEventListener('click', fn);
 bind('bu', () => act(0, -1)); bind('bd', () => act(0, 1)); bind('bl', () => act(-1, 0)); bind('br', () => act(1, 0)); bind('bw', () => act(0, 0));
+$('phstats').open = !!PROF.statsOpen;
+$('phstats').addEventListener('toggle', () => { PROF.statsOpen = $('phstats').open; saveProf(); setTimeout(fit, 0); });
 bind('abil', ability); bind('quaff', quaff); bind('packbtn', openPack); bind('packclose', closePack);
 $('pack').addEventListener('click', e => { if (e.target === $('pack')) closePack(); });
 bind('start', () => newGame()); bind('again', () => newGame());
@@ -3112,7 +3148,7 @@ bind('bakrestore', () => restoreBackup($('bakin').value)); bind('bakopen', () =>
 $('bakpick').addEventListener('change', async e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) restoreBackup(await f.text()); }); bind('tguide', openGuide); bind('guidebtn', () => { if (!busy) openGuide(); }); bind('guideclose', closeGuide);
 $('chal').addEventListener('click', e => { if (e.target === $('chal')) closeChal(); });
 $('guide').addEventListener('click', e => { if (e.target === $('guide')) closeGuide(); });
-applyCrt(); applyFont(); checkProgress();
+applyCrt(); applyFont(); applyCtl(); checkProgress();
 $('hist').addEventListener('click', e => { if (e.target === $('hist')) closeHist(); }); bind('menu', toTitle); bind('cont', loadGame);
 bind('shopclose', closeShop); bind('menubtn', () => { if (!busy && !(S && (S.dead || S.won) && $('end').hidden)) toTitle(); }); // not during the death/win animation
 bind('sndbtn', () => { SND.toggle(); update(); });

@@ -7,7 +7,7 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v29 (merged 5 Nov 2026, commit `e94f223`): everything so far, plus the Challenges menu fix.
 Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** v30: version number on the title screen.
+**On `staging`, not live yet:** v31: version number on the title screen, phone Controls setting (see *What's new*).
 **Next up:** Sam is on floor 24+ of Hard Endless (Rogue), says it's no longer a blitz; he reports his final depth
 and whether the menu fix worked. Then the curve tuning, then boss floors step 2.
 
@@ -58,3 +58,6 @@ and whether the menu fix worked. Then the curve tuning, then boss floors step 2.
 ## What's new at the next merge
 
 - The title screen shows the game's version (e.g. v30) in the top-right corner of the logo.
+- **Controls** setting (Challenges menu): Arrows, Big arrows (about 68px buttons on a 375px phone, up from 56), or
+  Tap the map (an X splits the dungeon; top/bottom/left/right moves, the middle square waits; faint guide lines;
+  the three buttons in one row and a foldable Run stats panel under them on phones).

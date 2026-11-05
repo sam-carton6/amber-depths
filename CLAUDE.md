@@ -57,7 +57,9 @@ each player's browser (`localStorage`).
 - Fonts: UI text uses `--font-ui` (VT323 scaled 137% as "VT323 UI", defined in `src/build.mjs`); the map, logo and
   ASCII art stay on `--font-mono` (JetBrains Mono) because VT323 lacks box-drawing glyphs and would break the grid.
   In the claude.ai artifact, "VT323 UI" doesn't exist, so UI text there falls back to unscaled VT323 (small).
-  The Text style picker (`FONTS`) swaps `--font-ui` only; the @font-face rules live in `src/build.mjs`.
+  The Text style picker (`FONTS`) swaps `--font-ui` only (root `data-font`); Controls (`CTLS`) set root `data-controls`.
+  Settings buttons must use a different data attribute from the root's, and be selected inside `#chalbody`, or the
+  picker's click handler lands on the whole page (the v29 bug). the @font-face rules live in `src/build.mjs`.
 
 ## Decisions so far
 - Deploy the `app/` folder directly, not a zip (27 Oct 2026; the zip was only for uploading from a phone).
