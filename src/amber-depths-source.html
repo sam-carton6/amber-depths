@@ -699,7 +699,7 @@ const DIFFS = {
 const MODES = {
   short:    { name: 'Short', floors: 5, scale: 2, xpMul: 1.8, bossHp: 70, bossAtk: [4, 8], breath: [8, 11], st: '5 floors · ~10 min' },
   standard: { name: 'Standard', floors: 10, scale: 1, xpMul: 1, bossHp: 115, bossAtk: [5, 9], breath: [11, 15], st: '10 floors · ~25 min' },
-  endless:  { name: 'Endless', floors: Infinity, scale: 1, xpMul: 1, st: 'No bottom · how deep?' },
+  endless:  { name: 'Endless', floors: Infinity, scale: 1, xpMul: 1, st: 'No bottom · deadlier past floor 12' },
 };
 const MONS = [
   { ch: 'r', name: 'rat',           hp: 4,  atk: [1, 2], xp: 1,  tier: 1 },
@@ -1204,6 +1204,9 @@ function showScreen(which) {
 
 /* ================= state helpers ================= */
 const eff = () => S.depth * S.M.scale;
+// Endless past floor 12: monsters hit harder every floor (compounding) and drop fewer potions, so deep floors punish mistakes.
+const DEEP_FROM = 12, DEEP_DMG = 1.04, DEEP_POTS = .95;
+const deep = () => S.mode === 'endless' ? Math.max(0, S.depth - DEEP_FROM) : 0;
 const key = (x, y) => x + ',' + y;
 const monAt = (x, y) => S.mons.find(m => m.x === x && m.y === y);
 const itemAt = (x, y) => S.items.find(e => e.x === x && e.y === y);
@@ -1595,8 +1598,8 @@ function makeMon(t, x, y) {
   const e = eff(), over = Math.max(0, e - t.tier);
   const hp = Math.max(1, Math.round((t.hp + Math.floor(over * 1.5) + Math.floor(e / 2)) * S.D.hp));
   const elite = S.asc >= 1 && !t.boss && Math.random() < .15;
-  const fh = elite ? Math.round(hp * 1.5) : hp;
-  return { ...t, x, y, hp: fh, maxhp: fh, bonus: Math.floor(e / 3) + Math.floor(over / 3) + (elite ? 2 : 0), xp: t.xp + Math.floor(e / 2) + (elite ? 5 : 0), awake: S.asc >= 8, flash: 0, elite };
+  const fh = elite ? Math.round(hp * 1.5) : hp, k = DEEP_DMG ** deep();
+  return { ...t, x, y, hp: fh, maxhp: fh, atk: [Math.round(t.atk[0] * k), Math.round(t.atk[1] * k)], bonus: Math.round((Math.floor(e / 3) + Math.floor(over / 3) + (elite ? 2 : 0)) * k), xp: t.xp + Math.floor(e / 2) + (elite ? 5 : 0), awake: S.asc >= 8, flash: 0, elite };
 }
 
 function genBoss() {
@@ -1967,7 +1970,8 @@ function killMon(m) {
   if (S.cls === 'necro' && S.hp < stats().max) { S.hp++; floatText(S.px, S.py, '+1', 'heal'); }
   gainXp(m.xp);
   const r = Math.random();
-  const drop = r < .12 ? rollGear() : r < .28 ? potion() : r < .36 ? scroll() : null;
+  const pc = .16 * DEEP_POTS ** deep();
+  const drop = r < .12 ? rollGear() : r < .12 + pc ? potion() : r < .2 + pc ? scroll() : null;
   if (drop && !itemAt(m.x, m.y)) S.items.push({ x: m.x, y: m.y, it: drop });
 }
 

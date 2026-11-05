@@ -7,6 +7,15 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v14: Endless gets deadlier past floor 12 (on staging)
+- Measured first: on Hard Endless the danger climbed to floor 12, then went flat (about 11 average hits to kill you from
+  floor 12 to 80; potions piled to 50). Now, in Endless past floor 12, monster damage is multiplied by 1.04 per floor
+  (in `makeMon`) and the kill-drop potion chance by 0.95 per floor. Short/Standard unchanged.
+- Soak: 80 bot games per version (10 classes × 4, two tabs), `test/soak.js` hooked into the bot. Hits to kill you,
+  old → new: f13-18 13.6 → 12, f19-24 13 → 8, f25-30 12 → 5.7, f31+ 11 → 5. Deepest bot run 81 → 33; median depth
+  about the same (15-18, the bot dies early to its own mistakes). Gotcha: the browser cached the old test page,
+  so load it with `?v=something` and check the page has the new code before soaking.
+
 ### 2026-10-28 — v13 merged to `main` (commit 905e9af)
 - Deploy passed; live index.html and sw.js match `main` (VERSION v13).
 
