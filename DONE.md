@@ -169,6 +169,13 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 
 ### 2026-10-27 — Deploy from `app/` instead of a zip (commit b11b3cb)
 - The app files moved out of `amber-depths-app.zip` into `app/`; the Pages workflow publishes that folder as-is.
+## 5 Nov 2026: v31, version tag and phone Controls (merged, `51b1a6d`)
+
+- The title screen shows the game's version (e.g. v30) in the top-right corner of the logo.
+- **Controls** setting (Challenges menu): Arrows, Big arrows (about 68px buttons on a 375px phone, up from 56), or
+  Tap the map (an X splits the dungeon; top/bottom/left/right moves, the middle square waits; faint guide lines;
+  the three buttons in one row and a foldable Run stats panel under them on phones).
+
 ## 5 Nov 2026: v29, Challenges menu fix (merged, `e94f223`)
 
 - With the Clean/Readable text style or a non-amber screen colour, the page root carried `data-font`/`data-crt`,
