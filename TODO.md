@@ -28,6 +28,9 @@ output `app`), add the domain, test on iPhone, then one friend handover (Backup/
 
 ## Ideas (later)
 
+- **"Equip best" button in the pack** (Sam, 6 Nov 2026): puts on the highest `gearScore` weapon and armor. Small: the
+  game already scores gear (pickup message, sell-junk). Watch out for cursed gear and Vampiric/Thorned trade-offs.
+
 - **Save sync across devices** (Sam, 5 Nov 2026, with the Cloudflare move): needs server storage (e.g. Workers KV
   or D1) and some way to tell players apart. A big feature of its own; do it after the hosting move is finished.
 - More classes, a second wave of relics, cosmetic titles on the daily share text.
