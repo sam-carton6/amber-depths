@@ -7,6 +7,15 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-06 — v51 on `staging`: the Vampire class
+- No healing from anything (potions, level-ups, merchant meal, Regen/Vamp boons, Vampiric gear: those feed the
+  ward instead). Blood ward `S.ward` (25% of max HP) soaks hits first, refills by 10% of damage dealt (`hurtMon`)
+  and fully on each new floor; the merchant's meal becomes "A cup of something red" that fills it. Potions give +3
+  max HP for good (`S.blood`, cap 60). Bite (cd 6): double damage to the toughest adjacent enemy, refills 25% of
+  the ward. Alt (Gold mastery): Blood Burst. Unlock challenge `c_vampire` "Bloodless": floor 10 without a potion.
+- First tuning had the ward refill by a third of damage dealt and Bite refill it fully: the bot lost almost no HP
+  in 10 Hard floors. Test bot now Bites and drinks blood potions when safe.
+
 ### 2026-11-06 — v48 merged to `main`: compact pack (commit 37379c5)
 - Potions and scrolls are tiles, two to a row (short name, count, one-line description, × to drop); gear keeps
   full rows. Root cause of the tall rows: on touch screens the hidden number badge shifted the grid, putting the

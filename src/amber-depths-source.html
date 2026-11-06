@@ -182,6 +182,7 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 .bar i { position: absolute; inset: 0 auto 0 0; background: var(--amber); transition: width .2s; }
 .bar span { position: relative; display: block; font-size: .62rem; line-height: 12px; padding-left: 5px; color: #1a1006; font-weight: 700; mix-blend-mode: normal; }
 .bar.hp.low i { background: var(--red); }
+.bar i.ward { inset: auto auto 0 0; height: 4px; background: #e0466e; }
 .bar.xp i { background: var(--magic); }
 .bar.xp span { color: var(--magic); mix-blend-mode: difference; }
 .bar.boss { height: 16px; border-color: #6b2a1a; }
@@ -251,7 +252,7 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 .melt { color: #b8321c; text-shadow: 0 0 6px rgba(255,60,30,.5); }
 .ring { color: var(--hot); text-shadow: 0 0 10px var(--gold); }
 .ft { position: absolute; transform: translate(-50%, 0); font: 700 12px/1 var(--font-mono); pointer-events: none; white-space: nowrap; animation: rise .9s ease-out forwards; text-shadow: 0 0 4px #000, 0 0 8px #000; }
-.ft.dmg { color: #fff3d6; } .ft.crit { color: var(--gold); font-size: 15px; } .ft.hurt { color: var(--red); } .ft.gold { color: var(--gold); } .ft.heal { color: var(--heal); } .ft.lvl { color: var(--magic); font-size: 14px; }
+.ft.dmg { color: #fff3d6; } .ft.crit { color: var(--gold); font-size: 15px; } .ft.hurt { color: var(--red); } .ft.gold { color: var(--gold); } .ft.heal { color: var(--heal); } .ft.ward { color: #e0466e; } .ward { color: #e0466e; } .ft.lvl { color: var(--magic); font-size: 14px; }
 @keyframes rise { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -30px); } }
 
 /* sidebar */
@@ -455,7 +456,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
       <span class="hudbtns"><button class="mini" id="guidebtn">Guide</button><button class="mini" id="musbtn" aria-pressed="false">♫ on</button><button class="mini" id="sndbtn" aria-pressed="false">♪ on</button><button class="mini" id="menubtn">Menu</button></span>
     </div>
     <div class="bars">
-      <div class="bar hp" id="hpbar"><i id="hpfill"></i><span id="hptext">HP</span></div>
+      <div class="bar hp" id="hpbar"><i id="hpfill"></i><i class="ward" id="wardfill" hidden></i><span id="hptext">HP</span></div>
       <div class="bar xp"><i id="xpfill"></i><span>XP</span></div>
     </div>
     <div class="bar boss" id="bossbar" hidden><i id="bossfill"></i><span id="bossname">AMBER WYRM</span></div>
@@ -643,7 +644,15 @@ const CLASSES = {
     desc: 'Tunnels through walls in a direction you choose. Sees only 3 tiles, but feels every monster within 8, even through walls.' },
   alch: { name: 'Alchemist', sig: '@~', hp: 22, hpLv: 4, atk: 1, def: 0, crit: .05, ability: 'Brew', cd: 3, unlock: 'c_alch',
     desc: 'Turn a potion into a bomb: fire, frost, then poison, in rotation. Potions heal 50% more.' },
+  vampire: { name: 'Vampire', sig: '@v', hp: 26, hpLv: 5, atk: 2, def: 0, crit: .08, ability: 'Bite', cd: 6, unlock: 'c_vampire',
+    desc: 'Never heals. A blood ward soaks hits and refills as you deal damage. Potions raise your max HP instead.' },
 };
+// Vampire tuning: ward size (share of max HP), share of damage dealt that refills it, share of the ward a Bite refills,
+// max HP per potion and its cap.
+const VAMP = { ward: .25, feed: .1, bite: .25, pot: 3, potCap: 60 };
+const isVamp = () => !!S && S.cls === 'vampire';
+const wardMax = () => Math.round(stats().max * VAMP.ward);
+function feedWard(n) { if (n > 0) S.ward = Math.min(wardMax(), (S.ward || 0) + Math.round(n)); }
 const RELICS = {
   flask: { name: 'Bottomless Flask', desc: 'Start with 2 extra potions' },
   lens:  { name: "Cartographer's Lens", desc: 'The stairs are revealed on every floor' },
@@ -673,6 +682,7 @@ const ABIL_DETAIL = {
   ranger: () => `Volley: press the ability, then a direction. The arrow flies up to 8 tiles and pierces everything in its path for 4 + level + half your weapon bonus${S && S.cls === 'ranger' ? ` (right now: ${4 + S.lv + Math.floor((S.weapon ? S.weapon.val : 0) / 2)})` : ''}. It can crit. Press the ability again, or wait, to cancel. Rangers see 2 tiles farther and spot traps as well as rogues. Recharges in 4 turns.`,
   trapper: () => `Set Snare places a snare (×) on the tile next to you closest to an enemy. The first enemy to step in is rooted for 3 turns and takes 3 + level damage. Up to 3 snares at once. You disarm any dungeon trap you walk over and salvage a little gold. Monsters set off traps too. Recharges in 3 turns.`,
   alch: () => `Brew uses up a potion and throws a bomb at the nearest enemy in sight, hitting everything around it. The bombs rotate: Fire (4 + level damage and burning), Frost (freezes for 3 turns), Poison (poisons for 6 turns)${S && S.cls === 'alch' ? `. Next up: ${BOMBS[S.brew || 0]}` : ''}. Your potions heal 50% more. Recharges in 3 turns.`,
+  vampire: () => `Bite deals double damage to the toughest enemy next to you and refills ${Math.round(VAMP.bite * 100)}% of your blood ward. You never heal: not from potions, levels, merchants or gear. The ward (${Math.round(VAMP.ward * 100)}% of your max HP${S && S.cls === 'vampire' ? `, right now ${S.ward || 0}/${wardMax()}` : ''}) takes hits before your HP, refills by ${Math.round(VAMP.feed * 100)}% of the damage you deal, and is full again on every new floor. Merchants sell a cup that fills it. Each potion you drink adds ${VAMP.pot} max HP for good (up to +${VAMP.potCap}). Recharges in 6 turns.`,
   gambler: () => 'Bribe pays the nearest enemy in sight to fight for you for 40 turns. The price is 10 + the enemy\'s max HP, and rises deeper down. Bosses can\'t be bought. Shops give you 25% off, and gold pickups are worth 50% more. Recharges in 5 turns.',
 };
 const MON_NOTES = {
@@ -717,6 +727,7 @@ const CH = [
   { id: 'c_trapper', grp: 'Unlocks', name: 'Trip Hazard', desc: 'Set off 10 traps (across all runs)', reward: 'Unlocks the Trapper', prog: () => [P('traps'), 10] },
   { id: 'c_mole', grp: 'Unlocks', name: 'Burrower', desc: 'Reach floor 15 in Endless', reward: 'Unlocks the Mole', prog: () => [P('maxEndless'), 15] },
   { id: 'c_alch', grp: 'Unlocks', name: 'Thirsty', desc: 'Drink 25 potions (across all runs)', reward: 'Unlocks the Alchemist', prog: () => [P('potions'), 25] },
+  { id: 'c_vampire', grp: 'Unlocks', name: 'Bloodless', desc: 'Reach floor 10 without drinking a potion', reward: 'Unlocks the Vampire' },
   { id: 'c_white', grp: 'Unlocks', name: 'Bottomless', desc: 'Reach floor 20 in Endless', reward: 'White phosphor screen', prog: () => [P('maxEndless'), 20] },
   { id: 'h_naked', grp: 'Hard challenges', name: 'Bare Bones', desc: 'Slay the Wyrm without changing your starting gear', reward: 'Badge' },
   { id: 'h_speed', grp: 'Hard challenges', name: 'Speedrunner', desc: 'Slay the Wyrm on Standard in under 800 turns', reward: 'Badge' },
@@ -834,6 +845,7 @@ const ALT = {
   ranger: { name: 'Rain of Arrows', cd: 8, desc: 'Every enemy in sight takes 3 + level damage.' },
   trapper: { name: 'Minefield', cd: 8, desc: 'Lays a snare on every open tile next to you.' },
   alch: { name: 'Elixir', cd: 15, desc: 'Heal half your max HP and cure every status effect. No potion needed.' },
+  vampire: { name: 'Blood Burst', cd: 6, desc: 'Every enemy next to you takes 4 + level damage. Like any hit, it feeds your ward.' },
 };
 const SCROLLS = { fire: 'Scroll of Fire', frost: 'Scroll of Frost', teleport: 'Scroll of Teleport', mapping: 'Scroll of Mapping' };
 const THEMES = {
@@ -1488,7 +1500,7 @@ function itemName(it) {
 }
 function itemDesc(it) {
   if (it.type === 'gear') return `+${it.val} ${it.kind === 'weapon' ? 'attack' : 'defense'}${it.mod ? ' · ' + modDesc(it) : ''}`;
-  if (it.type === 'potion') return `Restores ${healAmt()} HP`;
+  if (it.type === 'potion') return isVamp() ? `+${VAMP.pot} max HP for good (${S.blood || 0}/${VAMP.potCap})` : `Restores ${healAmt()} HP`;
   return { fire: 'Burns every enemy in sight', frost: 'Freezes every enemy in sight for 4 turns', teleport: 'Moves you somewhere else on this floor', mapping: 'Reveals the whole floor' }[it.kind];
 }
 function itemCls(it) {
@@ -1531,6 +1543,7 @@ function newGame(opts) {
   if (cls === 'warrior') { S.weapon = gear('weapon', 1, null); S.armor = gear('armor', 0, null); }
   if (cls === 'rogue') { S.weapon = gear('weapon', 0, 'keen'); S.armor = gear('armor', 0, null); }
   if (cls === 'mage') { S.weapon = gear('weapon', 0, null); addToPack(scroll('fire')); }
+  if (cls === 'vampire') { S.weapon = gear('weapon', 1, null); S.armor = gear('armor', 0, null); }
   for (let i = 0; i < D.pots; i++) addToPack(potion());
   S.hp = stats().max;
   $('end').hidden = true; $('pack').hidden = true; $('shop').hidden = true; $('boon').hidden = true;
@@ -1579,6 +1592,8 @@ function descend() {
   if (S.mode === 'endless') PROF.maxEndless = Math.max(PROF.maxEndless, S.depth);
   PROF.maxDepth = Math.max(PROF.maxDepth || 0, S.depth);
   if (S.depth >= 5 && !S.potionsDrunk) complete('c_berserker');
+  if (S.depth >= 10 && !S.potionsDrunk) complete('c_vampire');
+  if (isVamp()) S.ward = wardMax();
   if (S.depth >= 3 && !S.kills) complete('h_pacifist');
   if (S.stairsLocked) say(S.arena ? `A boss floor. A great chamber lies to the east, and something huge waits in it.` : 'Heavy footsteps shake the floor. Something guards the way down.', 'bad');
   if (S.shop) say('You hear a merchant humming somewhere on this floor.', 'gold');
@@ -2019,7 +2034,7 @@ function placeShop(rooms) {
     { it: g1, price: gearPrice(g1) },
     { it: g2, price: gearPrice(g2) },
     { svc: 'sharpen', ch: '/', name: 'Whetstone', desc: '+1 attack, permanently', price: 35 + 12 * e },
-    { svc: 'heal', ch: '+', name: 'Bandages and a hot meal', desc: 'Restore all HP', price: 8 + 3 * e },
+    isVamp() ? { svc: 'heal', ch: '+', name: 'A cup of something red', desc: 'Fill your blood ward', price: 8 + 3 * e } : { svc: 'heal', ch: '+', name: 'Bandages and a hot meal', desc: 'Restore all HP', price: 8 + 3 * e },
   ] };
   if (S.relic === 'coin') { const k = RNG() < .5 ? 'weapon' : 'armor', g3 = gear(k, tier + 2, pick(k === 'weapon' ? ['keen', 'vampiric'] : ['vigor', 'thorns'])); S.shop.stock.splice(5, 0, { it: g3, price: gearPrice(g3) }); }
   if (S.cls === 'gambler') for (const st of S.shop.stock) st.price = Math.round(st.price * .75);
@@ -2056,8 +2071,13 @@ function buy(i) {
   const nm = s.it ? itemName(s.it) : s.name;
   if (s.svc === 'sharpen') { S.atk++; say('The merchant hones your edge. +1 attack.', 'good'); }
   else if (s.svc === 'heal') {
-    if (S.hp >= stats().max) { SND.play('deny'); say('You are already at full health.'); renderShop(); update(); return; }
-    S.hp = stats().max; say('You eat, rest and bind your wounds. Full health.', 'good');
+    if (isVamp()) {
+      if ((S.ward || 0) >= wardMax()) { SND.play('deny'); say('Your blood ward is already full.'); renderShop(); update(); return; }
+      S.ward = wardMax(); say('You drink what the merchant offers, and ask no questions. Your ward is full.', 'good');
+    } else {
+      if (S.hp >= stats().max) { SND.play('deny'); say('You are already at full health.'); renderShop(); update(); return; }
+      S.hp = stats().max; say('You eat, rest and bind your wounds. Full health.', 'good');
+    }
   } else if (s.it.type === 'gear' && !S[s.it.kind]) { S[s.it.kind] = s.it; S.gearChanged = true; say(`You buy and equip the ${nm}.`, 'good'); }
   else if (!canAdd(s.it)) { SND.play('deny'); say(S.pack.some(it => it.type === 'gear') ? 'Your pack is full. Sell some gear first.' : 'Your pack is full. Come back after using something.', 'bad'); renderShop(); update(); return; }
   else { addToPack(s.it); say(`You buy the ${nm} for ${s.price} gold.`, 'gold'); }
@@ -2437,7 +2457,8 @@ async function endTurn() {
   if (S.cd > 0) S.cd--;
   if (S.invis > 0) { S.invis--; if (!S.invis) say('You fade back into view.'); }
   if (S.shield > 0) { S.shield--; if (!S.shield) say('You lower your shield.'); }
-  if (B('regen') && S.turn % 3 === 0 && S.hp > 0 && S.hp < stats().max) S.hp = Math.min(stats().max, S.hp + B('regen'));
+  if (B('regen') && S.turn % 3 === 0 && isVamp()) feedWard(B('regen'));
+  else if (B('regen') && S.turn % 3 === 0 && S.hp > 0 && S.hp < stats().max) S.hp = Math.min(stats().max, S.hp + B('regen'));
   if (S.invuln > 0) { S.invuln--; if (!S.invuln) say('The divine shield fades.'); }
   if (S.frenzy > 0) { S.frenzy--; if (!S.frenzy) say('The frenzy fades.'); }
   const st = S.status;
@@ -2472,11 +2493,12 @@ function attack(m) {
   else if (Math.random() < st.crit) { dmg *= 2; crit = true; }
   hurtMon(m, dmg, crit);
   if (S.relic === 'fang' && S.mons.includes(m) && Math.random() < .25) { m.poison = Math.max(m.poison || 0, 3); setFx(m.x, m.y, '•', 'mpois', 200); }
-  if (st.vamp && S.hp < st.max) S.hp = Math.min(st.max, S.hp + st.vamp);
+  if (st.vamp && isVamp()) feedWard(st.vamp);
+  else if (st.vamp && S.hp < st.max) S.hp = Math.min(st.max, S.hp + st.vamp);
 }
 
 function hurtMon(m, dmg, crit, quiet) {
-  if (!m.ally && !allyDmg) { const r = rs(); r.dealt += Math.max(0, Math.min(dmg, m.hp)); r.bigDealt = Math.max(r.bigDealt, dmg); if (crit) r.crits++; }
+  if (!m.ally && !allyDmg) { const r = rs(); r.dealt += Math.max(0, Math.min(dmg, m.hp)); r.bigDealt = Math.max(r.bigDealt, dmg); if (crit) r.crits++; if (isVamp()) feedWard(Math.max(0, Math.min(dmg, m.hp)) * VAMP.feed); }
   m.hp -= dmg; m.flash = performance.now(); m.awake = true;
   floatText(m.x, m.y, '-' + dmg, crit ? 'crit' : 'dmg');
   if (!quiet || crit) SND.play(crit ? 'crit' : 'hit');
@@ -2497,7 +2519,8 @@ function killMon(m) {
   say(`The ${m.name} dies.`, 'good');
   if (!m.ally && !m.boss) { S.corpses.push({ x: m.x, y: m.y, ch: m.ch, name: m.name, maxhp: m.maxhp, atk: m.atk, bonus: m.bonus || 0 }); if (S.corpses.length > 8) S.corpses.shift(); }
   if (S.cls === 'necro' && S.hp < stats().max) { S.hp++; floatText(S.px, S.py, '+1', 'heal'); }
-  if (B('vamp') && !m.ally && S.hp > 0 && S.hp < stats().max) S.hp = Math.min(stats().max, S.hp + B('vamp'));
+  if (B('vamp') && !m.ally && isVamp()) feedWard(B('vamp'));
+  else if (B('vamp') && !m.ally && S.hp > 0 && S.hp < stats().max) S.hp = Math.min(stats().max, S.hp + B('vamp'));
   gainXp(m.xp);
   const r = Math.random();
   const pc = .16 * DEEP_POTS ** deep();
@@ -2528,7 +2551,7 @@ function gainXp(n) {
   while (S.xp >= (need = 5 + S.lv * 5)) {
     S.xp -= need; S.lv++;
     S.baseMax += S.C.hpLv; S.atk += 1;
-    S.hp = Math.min(stats().max, S.hp + S.C.hpLv + 4);
+    S.hp = Math.min(stats().max, S.hp + S.C.hpLv + (isVamp() ? 0 : 4)); // a Vampire only gains the new room, no heal
     say(`Level ${S.lv}! You feel stronger.`, 'lvl');
     SND.play('level');
     floatText(S.px, S.py - 1, 'LEVEL UP', 'lvl');
@@ -2565,7 +2588,7 @@ async function useItem(i) {
   const it = S && S.pack[i];
   if (!it || busy || S.dead || S.won) return;
   if (it.type === 'potion' && S.frenzy > 0) { say('You\'re in a frenzy. No time to drink!', 'bad'); SND.play('deny'); closePack(); update(); return; }
-  if (it.type === 'potion' && S.hp >= stats().max && !S.status.poison && !S.status.burn) { say('You are already at full health.'); SND.play('deny'); closePack(); update(); return; }
+  if (it.type === 'potion' && (isVamp() ? (S.blood || 0) >= VAMP.potCap : S.hp >= stats().max) && !S.status.poison && !S.status.burn) { say(isVamp() ? 'Your blood can take no more.' : 'You are already at full health.'); SND.play('deny'); closePack(); update(); return; }
   const foeInSight = () => S.mons.some(m => !m.ally && S.vis[m.y] && S.vis[m.y][m.x]);
   const keepOpen = it.type === 'gear' && !foeInSight(); // between fights, swapping gear is free and keeps the pack open
   if (!keepOpen) closePack();
@@ -2580,12 +2603,20 @@ async function useItem(i) {
       if (keepOpen) { saveGame(); return; } // no enemy in sight: no turn used
     } else if (it.type === 'potion') {
       SND.play('potion'); PROF.potions++; S.potionsDrunk = (S.potionsDrunk || 0) + 1;
-      const h = healAmt(), st = stats();
-      const got = Math.min(h, st.max - S.hp); S.hp += got;
-      floatText(S.px, S.py, '+' + got, 'heal');
-      for (const [dx, dy] of DIRS8) setFx(S.px + dx, S.py + dy, '+', 'puff', 260);
-      say(`You drink the potion. +${got} HP.`, 'good');
-      if (S.status.poison || S.status.burn) { S.status.poison = 0; S.status.burn = 0; say('It purges the poison and the flames.', 'good'); }
+      if (isVamp()) {
+        const add = Math.max(0, Math.min(VAMP.pot, VAMP.potCap - (S.blood || 0)));
+        S.blood = (S.blood || 0) + add; S.baseMax += add; S.hp += add;
+        if (add) floatText(S.px, S.py, '+' + add + ' max', 'ward');
+        say(add ? `The potion thickens your blood. +${add} max HP (${S.blood}/${VAMP.potCap}).` : 'Your blood can take no more. The potion does nothing.', add ? 'good' : '');
+        if (S.status.poison || S.status.burn) { S.status.poison = 0; S.status.burn = 0; say('It purges the poison and the flames.', 'good'); }
+      } else {
+        const h = healAmt(), st = stats();
+        const got = Math.min(h, st.max - S.hp); S.hp += got;
+        floatText(S.px, S.py, '+' + got, 'heal');
+        for (const [dx, dy] of DIRS8) setFx(S.px + dx, S.py + dy, '+', 'puff', 260);
+        say(`You drink the potion. +${got} HP.`, 'good');
+        if (S.status.poison || S.status.burn) { S.status.poison = 0; S.status.burn = 0; say('It purges the poison and the flames.', 'good'); }
+      }
     } else if (it.kind === 'fire') {
       const targets = S.mons.filter(m => !m.ally && S.vis[m.y][m.x]);
       say(targets.length ? 'The scroll erupts. Fire washes over everything in sight!' : 'The scroll burns away harmlessly. Nothing in sight.', 'hl');
@@ -2633,7 +2664,7 @@ function quaff() {
   if (!canAct()) return;
   const i = S.pack.findIndex(it => it.type === 'potion');
   if (i < 0) { say('You have no potions.', 'bad'); update(); return; }
-  if (S.hp >= stats().max && !S.status.poison && !S.status.burn) { say('You are already at full health.'); update(); return; }
+  if (isVamp() ? (S.blood || 0) >= VAMP.potCap && !S.status.poison && !S.status.burn : S.hp >= stats().max && !S.status.poison && !S.status.burn) { say(isVamp() ? 'Your blood can take no more.' : 'You are already at full health.'); update(); return; }
   useItem(i);
 }
 
@@ -2706,6 +2737,14 @@ async function altAbility() {
       for (const [x, y] of spots) { S.traps.push({ x, y, kind: 'snare', seen: true, mine: true }); setFx(x, y, '×', 'snare', 300); }
       while (S.traps.filter(t => t.mine).length > 6) S.traps.splice(S.traps.findIndex(t => t.mine), 1);
       SND.play('equip'); say(`You scatter ${spots.length} snares around you.`, 'hl');
+      return true;
+    }
+    case 'vampire': {
+      const adj = foes.filter(m => Math.max(Math.abs(m.x - S.px), Math.abs(m.y - S.py)) === 1);
+      if (!adj.length) { say('Nobody close enough.'); return false; }
+      SND.play('crit'); for (const [dx, dy] of DIRS8) setFx(S.px + dx, S.py + dy, '*', 'ward', 300);
+      say('Blood bursts from you in a red ring.', 'hl');
+      for (const m of adj) hurtMon(m, 4 + lv, false, true);
       return true;
     }
     case 'alch': {
@@ -2785,6 +2824,17 @@ async function ability() {
         say(`You cleave ${adj.length} ${adj.length > 1 ? 'enemies' : 'enemy'}!`, 'hl');
         shake();
         for (const m of adj) attack(m);
+        used = true;
+      }
+    } else if (S.cls === 'vampire') {
+      const adj = S.mons.filter(m => !m.ally && Math.max(Math.abs(m.x - S.px), Math.abs(m.y - S.py)) === 1).sort((a, b) => b.hp - a.hp);
+      if (!adj.length) say('Nobody close enough to bite.');
+      else {
+        const m = adj[0], st = stats(), crit = Math.random() < st.crit;
+        SND.play('hit'); setFx(m.x, m.y, 'v', 'ward', 300);
+        say(`You sink your fangs into the ${m.name}.`, 'hl');
+        hurtMon(m, (rnd(2, 4) + st.atk) * 2 * (crit ? 2 : 1), crit);
+        feedWard(wardMax() * VAMP.bite); floatText(S.px, S.py, 'WARD', 'ward');
         used = true;
       }
     } else if (S.cls === 'berserker') {
@@ -2884,6 +2934,11 @@ function damagePlayer(dmg, msg, src) {
   if (S.invuln > 0) { say('Your divine shield turns the blow aside.', 'good'); setFx(S.px, S.py, '+', 'ring', 200); return false; }
   if (B('reckless')) { dmg = Math.round(dmg * (1 + .2 * B('reckless'))); msg = msg.replace(/\d+/, dmg); }
   if (S.shield > 0) { dmg = Math.ceil(dmg / 2); msg = msg.replace(/\d+/, dmg) + ' (shielded)'; }
+  if (S.ward > 0) {
+    const soak = Math.min(S.ward, dmg); S.ward -= soak; dmg -= soak;
+    msg += dmg ? ` Your ward soaks ${soak}.` : ' Your blood ward soaks it all.';
+    if (!dmg) { floatText(S.px, S.py, '-' + soak, 'ward'); say(msg); return false; }
+  }
   { const r = rs(); r.taken += dmg; r.hitsTaken++; r.bigTaken = Math.max(r.bigTaken, dmg); }
   S.hp -= dmg; S.hurtAt = performance.now(); SND.play('hurt');
   floatText(S.px, S.py, '-' + dmg, 'hurt');
@@ -3292,7 +3347,8 @@ function update() {
   $('depth').textContent = S.M.floors === Infinity ? S.depth : `${S.depth}/${S.M.floors}`;
   $('atk').textContent = st.atk; $('def').textContent = st.def; $('gold').textContent = S.gold;
   const hp = Math.max(0, S.hp), pct = hp / st.max * 100;
-  $('hpfill').style.width = pct + '%'; $('hptext').textContent = `HP ${hp}/${st.max}`;
+  $('hpfill').style.width = pct + '%'; $('hptext').textContent = `HP ${hp}/${st.max}${isVamp() ? ` · WARD ${S.ward || 0}` : ''}`;
+  $('wardfill').hidden = !isVamp(); if (isVamp()) $('wardfill').style.width = ((S.ward || 0) / Math.max(1, wardMax()) * 100) + '%';
   $('hpbar').classList.toggle('low', pct <= 30);
   $('xpfill').style.width = (S.xp / (5 + S.lv * 5) * 100) + '%';
   const boss = S.mons.find(m => m.boss && m.awake);

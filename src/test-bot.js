@@ -97,7 +97,8 @@ window.__runGame = async (cls, mode, diff, maxTurns, relic, asc, alt) => {
       if (out) { await T.act(out[0], out[1]); continue; }
     }
     // 2. heal
-    if ((S.hp < st.max * .4 || (S.status.poison > 2 && S.hp < st.max * .6)) && pIdx >= 0 && !S.frenzy) { await T.useItem(pIdx); continue; }
+    if (S.cls === 'vampire') { if (pIdx >= 0 && !adj.length && (S.blood || 0) < T.VAMP.potCap) { await T.useItem(pIdx); continue; } } // Vampire: potions only add max HP, so drink them when safe
+    else if ((S.hp < st.max * .4 || (S.status.poison > 2 && S.hp < st.max * .6)) && pIdx >= 0 && !S.frenzy) { await T.useItem(pIdx); continue; }
     // 3. upgrades
     const up = S.pack.findIndex(it => it.type === 'gear' && T.gearScore(it) > T.gearScore(S[it.kind]));
     if (up >= 0) { trail.push('equip'); await T.useItem(up); continue; }
@@ -106,7 +107,7 @@ window.__runGame = async (cls, mode, diff, maxTurns, relic, asc, alt) => {
       const use = { warrior: adj.length >= 1, rogue: adj.length >= 2 || (hostiles.some(m => m.boss) && Math.random() < .3), mage: hostiles.length > 0, necro: S.corpses.some(c => S.vis[c.y][c.x]),
         trapper: hostiles.length > 0 && !adj.length, alch: hostiles.length > 0 && S.pack.filter(i => i.type === 'potion').reduce((a, i) => a + (i.n || 1), 0) >= 2,
         ranger: hostiles.some(m => (m.x === S.px || m.y === S.py) && Math.abs(m.x - S.px) + Math.abs(m.y - S.py) <= 8 && T.clear(S.px, S.py, m.x, m.y)),
-        berserker: adj.length > 0, paladin: S.hp < st.max * .7 || hostiles.some(m => ['skeleton','wraith','ghoul'].includes(m.name)), gambler: hostiles.length > 0 && S.gold > 60, mole: S.alt ? S.mons.some(m => !m.ally && Math.max(Math.abs(m.x - S.px), Math.abs(m.y - S.py)) <= 8) : Math.random() < .15 }[S.cls];
+        berserker: adj.length > 0, vampire: adj.length > 0 && (S.ward || 0) < st.max * T.VAMP.ward / 2, paladin: S.hp < st.max * .7 || hostiles.some(m => ['skeleton','wraith','ghoul'].includes(m.name)), gambler: hostiles.length > 0 && S.gold > 60, mole: S.alt ? S.mons.some(m => !m.ally && Math.max(Math.abs(m.x - S.px), Math.abs(m.y - S.py)) <= 8) : Math.random() < .15 }[S.cls];
       if (use) {
         const t0 = S.turn; trail.push('ability'); await T.ability();
         if (T.S.aiming && S.cls === 'mole') { const d = DIRS.find(([dx, dy]) => S.map[S.py + dy] && S.map[S.py + dy][S.px + dx] === '#') || [0, 0]; await T.act(d[0], d[1]); }

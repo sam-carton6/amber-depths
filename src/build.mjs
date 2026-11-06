@@ -34,7 +34,7 @@ body { margin: 0; font-size: 14px; }
 // The test copy runs with reduced motion, like the original Playwright sweep (reducedMotion: 'reduce').
 if (test) swap("const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;", 'const reduce = true;');
 if (test) swap("showScreen('title');\n(document.fonts", `window.__T = { get S() { return S; }, sel, PROF, RELICS, CLASSES, W, H, PACK,
-  newGame, monAt, shopAt, stats, buy, closeShop, descend, saveGame, loadGame, act, useItem, gearScore, ability, free, clear, itemAt };
+  newGame, monAt, shopAt, stats, buy, closeShop, descend, saveGame, loadGame, act, useItem, gearScore, ability, free, clear, itemAt, VAMP };
 showScreen('title');
 (document.fonts`);
 

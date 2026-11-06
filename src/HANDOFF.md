@@ -87,7 +87,7 @@ The phone picks up a new version the next time the app opens online, because the
   - `amber-depths-music`
 
 ## Content currently in the game
-- **10 classes:** Warrior, Rogue, Mage, Necromancer, Berserker, Paladin, Gambler, Ranger, Trapper, Alchemist. Seven are unlocked through challenges. Each has a Gold-mastery alternate ability.
+- **12 classes:** Warrior, Rogue, Mage, Necromancer, Berserker, Paladin, Gambler, Ranger, Trapper, Mole, Alchemist, Vampire. Nine are unlocked through challenges. Each has a Gold-mastery alternate ability.
 - **Run lengths:** Short (5 floors), Standard (10), Endless.
 - **Difficulties:** Easy, Normal, Hard, and Nightmare (unlockable; no shops, double gold).
 - **Ascension 1–10:** Standard length on Nightmare only. Modifiers are in the `ASC` list.
