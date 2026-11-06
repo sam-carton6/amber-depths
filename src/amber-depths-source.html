@@ -316,9 +316,18 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 .plist li { display: flex; gap: 6px; }
 .plist .use { flex: 1; min-width: 0; display: grid; grid-template-columns: auto auto minmax(0,1fr); gap: 2px 10px; align-items: baseline; text-align: left; padding: 8px 10px; }
 .plist .use .gl { grid-row: span 2; font-weight: 700; font-size: 1.1rem; }
-.plist .use .nm { font-size: .82rem; color: var(--amber); }
+.plist .use .nm { grid-column: 3; font-size: .82rem; color: var(--amber); }
 .plist .use .ds { grid-column: 3; font-size: .7rem; color: var(--dim); }
 .plist .use .num { grid-row: span 2; }
+/* The number badge is hidden on touch screens; without this the name and description shared one row there. */
+@media (pointer: coarse) { .plist .use { grid-template-columns: auto minmax(0,1fr); } .plist .use .nm, .plist .use .ds { grid-column: 2; } }
+/* Pack: potions and scrolls are small tiles, two to a row; gear keeps full rows. */
+#plist { grid-template-columns: 1fr 1fr; }
+#plist li { grid-column: 1 / -1; }
+#plist li.tile { grid-column: auto; min-width: 0; gap: 4px; }
+#plist .tile .use { padding: 6px 8px; gap: 1px 8px; }
+#plist .tile .nm, #plist .tile .ds { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#plist .tile .drop { width: 30px; font-size: .9rem; }
 .plist .use .up { color: var(--heal); }
 .plist .use .down { color: var(--red); }
 .toss { width: 100%; padding: 8px 10px; font-size: .75rem; color: var(--dim); border-style: dashed; }
@@ -3217,9 +3226,13 @@ function renderPack() {
   $('tosswrap').innerHTML = weak.length ? `<button class="toss" id="tossbtn">${tossArmed ? `Tap again to toss ${weak.length} item${weak.length > 1 ? 's' : ''}` : `Toss weaker gear (${weak.length})`}</button>` : '';
   if (weak.length) $('tossbtn').onclick = tossWeaker;
   $('plist').innerHTML = S.pack.map((it, i) => {
-    const cmp = cmpTag(it);
+    const cmp = cmpTag(it), cnt = (it.n || 1) > 1 ? ` <span class="cnt">×${it.n}</span>` : '';
+    if (it.type !== 'gear') return `<li class="tile">
+      <button class="use" data-use="${i}" title="${esc(itemName(it))}: ${esc(itemDesc(it))}"><span class="num k">${(i + 1) % 10}</span><span class="gl ${itemCls(it)}">${esc(it.ch)}</span><span class="nm">${esc(itemName(it).replace(/^Scroll of /, '').replace(/^Healing potion$/, 'Potion'))}${cnt}</span><span class="ds">${esc(itemDesc(it))}</span></button>
+      <button class="drop" data-drop="${i}" aria-label="Drop ${esc(itemName(it))}">×</button>
+    </li>`;
     return `<li>
-      <button class="use" data-use="${i}"><span class="num k">${(i + 1) % 10}</span><span class="gl ${itemCls(it)}">${esc(it.ch)}</span><span class="nm">${esc(itemName(it))}${(it.n || 1) > 1 ? ` <span class="cnt">×${it.n}</span>` : ''}${cmp}</span><span class="ds">${it.type === 'gear' ? 'Equip · ' : 'Use · '}${esc(itemDesc(it))}</span></button>
+      <button class="use" data-use="${i}"><span class="num k">${(i + 1) % 10}</span><span class="gl ${itemCls(it)}">${esc(it.ch)}</span><span class="nm">${esc(itemName(it))}${cnt}${cmp}</span><span class="ds">Equip · ${esc(itemDesc(it))}</span></button>
       <button class="drop" data-drop="${i}" aria-label="Drop ${esc(itemName(it))}">drop</button>
     </li>`;
   }).join('');
