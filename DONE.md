@@ -7,6 +7,19 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-05 — v45 merged to `main`: Endless boss floors and deep retune (commit 26fb771)
+- **Endless boss floors:** every 10th floor is a short dungeon (left) and a lit arena with pillars (right) where a
+  boss holds the stairs, from a shuffled deck (each once before repeats, never twice running): Cyclops (stomp and
+  boulders, 2 turns' warning), Drake (thin fire line, 1 turn, burns; leaps back), Lich (bolts, brittle skeletons,
+  blinks after each quarter of its HP), Brood Mother (webs `"` that slow you, spiderlings, poison bite), Shadow (fast;
+  vanishes and strikes the X around you). Every 50th floor: the **Amber Wyrm** (wide breath with 2 turns' warning,
+  tail sweep, brittle minions at half HP, enrages). Rewards: 2 upgrade picks (Wyrm 3), gear +2 extra (Wyrm +3), more
+  gold, relic 75% (Wyrm always). Golems now on floors 5, 15, 25...
+- **Deep Endless retuned:** monsters past floor 12 gain HP every floor (`DEEP_HP` 1.05) and their damage grows slower
+  (`DEEP_DMG` 1.04 -> 1.025), so fights last a few hits instead of one-shots both ways. Tested with Sam's floor-40
+  character: floor-40 bosses take 12-18 turns (the Lich 67-195, the slog), the floor-50 Wyrm won 1 of 3 at his current
+  strength and 3 of 3 with ~10 more levels.
+
 ### 2026-11-05 — v31 merged to `main` (commit 51b1a6d)
 - Deploy passed; live sw.js is v31 and the page has the version tag and Controls. Includes v29-v31.
 
