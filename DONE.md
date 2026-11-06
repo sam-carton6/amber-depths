@@ -7,7 +7,7 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
-### 2026-11-06 — v48 on `staging`: compact pack
+### 2026-11-06 — v48 merged to `main`: compact pack (commit 37379c5)
 - Potions and scrolls are tiles, two to a row (short name, count, one-line description, × to drop); gear keeps
   full rows. Root cause of the tall rows: on touch screens the hidden number badge shifted the grid, putting the
   description in a thin column beside the name (also fixed in the shop lists).

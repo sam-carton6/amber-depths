@@ -5,10 +5,9 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v47 (merged 6 Nov 2026, commit `bb40c57`): Endless boss floors, the deep curve with softer
-deep hits (`DEEP_DMG` 1.012), and frost can't keep you slowed. Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** v48 (6 Nov 2026): compact pack (potions and scrolls as 2-per-row tiles; fixed
-rows on phones where the description was squeezed into a thin column).
+**Live on `main`:** v48 (merged 6 Nov 2026, commit `37379c5`): Endless boss floors, softer deep hits
+(`DEEP_DMG` 1.012), frost can't keep you slowed, compact pack (consumables as tiles).
+**On `staging`, not live yet:** nothing.
 **Next up:** Sam starts a fresh Hard Endless run (Berserker suggested) and sends a Backup code before each boss floor
 (20, 30, 40, 50) plus a line on how it felt. Then potions/gold if they still pile up.
 **Moving to Cloudflare Pages (paused 6 Nov 2026):** Sam has bought the domain amberdepths.com.
