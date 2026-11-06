@@ -7,9 +7,10 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v45 (merged 5 Nov 2026, commit `26fb771`): Endless boss floors (5 bosses, Wyrm every 50)
 and the retuned deep curve. Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** nothing.
-**Next up:** Sam plays on from floor 40 (Hard Endless Rogue): does floor 41+ feel harder, how the floor-50 Wyrm goes,
-and whether the menu fix and Controls work on his iPhone. Then potions/gold if they still pile up.
+**On `staging`, not live yet:** v47 (6 Nov 2026): deep monsters hit softer (`DEEP_DMG` 1.025 -> 1.012) and frost
+can't keep you slowed. Sam died on floor 41 (Lv 72 Hard Rogue, surrounded by wisps and trolls).
+**Next up:** Sam tries v47 (merge when he's happy), and a fresh Endless run for data. Then potions/gold if they
+still pile up.
 **Moving to Cloudflare Pages (paused 6 Nov 2026):** Sam has bought the domain amberdepths.com.
 Next: create the Pages project (Connect to Git, branch `main`, no build command,
 output `app`), add the domain, test on iPhone, then one friend handover (Backup/Restore) before GitHub Pages goes.
@@ -18,8 +19,9 @@ output `app`), add the domain, test on iPhone, then one friend handover (Backup/
 
 - **Check the new deep curve against Sam's play** (retuned 5 Nov 2026 from his floor-40 Hard Rogue backup: Lv 70,
   ATK 123, 45 potions, 43k gold, one-shotting everything). Knobs: `DEEP_FROM` 12, `DEEP_HP` 1.05 (new: monster HP
-  per floor), `DEEP_DMG` 1.025 (was 1.04), `DEEP_POTS` 0.95. Measured with his character: floor 40 monsters now take
-  2-3 hits and need ~5 hits to kill him (was 1 and 3.4, then a cliff: 1 hit kills by floor 60). Still open: potions
+  per floor), `DEEP_DMG` 1.012 (was 1.04, then 1.025), `DEEP_POTS` 0.95. With his character on floor 41: monsters take
+  ~4 hits and now hit for 33-43 of his 300 HP (~8 hits to kill him; was 56-69, 5 hits, deadly when surrounded).
+  Deep floors draw from the last 4 monster types only; flooded floors are ~40% frost wisps. Still open: potions
   (45) and gold (43k) pile up; a carry cap or pricier deep shops are the next knobs if he says so.
   Testing with a real save: decode the backup code into `test/sam-save.json` (ignored; private) and load it in the
   test page (`localStorage` save key + `__T.loadGame()`). Soak test: `test/soak.js` (ignored; see DONE.md).

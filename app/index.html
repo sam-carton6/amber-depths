@@ -401,7 +401,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
 <!-- ================= TITLE ================= -->
 <section class="title" id="title">
   <div class="logo-wrap">
-    <span class="ver" id="ver" aria-label="Version">v45</span>
+    <span class="ver" id="ver" aria-label="Version">v47</span>
     <pre id="logo" aria-label="Amber Depths"></pre>
     <p class="tag"><span class="torch" id="t1">ψ</span> descend · loot · slay the wyrm <span class="torch" id="t2">ψ</span></p>
   </div>
@@ -1329,7 +1329,7 @@ function openGuide() {
     : `<div class="c${id === cur ? ' me' : ''}"><b>${esc(k.sig)} ${esc(k.name)}</b> · HP ${k.hp} · ATK +${k.atk} · DEF +${k.def} · CRIT ${Math.round(k.crit * 100)}%<br>${esc(ABIL_DETAIL[id]())}</div>`).join('')}</div></div>`;
   const syms = [['@', 'you', 'p'], ['>', 'stairs down', 'st'], [')', 'weapon', 'ie'], ['[', 'armor', 'ie'], ['!', 'healing potion', 'ip'], ['?', 'scroll', 'is'], ['$', 'gold', 'ig'], ['=', 'chest (or mimic)', 'chest'], ['&', 'merchant', 'shopk'], ['^', 'trap you spotted', 'trap'], ['×', 'your snare', 'snare'], ['▒', 'cracked wall', 'crack'], ['~', 'water', 'wat0'], ['%', 'bones', 'bone'], [',', 'corpse', 'corpse'], ['ψ', 'torch', 'tc0'], ['¤', 'rune (rare)', 'rune'], ['"', 'web (slows you)', 'web'], ['≈', 'danger: move!', 'dg']];
   const sym = `<div class="chal-grp"><h3 class="sub">SYMBOLS</h3><div class="gsym">${syms.map(([g, t, cl]) => `<span><b class="${cl}">${esc(g)}</b>${esc(t)}</span>`).join('')}</div><p class="gtxt" style="font-size:.72rem;color:var(--dim)">Rare gear glows violet. Your allies show in green. Frozen monsters turn ice blue.</p></div>`;
-  const stat = `<div class="chal-grp"><h3 class="sub">STATUS EFFECTS</h3><p class="gtxt"><b>Poison</b>: lose 1 HP a turn. A potion cures it.<br><b>Burning</b>: lose 2 HP a turn. Step in water or drink a potion.<br><b>Slowed</b>: monsters sometimes get two moves in a row.<br><b>Frozen</b> (Scroll of Frost): monsters skip their turns. Bosses thaw twice as fast.<br>Monsters can be <b>poisoned</b> (green) and <b>set alight</b> (orange) too, and they take damage every turn. Fire scrolls and Firebolt leave them burning. Monsters also set off traps.</p></div>`;
+  const stat = `<div class="chal-grp"><h3 class="sub">STATUS EFFECTS</h3><p class="gtxt"><b>Poison</b>: lose 1 HP a turn. A potion cures it.<br><b>Burning</b>: lose 2 HP a turn. Step in water or drink a potion.<br><b>Slowed</b>: monsters sometimes get two moves in a row. Frost doesn't make it last longer, and once it wears off it can't slow you again for 3 turns.<br><b>Frozen</b> (Scroll of Frost): monsters skip their turns. Bosses thaw twice as fast.<br>Monsters can be <b>poisoned</b> (green) and <b>set alight</b> (orange) too, and they take damage every turn. Fire scrolls and Firebolt leave them burning. Monsters also set off traps.</p></div>`;
   const relicTxt = S && S.relic ? `<div class="chal-grp"><h3 class="sub">YOUR RELIC</h3><p class="gtxt"><b>♦ ${esc(RELICS[S.relic].name)}</b>: ${esc(RELICS[S.relic].desc)}.</p></div>` : '';
   const best = `<div class="chal-grp"><h3 class="sub">BESTIARY</h3><div class="gbest">${BESTIARY.map(n => PROF.seen[n] || PROF.kills[n]
     ? `<div><b class="m">${esc(BEST_CH[n])}</b><span><b style="color:var(--hot)">${esc(n.charAt(0).toUpperCase() + n.slice(1))}</b> · ${esc(MON_NOTES[n])}</span><span class="kc">${PROF.kills[n] || 0} slain</span></div>`
@@ -1378,7 +1378,7 @@ function showScreen(which) {
 const eff = () => S.depth * S.M.scale;
 // Endless past floor 12, every floor (compounding): monsters get more HP (so fights last a few hits and they get to
 // swing back), hit a little harder, and drop fewer potions. The Golem gets half the HP growth, boss floors three quarters.
-const DEEP_FROM = 12, DEEP_HP = 1.05, DEEP_DMG = 1.025, DEEP_POTS = .95;
+const DEEP_FROM = 12, DEEP_HP = 1.05, DEEP_DMG = 1.012, DEEP_POTS = .95;
 const deep = () => S.mode === 'endless' ? Math.max(0, S.depth - DEEP_FROM) : 0;
 const key = (x, y) => x + ',' + y;
 const monAt = (x, y) => S.mons.find(m => m.x === x && m.y === y);
@@ -2471,10 +2471,11 @@ async function endTurn() {
     if (Math.random() < (S.cls === 'rogue' || S.cls === 'ranger' ? .5 : .15)) { t.seen = true; say('You spot a trap.', 'hl'); }
   }
   await monstersTurn();
+  if (st.thaw > 0) st.thaw--;
   if (st.slow > 0 && !S.dead && !S.won) {
     st.slow--;
     if (S.turn % 2 === 0) await monstersTurn();
-    if (!st.slow) say('Feeling returns to your legs.', 'good');
+    if (!st.slow) { st.thaw = 3; say('Feeling returns to your legs.', 'good'); }
   }
   if (!S.dead && !S.won) computeFov();
 }
@@ -2914,7 +2915,7 @@ function monHit(m) {
   if (damagePlayer(dmg, `The ${m.name} hits you for ${dmg}.`, m.name)) return;
   if (m.poison && Math.random() < .45) applyStatus('poison', m.poison);
   if (m.burn && Math.random() < .4) applyStatus('burn', m.burn);
-  if (m.chill && Math.random() < .4) applyStatus('slow', m.chill);
+  if (m.chill && !(S.status.slow > 0) && !(S.status.thaw > 0) && Math.random() < .4) applyStatus('slow', m.chill); // frost doesn't refresh a slow, and can't re-chill for 3 turns after it wears off
   if (st.thorns && m.hp > 0) { hurtMon(m, st.thorns, false, true); }
 }
 function stepToward(m, d) {
