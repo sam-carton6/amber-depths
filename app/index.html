@@ -83,9 +83,15 @@ button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 @media (max-width: 760px) { .cards.classes .nm { font-size: 1.35rem; } }
 .card.locked .sig { color: var(--dim); text-shadow: none; }
 .daily { border: 1px solid var(--amber); border-radius: 10px; padding: 12px 14px; display: flex; gap: 10px 14px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: linear-gradient(90deg, #2a1c0e, #1a120a); }
-.daily.moved { border-color: var(--hot); }
-.daily a { color: var(--hot); }
-.daily a.copyb { border: 1px solid var(--amber); border-radius: 8px; text-decoration: none; }
+:root[data-moved] .title > :not(.logo-wrap):not(#moved), :root[data-moved] #game { display: none !important; }
+.moved { border: 1px solid var(--hot); border-radius: 10px; padding: 18px 16px 20px; background: linear-gradient(180deg, #2a1c0e, #120c06); text-align: center; display: grid; gap: 14px; justify-items: center; }
+.moved h2 { font-family: var(--font-display); font-weight: 400; font-size: 2rem; margin: 0; color: var(--hot); letter-spacing: .08em; text-shadow: 0 0 10px rgba(255,190,90,.6); }
+.moved pre { margin: 0; font-family: var(--font-mono); font-size: .8rem; line-height: 1.1; color: var(--dim); text-align: left; }
+.moved pre b { color: var(--hot); font-weight: 400; text-shadow: 0 0 6px rgba(255,190,90,.8); }
+.moved .addr { font-family: var(--font-display); font-size: 1.7rem; color: var(--hot); text-decoration: none; border: 1px solid var(--amber); border-radius: 8px; padding: 6px 18px; background: #2a1c0e; }
+.moved ol { margin: 0; padding-left: 1.4em; text-align: left; font-size: .85rem; line-height: 1.6; max-width: 34em; }
+.moved ol b { color: var(--hot); font-weight: 400; }
+.moved button { font-family: var(--font-display); font-size: 1.25rem; padding: 6px 14px; border-color: var(--amber); color: var(--hot); background: #2a1c0e; }
 .daily .dt { display: grid; gap: 3px; min-width: 0; flex: 1 1 240px; }
 .daily .lbl { font-family: var(--font-display); font-size: 1.45rem; line-height: 1; color: var(--hot); letter-spacing: .05em; }
 .daily .sub { font-size: .72rem; color: var(--dim); line-height: 1.5; }
@@ -414,13 +420,24 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
 <!-- ================= TITLE ================= -->
 <section class="title" id="title">
   <div class="logo-wrap">
-    <span class="ver" id="ver" aria-label="Version">v52</span>
+    <span class="ver" id="ver" aria-label="Version">v53</span>
     <pre id="logo" aria-label="Amber Depths"></pre>
     <p class="tag"><span class="torch" id="t1">ψ</span> descend · loot · slay the wyrm <span class="torch" id="t2">ψ</span></p>
   </div>
-  <div class="daily moved" id="moved" hidden>
-    <div class="dt"><span class="lbl">We've moved!</span><span class="sub">Amber Depths now lives at <a href="https://amberdepths.com/">amberdepths.com</a>. Your progress doesn't move by itself: tap <b>Backup</b> here, open the new site, tap <b>Backup</b> there and restore. Then add the new site to your home screen.</span></div>
-    <div class="dr"><button id="movedbak">Backup</button><a class="copyb" href="https://amberdepths.com/">Go there</a></div>
+  <div class="moved" id="moved" hidden>
+    <h2>The depths have moved</h2>
+<pre aria-hidden="true">  @ ──┐
+      └─┐ ▒
+        └─┐ ▒
+          └─┐
+            └──&gt; <b>&gt;</b></pre>
+    <a class="addr" href="https://amberdepths.com/">amberdepths.com</a>
+    <ol>
+      <li>Tap <b>Backup</b> below, then <b>Copy backup code</b>.</li>
+      <li>Open <b>amberdepths.com</b>, tap <b>Backup</b> there, paste the code and tap <b>Restore code</b>.</li>
+      <li>Add the new site to your home screen and delete this old one.</li>
+    </ol>
+    <button id="movedbak">Backup</button>
   </div>
   <div class="daily" id="daily"></div>
   <div class="pick">
@@ -3529,7 +3546,11 @@ bind('chalbtn', openChal); bind('chalclose', closeChal);
 bind('selljunk', sellJunk);
 bind('bakbtn', openBak); bind('movedbak', openBak);
 // Old GitHub Pages address only (or ?moved to preview): point players to the new site.
-if (/github\.io$/.test(location.hostname) || /[?&]moved\b/.test(location.search)) $('moved').hidden = false;
+// Only the title, this notice and Backup work here; the game can't start (no keys, other title parts hidden).
+if (/github\.io$/.test(location.hostname) || /[?&]moved\b/.test(location.search)) {
+  document.documentElement.dataset.moved = ''; $('moved').hidden = false;
+  addEventListener('keydown', e => e.stopImmediatePropagation(), true);
+}
  bind('bakclose', closeBak); bind('bakcopy', bakCopy); bind('bakfile', bakFile);
 bind('bakrestore', () => restoreBackup($('bakin').value)); bind('bakopen', () => $('bakpick').click());
 $('bakpick').addEventListener('change', async e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) restoreBackup(await f.text()); }); bind('tguide', openGuide); bind('guidebtn', () => { if (!busy) openGuide(); }); bind('guideclose', closeGuide);
