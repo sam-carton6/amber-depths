@@ -24,6 +24,8 @@ and whether the menu fix and Controls work on his iPhone. Then potions/gold if t
 
 ## Ideas (later)
 
+- **Save sync across devices** (Sam, 5 Nov 2026, with the Cloudflare move): needs server storage (e.g. Workers KV
+  or D1) and some way to tell players apart. A big feature of its own; do it after the hosting move is finished.
 - More classes, a second wave of relics, cosmetic titles on the daily share text.
 - **Echo** (reveal everything within 8 tiles for a few turns) as an upgrade or scroll; spare from the Mole design.
 - Leaderboards (would need a backend).
