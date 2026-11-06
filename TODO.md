@@ -25,6 +25,22 @@ output `app`), add the domain, test on iPhone, then one friend handover (Backup/
   Testing with a real save: decode the backup code into `test/sam-save.json` (ignored; private) and load it in the
   test page (`localStorage` save key + `__T.loadGame()`). Soak test: `test/soak.js` (ignored; see DONE.md).
 - Sam's iPhone bug list from real play (touch, Safari, feel) goes in BUGS.md as it comes.
+- **Vampire class (planned 6 Nov 2026, not started; build after Sam's Berserker run data).** Sam's pick: no normal
+  healing, plus a shield and permanent growth from potions. Plan (numbers are first guesses, tune with the bot and
+  Sam's saves):
+  - **No healing:** potions, level-up heal (+hpLv+4), shop rest (full heal), boons Vitality/Regen/Vamp heal and
+    Vampiric gear all skip HP for this class. HP only goes down within a run.
+  - **Blood ward:** new `S.ward` (not `S.shield`, which is the Warrior's halve-damage turns), max ~25% of max HP,
+    soaks damage before HP in `damagePlayer`; refills by ~1/3 of damage dealt. Starts full on each floor? (decide
+    when testing). Shown as a second bar or a chip. Vampiric gear / Vamp boon add to the ward instead.
+  - **Blood potions:** drinking one gives +3 max HP (`S.baseMax`) up to +60 total; HP rises by the same 3 (not a
+    heal, just the new room). Message says so.
+  - **Ability Bite** (cd ~6): heavy hit on an adjacent enemy, refills the ward to full.
+  - Maybe: fire/burn hurts 50% more.
+  - Unlock via a new challenge (like `c_berserker`), e.g. "win a run without drinking a potion"; Sam to pick.
+  - Also: CLASSES entry, ability help text, `ALT` alt ability (or none), class card, Guide/bestiary pages, the
+    no-heal hint on the potion button. Test with `__runGame('vampire', ...)` (bot may need to know potions don't heal).
+  - Estimate: 25-35% of Sam's window.
 
 ## Ideas (later)
 
