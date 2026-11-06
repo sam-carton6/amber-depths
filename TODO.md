@@ -10,6 +10,9 @@ and the retuned deep curve. Built from `src/` with `node src/build.mjs`.
 **On `staging`, not live yet:** nothing.
 **Next up:** Sam plays on from floor 40 (Hard Endless Rogue): does floor 41+ feel harder, how the floor-50 Wyrm goes,
 and whether the menu fix and Controls work on his iPhone. Then potions/gold if they still pile up.
+**Moving to Cloudflare Pages (paused 6 Nov 2026):** Sam has bought the domain (amberdepths.com or
+playamberdepths.com; ask which). Next: create the Pages project (Connect to Git, branch `main`, no build command,
+output `app`), add the domain, test on iPhone, then one friend handover (Backup/Restore) before GitHub Pages goes.
 
 ## To do
 
