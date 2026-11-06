@@ -60,6 +60,9 @@ button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 @media (max-width: 760px) { .cards.classes .nm { font-size: 1.35rem; } }
 .card.locked .sig { color: var(--dim); text-shadow: none; }
 .daily { border: 1px solid var(--amber); border-radius: 10px; padding: 12px 14px; display: flex; gap: 10px 14px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: linear-gradient(90deg, #2a1c0e, #1a120a); }
+.daily.moved { border-color: var(--hot); }
+.daily a { color: var(--hot); }
+.daily a.copyb { border: 1px solid var(--amber); border-radius: 8px; text-decoration: none; }
 .daily .dt { display: grid; gap: 3px; min-width: 0; flex: 1 1 240px; }
 .daily .lbl { font-family: var(--font-display); font-size: 1.45rem; line-height: 1; color: var(--hot); letter-spacing: .05em; }
 .daily .sub { font-size: .72rem; color: var(--dim); line-height: 1.5; }
@@ -389,6 +392,10 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
     <span class="ver" id="ver" aria-label="Version">dev</span>
     <pre id="logo" aria-label="Amber Depths"></pre>
     <p class="tag"><span class="torch" id="t1">ψ</span> descend · loot · slay the wyrm <span class="torch" id="t2">ψ</span></p>
+  </div>
+  <div class="daily moved" id="moved" hidden>
+    <div class="dt"><span class="lbl">We've moved!</span><span class="sub">Amber Depths now lives at <a href="https://amberdepths.com/">amberdepths.com</a>. Your progress doesn't move by itself: tap <b>Backup</b> here, open the new site, tap <b>Backup</b> there and restore. Then add the new site to your home screen.</span></div>
+    <div class="dr"><button id="movedbak">Backup</button><a class="copyb" href="https://amberdepths.com/">Go there</a></div>
   </div>
   <div class="daily" id="daily"></div>
   <div class="pick">
@@ -3495,7 +3502,10 @@ bind('start', () => newGame()); bind('again', () => newGame());
 bind('histbtn', openHist); bind('histclose', closeHist);
 bind('chalbtn', openChal); bind('chalclose', closeChal);
 bind('selljunk', sellJunk);
-bind('bakbtn', openBak); bind('bakclose', closeBak); bind('bakcopy', bakCopy); bind('bakfile', bakFile);
+bind('bakbtn', openBak); bind('movedbak', openBak);
+// Old GitHub Pages address only (or ?moved to preview): point players to the new site.
+if (/github\.io$/.test(location.hostname) || /[?&]moved\b/.test(location.search)) $('moved').hidden = false;
+ bind('bakclose', closeBak); bind('bakcopy', bakCopy); bind('bakfile', bakFile);
 bind('bakrestore', () => restoreBackup($('bakin').value)); bind('bakopen', () => $('bakpick').click());
 $('bakpick').addEventListener('change', async e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) restoreBackup(await f.text()); }); bind('tguide', openGuide); bind('guidebtn', () => { if (!busy) openGuide(); }); bind('guideclose', closeGuide);
 $('chal').addEventListener('click', e => { if (e.target === $('chal')) closeChal(); });
