@@ -7,7 +7,7 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
-### 2026-11-06 — v47 on `staging`: softer deep hits, no frost lock
+### 2026-11-06 — v47 merged to `main`: softer deep hits, no frost lock (commit bb40c57)
 - Sam died on floor 41 (Hard Endless Rogue, Lv 72) surrounded by wisps and trolls: each deep hit was ~20% of his HP.
   `DEEP_DMG` 1.025 -> 1.012 (floor-41 hits 56-69 -> 33-43). Frost no longer refreshes a running slow, and can't
   re-slow for 3 turns after it ends (`S.status.thaw`); a wisp hitting every turn now slows you ~30% of the time, not

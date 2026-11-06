@@ -5,12 +5,11 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v45 (merged 5 Nov 2026, commit `26fb771`): Endless boss floors (5 bosses, Wyrm every 50)
-and the retuned deep curve. Built from `src/` with `node src/build.mjs`.
-**On `staging`, not live yet:** v47 (6 Nov 2026): deep monsters hit softer (`DEEP_DMG` 1.025 -> 1.012) and frost
-can't keep you slowed. Sam died on floor 41 (Lv 72 Hard Rogue, surrounded by wisps and trolls).
-**Next up:** Sam tries v47 (merge when he's happy), and a fresh Endless run for data. Then potions/gold if they
-still pile up.
+**Live on `main`:** v47 (merged 6 Nov 2026, commit `bb40c57`): Endless boss floors, the deep curve with softer
+deep hits (`DEEP_DMG` 1.012), and frost can't keep you slowed. Built from `src/` with `node src/build.mjs`.
+**On `staging`, not live yet:** nothing.
+**Next up:** Sam starts a fresh Hard Endless run (Berserker suggested) and sends a Backup code before each boss floor
+(20, 30, 40, 50) plus a line on how it felt. Then potions/gold if they still pile up.
 **Moving to Cloudflare Pages (paused 6 Nov 2026):** Sam has bought the domain amberdepths.com.
 Next: create the Pages project (Connect to Git, branch `main`, no build command,
 output `app`), add the domain, test on iPhone, then one friend handover (Backup/Restore) before GitHub Pages goes.
