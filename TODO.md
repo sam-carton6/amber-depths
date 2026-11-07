@@ -5,15 +5,15 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v48 (merged 6 Nov 2026, commit `37379c5`): Endless boss floors, softer deep hits
-(`DEEP_DMG` 1.012), frost can't keep you slowed, compact pack (consumables as tiles).
-**On `staging`, not live yet:** v51 (6 Nov 2026): the Vampire class (unlock: reach floor 10 without a potion);
-v53: the old github.io address shows only a "moved" screen with Backup (no play). Preview with `?moved`.
+**Live on `main`:** v53 (merged 6 Nov 2026, commit `4d75bfc`): the Vampire class; the old github.io address now
+shows only a "moved" screen with Backup (no play; preview with `?moved`); `wrangler.jsonc` for Cloudflare Workers.
+**On `staging`, not live yet:** nothing.
 **Next up:** Sam starts a fresh Hard Endless run (Berserker suggested) and sends a Backup code before each boss floor
 (20, 30, 40, 50) plus a line on how it felt. Then potions/gold if they still pile up.
-**Moving to Cloudflare Pages (paused 6 Nov 2026):** Sam has bought the domain amberdepths.com.
-Next: create the Pages project (Connect to Git, branch `main`, no build command,
-output `app`), add the domain, test on iPhone, then one friend handover (Backup/Restore) before GitHub Pages goes.
+**Moving to Cloudflare Workers (6 Nov 2026):** Worker `amber-depths-preview` (test.amberdepths.com, should build
+`staging` with `npx wrangler deploy --env preview`; was still serving v52, check its branch). Still to create:
+Worker `amber-depths` (branch `main`, `npx wrangler deploy`) for amberdepths.com. Then friends move their saves;
+later remove the GitHub Pages workflow, update CLAUDE.md "Where it runs" and the README.
 
 ## To do
 
