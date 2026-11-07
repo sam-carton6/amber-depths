@@ -7,16 +7,13 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v69 (merged 7 Nov 2026, commit `61de9ef`): new title screen and Settings sheet, How to play in
 the Guide, the daily sets your run aside, cloud sync, 8 leaderboards (cleared 7 Nov). Details in DONE.md.
-**On `staging`, not live yet:** nothing.
-**Next up:** Sam's Hard Endless run with Backup codes before boss floors; the item-under-merchant bug below.
+**On `staging`, not live yet:** v70: fix for an item sitting under a merchant.
+**Next up:** Sam's Hard Endless run with Backup codes before boss floors.
 **Cloudflare (6 Nov 2026):** live at amberdepths.com (Worker `amber-depths`, `main`); test at test.amberdepths.com
 (Worker `amber-depths-preview`, `staging`). Friends move their saves via the old address's moved screen; once all
 have, remove deploy.yml (and optionally make the repo private).
 
 ## To do
-
-- **Bug: an item can sit under a merchant** (test bot, 7 Nov 2026, Mage Short Normal: "item under merchant: potion"
-  on floor 2, repeated every turn). Probably shop placement not checking for items; the potion can't be picked up.
 
 - **Check the new deep curve against Sam's play** (retuned 5 Nov 2026 from his floor-40 Hard Rogue backup: Lv 70,
   ATK 123, 45 potions, 43k gold, one-shotting everything). Knobs: `DEEP_FROM` 12, `DEEP_HP` 1.05 (new: monster HP
@@ -93,4 +90,4 @@ have, remove deploy.yml (and optionally make the repo private).
 
 ## What's new at the next merge
 
-(Nothing yet.)
+- Fixed: a merchant could stand on top of an item, so you couldn't pick it up (about 1 shop in 900).

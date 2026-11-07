@@ -2306,7 +2306,17 @@ function placeShop(rooms) {
   // Stand inside the room, never on its edge, so the merchant can't plug a doorway.
   const ix0 = r.x + 1, ix1 = Math.max(r.x + 1, r.x + r.w - 2), iy0 = r.y + 1, iy1 = Math.max(r.y + 1, r.y + r.h - 2);
   let x = clamp(r.cx + 1, ix0, ix1), y = clamp(r.cy, iy0, iy1);
-  for (let t = 0; t < 40 && (itemAt(x, y) || monAt(x, y) || (x === S.sx && y === S.sy)); t++) { x = rnd(ix0, ix1); y = rnd(iy0, iy1); }
+  const taken = (x, y) => itemAt(x, y) || monAt(x, y) || (x === S.sx && y === S.sy);
+  if (taken(x, y)) {
+    // Pick from the room's open tiles; if there are none, nudge whatever lies there to the merchant's side.
+    const open = [];
+    for (let j = iy0; j <= iy1; j++) for (let i = ix0; i <= ix1; i++) if (!taken(i, j)) open.push([i, j]);
+    if (open.length) [x, y] = open[rnd(0, open.length - 1)];
+    else for (const e of S.items) if (e.x === x && e.y === y) {
+      const to = DIRS8.map(([dx, dy]) => [x + dx, y + dy]).find(([i, j]) => floor(i, j) && !itemAt(i, j) && !(i === S.sx && j === S.sy));
+      if (to) [e.x, e.y] = to; else S.items = S.items.filter(o => o !== e);
+    }
+  }
   S.mons = S.mons.filter(m => !(m.x >= r.x - 1 && m.x <= r.x + r.w && m.y >= r.y - 1 && m.y <= r.y + r.h));
   const e = eff(), tier = Math.floor(e / 2) + 1;
   const g1 = gear('weapon', tier), g2 = gear('armor', tier);
