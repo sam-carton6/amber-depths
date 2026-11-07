@@ -10,10 +10,9 @@ shows only a "moved" screen with Backup (no play; preview with `?moved`); `wrang
 **On `staging`, not live yet:** nothing.
 **Next up:** Sam starts a fresh Hard Endless run (Berserker suggested) and sends a Backup code before each boss floor
 (20, 30, 40, 50) plus a line on how it felt. Then potions/gold if they still pile up.
-**Moving to Cloudflare Workers (6 Nov 2026):** Worker `amber-depths-preview` (test.amberdepths.com, should build
-`staging` with `npx wrangler deploy --env preview`; was still serving v52, check its branch). Still to create:
-Worker `amber-depths` (branch `main`, `npx wrangler deploy`) for amberdepths.com. Then friends move their saves;
-later remove the GitHub Pages workflow, update CLAUDE.md "Where it runs" and the README.
+**Moving to Cloudflare Workers (6 Nov 2026):** live at amberdepths.com (Worker `amber-depths`, from `main`).
+Test Worker `amber-depths-preview` (test.amberdepths.com) still served v52: its branch must be `staging`. Friends
+move their saves via the old address's moved screen; once all have, remove deploy.yml (and optionally make the repo private).
 
 ## To do
 
