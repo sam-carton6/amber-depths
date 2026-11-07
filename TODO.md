@@ -37,6 +37,17 @@ move their saves via the old address's moved screen; once all have, remove deplo
 
 - **Save sync across devices** (Sam, 5 Nov 2026, with the Cloudflare move): needs server storage (e.g. Workers KV
   or D1) and some way to tell players apart. A big feature of its own; do it after the hosting move is finished.
+  Leaderboards (Sam, 6 Nov 2026) would share the same server and player names.
+- **Ko-fi link for donations** (Sam, 6 Nov 2026): a small "Support" link on the title screen (and maybe the Guide).
+  Needs Sam's Ko-fi page address.
+- **Easter eggs** (Sam, 6 Nov 2026; pick any, all small). Anything in map generation must use `RNG()`:
+  - Type `xyzzy` in a run: "Nothing happens." (the classic adventure-game joke).
+  - Tap a title torch (ψ) 10 times: it burns blue for the rest of the session.
+  - Konami code (↑↑↓↓←→←→BA) on the title: the logo cycles through colours for a few seconds.
+  - A very rare tiny side room with a sleeping cat (`f`): pet it for +1 max HP once per run.
+  - Halloween and New Year's Day: themed floor tint and a one-line greeting on the title.
+  - Wait 100 turns in one spot: a ghost (`G`) drifts by and says "Lost?" then vanishes.
+  - Floor 99 in Endless: a quiet "credits" room thanking the players before the descent continues.
 - More classes, a second wave of relics, cosmetic titles on the daily share text.
 - **Echo** (reveal everything within 8 tiles for a few turns) as an upgrade or scroll; spare from the Mole design.
 - Leaderboards (would need a backend).
