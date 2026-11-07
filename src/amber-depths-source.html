@@ -1324,7 +1324,7 @@ async function syncPush(keepalive = false) {
     const o = await api('save', { method: 'PUT', body: JSON.stringify({ base: SYNC.t, data: await makeBackup() }), keepalive });
     if (o.status === 409) { syncBusy = false; await syncPull(); return; }
     Object.assign(SYNC, { t: o.t, sent: h, at: Date.now() }); storeSync(); syncErr = '';
-    backfillScores(); sendScores();
+    sendScores();
   } catch (e) { syncErr = e.message; } finally { syncBusy = false; }
 }
 // Take the server's save if it's newer than what this device last saw. Returns true when it reloads.
@@ -1416,7 +1416,8 @@ function renderSync() {
   }
 }
 /* ================= leaderboards ================= */
-// Synced players send each finished run's results (worker/index.js keeps each player's best per board):
+// Synced players send each run's results as it finishes (only runs finished since the boards were cleared on
+// 7 Nov 2026 count; past history is never uploaded) (worker/index.js keeps each player's best per board):
 //   daily / date: score · endless / difficulty: deepest floor · best / mode: score (Short and Standard, not dailies).
 // Results wait in SYNC.pend until the server takes them, so a run finished offline still counts later.
 function runScores(r) {
@@ -1435,14 +1436,6 @@ async function sendScores() {
     try { await api('score', { method: 'POST', body: JSON.stringify(SYNC.pend[0]) }); } catch (e) { return; }
     SYNC.pend.shift(); storeSync();
   }
-}
-// The first time a device syncs, its past results (daily records and run history) go up too.
-function backfillScores() {
-  if (!SYNC || SYNC.filled) return;
-  const list = [];
-  for (const [k, r] of Object.entries(loadJSON(DAILY_KEY, {}))) if (r && typeof r.score === 'number') list.push({ board: 'daily', k, val: r.score, info: { cls: r.cls, depth: r.depth, won: !!r.won } });
-  for (const r of loadHist()) if (!r.daily && typeof r.score === 'number') list.push(...runScores(r));
-  SYNC.filled = true; syncScores(list);
 }
 const LB_TABS = [['daily', 'Today\'s daily'], ['streak', 'Streaks'], ['endless', 'Endless'], ['best', 'Best scores']];
 let lbTab = 'daily', lbSub = { endless: 'normal', best: 'standard' };
@@ -3823,7 +3816,7 @@ addEventListener('keydown', () => SND.unlock());
 addEventListener('pagehide', saveGame);
 document.addEventListener('visibilitychange', () => { if (document.hidden) { saveGame(); syncPush(true); } else syncPull(); });
 // Cloud sync: take a newer save from another device on opening, then upload changes as they happen.
-if (SYNC && API) syncPull().then(r => { if (!r) { syncPush(); backfillScores(); } });
+if (SYNC && API) syncPull().then(r => { if (!r) syncPush(); });
 setInterval(() => { if (!document.hidden) { if (screenNow === 'game') saveGame(); syncPush(); } }, 20000);
 addEventListener('resize', fit);
 
