@@ -45,6 +45,7 @@ every chat), [DONE.md](DONE.md) (the archive; history only). Code map and game c
    animation is still playing. `src/test-sweep.mjs` is the original Playwright version (paths are from claude.ai's
    sandbox, so it doesn't run here as-is).
 3. Play the change at http://localhost:8765/app/ and check the console.
+   Easter eggs: on localhost and test.* only, `?eggs` forces every chance egg and `?date=MM-DD` fakes the date.
 
 ## Stack
 Plain HTML/CSS/JS, no framework, no npm. Node is only used for the build script and `npx wrangler`. Fonts and icons

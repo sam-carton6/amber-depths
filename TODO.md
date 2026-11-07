@@ -7,7 +7,7 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v70 (merged 7 Nov 2026, commit `9e0926e`; v69 brought: new title screen and Settings sheet, How to play in
 the Guide, the daily sets your run aside, cloud sync, 8 leaderboards (cleared 7 Nov); v70 fixed an item under a merchant). Details in DONE.md.
-**On `staging`, not live yet:** nothing.
+**On `staging`, not live yet:** v71: 11 easter eggs + class birthdays (test with `?eggs` and `?date=MM-DD` on test.amberdepths.com).
 **Next up:** Sam's Hard Endless run with Backup codes before boss floors.
 **Bot chat (7 Nov 2026):** the deep bot ([bot/](bot/README.md)) v1 is in: Warrior Hard Endless averages floor 53
 (old bot: 16-23). Next: try a "dive" mode for deep floors, then other classes. Results: [bot/RESULTS.md](bot/RESULTS.md).
@@ -48,19 +48,6 @@ have, remove deploy.yml (and optionally make the repo private).
   Leaderboards (Sam, 6 Nov 2026) would share the same server and player names.
 - **Ko-fi link for donations** (Sam, 6 Nov 2026): a small "Support" link on the title screen (and maybe the Guide).
   Needs Sam's Ko-fi page address.
-- **Easter eggs** (Sam, 6 Nov 2026; pick any, all small). Anything in map generation must use `RNG()`:
-  - Type `xyzzy` in a run: "Nothing happens." (the classic adventure-game joke).
-  - Tap a title torch (ψ) 10 times: it burns blue for the rest of the session.
-  - Konami code (↑↑↓↓←→←→BA) on the title: the logo cycles through colours for a few seconds.
-  - A very rare tiny side room with a sleeping cat (`f`): pet it for +1 max HP once per run.
-  - Halloween and New Year's Day: themed floor tint and a one-line greeting on the title.
-  - Wait 100 turns in one spot: a ghost (`G`) drifts by and says "Lost?" then vanishes.
-  - Floor 99 in Endless: a quiet "credits" room thanking the players before the descent continues.
-  - (7 Nov) A rare shop cat (`f`) behind the counter: bump it, "It ignores you."
-  - (7 Nov) Die on floor 13: the death screen says "Unlucky."
-  - (7 Nov) 1-in-500 floor message: "You hear someone else's footsteps. They stop when you stop."
-  - (7 Nov) Class birthdays: each class gets a fixed date; play it that day, merchant says happy birthday, 10% off.
-  **Sam wants all of these (7 Nov 2026); build next chat (~15-20% of a window). The shop cat can give the +1 max HP.**
 - More classes, a second wave of relics, cosmetic titles on the daily share text.
 - **Echo** (reveal everything within 8 tiles for a few turns) as an upgrade or scroll; spare from the Mole design.
 - Leaderboards (would need a backend).
@@ -107,4 +94,4 @@ have, remove deploy.yml (and optionally make the repo private).
 
 ## What's new at the next merge
 
-(Nothing yet.)
+- Easter eggs. Some are rare and some need a keyboard. Each class now has a birthday (it's in the Guide).

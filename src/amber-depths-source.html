@@ -49,6 +49,11 @@ button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 #logo .gm { color: var(--amber); text-shadow: 0 0 6px rgba(255,181,71,.5); }
 .tag { margin: 6px 0 0; font-family: var(--font-display); font-size: 1.45rem; color: var(--dim); letter-spacing: .06em; text-align: center; }
 .tag .torch { color: var(--hot); }
+#title.bluefire .tag .torch { color: #7fd4ff; text-shadow: 0 0 8px rgba(80,170,255,.9); }
+#logo.rainbow { animation: rainbow 1s linear 4; }
+@keyframes rainbow { to { filter: hue-rotate(360deg); } }
+html[data-holiday="halloween"] #map { filter: hue-rotate(235deg) saturate(1.2); }
+html[data-holiday="newyear"] #map { filter: hue-rotate(165deg) saturate(.75) brightness(1.1); }
 .pick h2 { font-family: var(--font-display); font-weight: 400; font-size: 1.5rem; margin: 0 0 8px; letter-spacing: .05em; color: var(--amber); }
 .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .cards.classes { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -242,6 +247,8 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 .ie { color: var(--loot); }
 .ir { color: var(--magic); text-shadow: 0 0 8px var(--magic); }
 .shopk { color: var(--gold); font-weight: 700; text-shadow: 0 0 8px rgba(255,224,138,.8); }
+.cat { color: #f0c896; }
+.ghost { color: #d8ecff; text-shadow: 0 0 8px rgba(160,210,255,.9); opacity: .8; }
 .stl { color: #b8321c; font-weight: 700; }
 .trap { color: #ff6a4d; font-weight: 700; }
 .crack { color: #e0a85a; text-shadow: 0 0 4px rgba(255,181,71,.35); }
@@ -417,6 +424,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
     <span class="ver" id="ver" aria-label="Version">dev</span>
     <pre id="logo" aria-label="Amber Depths"></pre>
     <p class="tag"><span class="torch" id="t1">ψ</span> descend · loot · slay the wyrm <span class="torch" id="t2">ψ</span></p>
+    <p class="tag" id="holiday" hidden></p>
   </div>
   <div class="moved" id="moved" hidden>
     <h2>The depths have moved</h2>
@@ -1131,7 +1139,7 @@ function loadGame() {
   S = o; S.C = CLASSES[o.cls]; S.M = MODES[o.mode]; S.diff = DIFFS[o.diff] ? o.diff : 'normal'; S.D = buildD(S.diff, S.asc || 0);
   S.fx = new Map(); S.danger = new Set(o.danger || []); S.torches = new Set(o.torches || []);
   S.proj = null; S.anim = null; S.hurtAt = 0;
-  S.secret = new Set(o.secret || []); S.traps = o.traps || []; S.corpses = o.corpses || []; S.frenzy = o.frenzy || 0; S.aiming = false; S.brew = o.brew || 0; runNew = []; S.status = o.status || { poison: 0, burn: 0, slow: 0 };
+  S.secret = new Set(o.secret || []); S.cats = o.cats || []; S.traps = o.traps || []; S.corpses = o.corpses || []; S.frenzy = o.frenzy || 0; S.aiming = false; S.brew = o.brew || 0; runNew = []; S.status = o.status || { poison: 0, burn: 0, slow: 0 };
   S.theme = o.theme || themeFor(S.depth);
   for (const m of S.mons) m.flash = 0;
   normalizePack();
@@ -1598,7 +1606,7 @@ function openGuide() {
   const dmg = `<div class="chal-grp"><h3 class="sub">HOW DAMAGE WORKS</h3><p class="gtxt">Every hit does a base <b>2–4</b>, plus your <b>ATK</b>. A class showing ATK +0 still hits for 2–4.<br>ATK = class bonus + <b>1 per level-up</b> + your <b>weapon</b> + any <b>Whetstones</b> bought from the merchant.<br><b>Crits</b> deal double. <b>DEF</b> (from armor and class) lowers every hit you take, but never below 1.<br>Monsters get tougher with each floor and with difficulty. They have no armor.</p></div>`;
   const all = `<div class="chal-grp"><h3 class="sub">CLASSES</h3><div class="gcls">${Object.entries(CLASSES).map(([id, k]) => isLocked(id)
     ? `<div class="c"><b>@? ${esc(k.name)}</b> · locked<br><span style="color:var(--dim)">Unlock: ${esc(CHI[k.unlock].desc)}.</span></div>`
-    : `<div class="c${id === cur ? ' me' : ''}"><b>${esc(k.sig)} ${esc(k.name)}</b> · HP ${k.hp} · ATK +${k.atk} · DEF +${k.def} · CRIT ${Math.round(k.crit * 100)}%<br>${esc(ABIL_DETAIL[id]())}</div>`).join('')}</div></div>`;
+    : `<div class="c${id === cur ? ' me' : ''}"><b>${esc(k.sig)} ${esc(k.name)}</b> · HP ${k.hp} · ATK +${k.atk} · DEF +${k.def} · CRIT ${Math.round(k.crit * 100)}% · Birthday ${fmtMD(BDAY[id])}<br>${esc(ABIL_DETAIL[id]())}</div>`).join('')}</div></div>`;
   const syms = [['@', 'you', 'p'], ['>', 'stairs down', 'st'], [')', 'weapon', 'ie'], ['[', 'armor', 'ie'], ['!', 'healing potion', 'ip'], ['?', 'scroll', 'is'], ['$', 'gold', 'ig'], ['=', 'chest (or mimic)', 'chest'], ['&', 'merchant', 'shopk'], ['^', 'trap you spotted', 'trap'], ['×', 'your snare', 'snare'], ['▒', 'cracked wall', 'crack'], ['~', 'water', 'wat0'], ['%', 'bones', 'bone'], [',', 'corpse', 'corpse'], ['ψ', 'torch', 'tc0'], ['¤', 'rune (rare)', 'rune'], ['"', 'web (slows you)', 'web'], ['≈', 'danger: move!', 'dg']];
   const sym = `<div class="chal-grp"><h3 class="sub">SYMBOLS</h3><div class="gsym">${syms.map(([g, t, cl]) => `<span><b class="${cl}">${esc(g)}</b>${esc(t)}</span>`).join('')}</div><p class="gtxt" style="font-size:.72rem;color:var(--dim)">Rare gear glows violet. Your allies show in green. Frozen monsters turn ice blue.</p></div>`;
   const stat = `<div class="chal-grp"><h3 class="sub">STATUS EFFECTS</h3><p class="gtxt"><b>Poison</b>: lose 1 HP a turn. A potion cures it.<br><b>Burning</b>: lose 2 HP a turn. Step in water or drink a potion.<br><b>Slowed</b>: monsters sometimes get two moves in a row. Frost doesn't make it last longer, and once it wears off it can't slow you again for 3 turns.<br><b>Frozen</b> (Scroll of Frost): monsters skip their turns. Bosses thaw twice as fast.<br>Monsters can be <b>poisoned</b> (green) and <b>set alight</b> (orange) too, and they take damage every turn. Fire scrolls and Firebolt leave them burning. Monsters also set off traps.</p></div>`;
@@ -1666,7 +1674,7 @@ const inb = (x, y) => x >= 0 && y >= 0 && x < W && y < H;
 const floor = (x, y) => inb(x, y) && S.map[y][x] !== '#';
 const shopAt = (x, y) => !!(S.shop && S.shop.x === x && S.shop.y === y);
 const chestAt = (x, y) => S.items.some(e => e.x === x && e.y === y && e.it.type === 'chest');
-const free = (x, y) => floor(x, y) && !monAt(x, y) && !shopAt(x, y) && !chestAt(x, y) && !(x === S.px && y === S.py);
+const free = (x, y) => floor(x, y) && !monAt(x, y) && !shopAt(x, y) && !catAt(x, y) && !chestAt(x, y) && !(x === S.px && y === S.py);
 
 function stats() {
   const w = S.weapon, a = S.armor;
@@ -1837,13 +1845,15 @@ function newGame(opts) {
   if (S.relic) say(`You carry the ${RELICS[S.relic].name}: ${RELICS[S.relic].desc.toLowerCase()}.`, 'lvl');
   if (S.daily) say(`Daily run for ${fmtDay(S.daily)}. One try. Make it count.`, 'lvl');
   say(`${c.name}, you enter the Amber Depths. ${m.floors === Infinity ? 'They say there is no bottom.' : `The Amber Wyrm waits on floor ${m.floors}.`}`, 'hl');
+  if (holiday()) say(holiday().hi, 'lvl');
+  if (isBday()) say(`Happy birthday, ${c.name}! Word has reached the merchants: ten percent off, today only.`, 'gold');
   update();
   focusGame();
 }
 
 function descend() {
   S.depth++;
-  S.danger = new Set(); S.fx = new Map(); S.shop = null; S.traps = []; S.secret = new Set(); S.stairsLocked = false; S.arena = null;
+  S.danger = new Set(); S.fx = new Map(); S.shop = null; S.traps = []; S.secret = new Set(); S.stairsLocked = false; S.arena = null; S.cats = []; S.ghosted = false;
   const prevTheme = S.theme;
   const isHollow = !!S.hollowOpen && S.depth === S.M.floors + 1;
   S.theme = isHollow ? 'hollow' : themeFor(S.depth);
@@ -1870,6 +1880,12 @@ function descend() {
     say(`Floor ${S.depth}. ${pick(THEMES[S.theme].flavor || FLAVOR)}`);
     if (S.theme !== prevTheme) say(`You enter the ${THEMES[S.theme].name}.`, 'hl');
     SND.play('stairs');
+    if (S.mode === 'endless' && S.depth === 99) {
+      S.mons = S.mons.filter(m => m.ally);
+      say('This floor is silent. The walls are covered in scratched names: everyone who ever made it this deep.', 'lvl');
+      say('Below them, in newer letters: "Thank you for playing Amber Depths. — Sam"', 'lvl');
+      say('The stairs keep going down.', 'hl');
+    } else if (!S.arena && Math.random() < EGGS.steps) say("You hear someone else's footsteps. They stop when you stop.");
   }
   if (S.depth > 1) PROF.floors++;
   if (S.mode === 'endless') PROF.maxEndless = Math.max(PROF.maxEndless, S.depth);
@@ -2189,6 +2205,7 @@ function genFloor() {
   decorate(rooms);
   if (RNG() < .3) drop({ type: 'chest', ch: '=', mimic: RNG() < .3 });
   if (RNG() < .6) placeSecret();
+  if (S.depth > 1 && RNG() < EGGS.cat) placeCatNook();
   placeTraps(rooms);
   if (isMidBossFloor()) placeGolem();
 }
@@ -2275,7 +2292,7 @@ function placeTraps(rooms) {
   const start = rooms[0];
   for (let i = 0, t = 0; i < n && t < 200; t++) {
     const x = rnd(1, W - 2), y = rnd(1, H - 2);
-    if (S.map[y][x] !== '.' || itemAt(x, y) || monAt(x, y) || shopAt(x, y) || (x === S.sx && y === S.sy)) continue;
+    if (S.map[y][x] !== '.' || itemAt(x, y) || monAt(x, y) || shopAt(x, y) || catAt(x, y) || (x === S.sx && y === S.sy)) continue;
     if (x >= start.x - 1 && x <= start.x + start.w && y >= start.y - 1 && y <= start.y + start.h) continue;
     if (S.traps.some(tr => Math.abs(tr.x - x) + Math.abs(tr.y - y) < 3)) continue;
     S.traps.push({ x, y, kind: pick(kinds), seen: false }); i++;
@@ -2290,6 +2307,83 @@ function placeGolem() {
   const hp = Math.round((40 + e * 6) * S.D.hp * (S.D.bossHp || 1) * DEEP_HP ** (deep() / 2)), k = DEEP_DMG ** deep();
   S.mons.push({ ch: 'G', name: 'Stone Golem', hp, maxhp: hp, atk: [Math.round(3 * k), Math.round(6 * k)], bonus: Math.round(Math.floor(e / 3) * k), x: p[0], y: p[1], boss: true, golem: true, timer: 0, awake: false, flash: 0, xp: 20 + e * 2 });
   S.stairsLocked = true;
+}
+
+/* ================= easter eggs =================
+   Chance odds live in EGGS. On localhost and test.amberdepths.com only, add ?eggs to the address to make every chance
+   egg happen (ghost after 5 still turns), and ?date=MM-DD to pretend it's that day (holidays, class birthdays).
+   The live site ignores both. Map eggs (the cat nook, the shop cat) use RNG() so daily dungeons stay the same. */
+const EGGS = { cat: .03, shopCat: .1, steps: .002, ghost: 100 };
+const EGG_QS = /^(localhost|127\.0\.0\.1|test\.)/.test(location.hostname) ? new URLSearchParams(location.search) : new URLSearchParams();
+if (EGG_QS.has('eggs')) Object.assign(EGGS, { cat: 1, shopCat: 1, steps: 1, ghost: 5 });
+function todayMD() {
+  const f = EGG_QS.get('date');
+  if (f && /^\d\d-\d\d$/.test(f)) return f;
+  const d = new Date(); return String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+const HOLIDAYS = { '10-31': { id: 'halloween', hi: 'Happy Halloween. The dead are restless tonight.' },
+  '01-01': { id: 'newyear', hi: 'Happy New Year. May your torches burn long.' } };
+const holiday = () => HOLIDAYS[todayMD()] || null;
+// Each class has a birthday. Play it on that day and the merchants give 10% off.
+const BDAY = { warrior: '03-14', rogue: '04-01', mage: '06-21', necro: '11-02', berserker: '08-08', paladin: '12-25', gambler: '07-07',
+  ranger: '05-05', trapper: '09-13', mole: '02-02', alch: '11-11', vampire: '10-31' };
+const isBday = () => !!S && BDAY[S.cls] === todayMD();
+const fmtMD = md => { const [m, d] = md.split('-').map(Number); return `${d} ${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1]}`; };
+const catAt = (x, y) => !!(S.cats && S.cats.some(c => c.x === x && c.y === y));
+function petCat(c) {
+  if (!S.catPet) {
+    S.catPet = true; S.baseMax += 1; S.hp += 1; floatText(c.x, c.y, '+1 MAX HP', 'heal'); SND.play('level');
+    say(c.sleep ? 'You scratch the sleeping cat behind the ears. It purrs without waking. You feel a little warmer. +1 max HP.'
+      : 'The cat ignores you, but lets you scratch its ears. You feel a little warmer. +1 max HP.', 'good');
+  } else say(c.sleep ? pick(['The cat is fast asleep.', 'The cat twitches a whisker in its sleep.']) : pick(['The cat ignores you.', 'The cat blinks slowly at you.', 'The cat is busy washing a paw.']));
+}
+// A tiny dead-end nook dug off a room, with a cat asleep in it. Rare.
+function placeCatNook() {
+  const map = S.map;
+  for (let t = 0; t < 250; t++) {
+    const w = rnd(1, 2), h = 1, x = rnd(2, W - w - 2), y = rnd(2, H - h - 2);
+    let solid = true;
+    for (let j = y - 1; j <= y + h && solid; j++) for (let i = x - 1; i <= x + w; i++) if (map[j][i] !== '#' || S.secret.has(key(i, j))) { solid = false; break; }
+    if (!solid) continue;
+    const doors = [];
+    for (let i = x; i < x + w; i++) {
+      if (y - 2 >= 0 && map[y - 2][i] === '.') doors.push([i, y - 1]);
+      if (y + h + 1 < H && map[y + h + 1][i] === '.') doors.push([i, y + h]);
+    }
+    if (x - 2 >= 0 && map[y][x - 2] === '.') doors.push([x - 1, y]);
+    if (x + w + 1 < W && map[y][x + w + 1] === '.') doors.push([x + w, y]);
+    if (!doors.length) continue;
+    const [dx, dy] = pick(doors);
+    for (let i = x; i < x + w; i++) { map[y][i] = '.'; S.torches.delete(key(i, y)); }
+    map[dy][dx] = '.'; S.torches.delete(key(dx, dy));
+    // The cat sleeps at the far end, away from the doorway.
+    const cx = w > 1 && Math.abs(x - dx) <= Math.abs(x + 1 - dx) ? x + 1 : x;
+    S.cats.push({ x: cx, y, sleep: true });
+    return;
+  }
+}
+// Stand still long enough and something comes to check on you.
+async function ghostVisit() {
+  S.ghosted = true;
+  say('A ghost drifts out of the wall. "Lost?" it asks, and fades away.', 'hl');
+  const dir = Math.random() < .5 ? -1 : 1, y = S.py > 1 ? S.py - 1 : S.py + 1;
+  for (let i = -4; i <= 4; i++) { setFx(S.px + i * dir, y, 'G', 'ghost', reduce ? 1200 : 260); if (!reduce) await sleep(200); }
+}
+let eggBuf = [], torchTaps = 0;
+const KONAMI = 'ArrowUp,ArrowUp,ArrowDown,ArrowDown,ArrowLeft,ArrowRight,ArrowLeft,ArrowRight,b,a';
+function eggKey(key) {
+  eggBuf.push(key.length === 1 ? key.toLowerCase() : key); if (eggBuf.length > 10) eggBuf.shift();
+  const tail = n => eggBuf.slice(-n).join(',');
+  if (screenNow === 'game' && S && !S.dead && tail(5) === 'x,y,z,z,y') { eggBuf = []; say('Nothing happens.'); update(); }
+  if (screenNow === 'title' && tail(10) === KONAMI) {
+    eggBuf = []; const l = $('logo'); l.classList.remove('rainbow'); void l.offsetWidth; l.classList.add('rainbow'); SND.play('level');
+  }
+}
+function initEggs() {
+  for (const id of ['t1', 't2']) $(id).addEventListener('click', () => { if (++torchTaps === 10) { $('title').classList.add('bluefire'); SND.play('level'); } });
+  const hol = holiday();
+  if (hol) { document.documentElement.dataset.holiday = hol.id; $('holiday').textContent = hol.hi; $('holiday').hidden = false; }
+  $('logo').addEventListener('animationend', () => $('logo').classList.remove('rainbow'));
 }
 
 /* ================= shops ================= */
@@ -2317,6 +2411,10 @@ function placeShop(rooms) {
       if (to) [e.x, e.y] = to; else S.items = S.items.filter(o => o !== e);
     }
   }
+  if (RNG() < EGGS.shopCat) { // a shop cat, keeping the merchant company
+    const sp = DIRS8.map(([dx, dy]) => [x + dx, y + dy]).filter(([i, j]) => i >= ix0 && i <= ix1 && j >= iy0 && j <= iy1 && !taken(i, j));
+    if (sp.length) { const [cx, cy] = sp[rnd(0, sp.length - 1)]; S.cats.push({ x: cx, y: cy }); }
+  }
   S.mons = S.mons.filter(m => !(m.x >= r.x - 1 && m.x <= r.x + r.w && m.y >= r.y - 1 && m.y <= r.y + r.h));
   const e = eff(), tier = Math.floor(e / 2) + 1;
   const g1 = gear('weapon', tier), g2 = gear('armor', tier);
@@ -2331,6 +2429,7 @@ function placeShop(rooms) {
   ] };
   if (S.relic === 'coin') { const k = RNG() < .5 ? 'weapon' : 'armor', g3 = gear(k, tier + 2, pick(k === 'weapon' ? ['keen', 'vampiric'] : ['vigor', 'thorns'])); S.shop.stock.splice(5, 0, { it: g3, price: gearPrice(g3) }); }
   if (S.cls === 'gambler') for (const st of S.shop.stock) st.price = Math.round(st.price * .75);
+  if (isBday()) { for (const st of S.shop.stock) st.price = Math.round(st.price * .9); S.shop.greet = '"Happy birthday! Ten percent off, today only."'; }
 }
 function cmpTag(it) {
   if (it.type !== 'gear') return '';
@@ -2629,6 +2728,8 @@ async function playerMove(dx, dy) {
   if (m && m.ally) { m.x = S.px; m.y = S.py; }
   else if (m) { attack(m); if (S.frenzy > 0 && S.mons.includes(m)) attack(m); return true; }
   if (shopAt(nx, ny)) { openShop(); return false; }
+  const cat = S.cats && S.cats.find(c => c.x === nx && c.y === ny);
+  if (cat) { petCat(cat); return false; }
   const sk = key(nx, ny);
   if (S.secret.has(sk)) {
     S.secret.delete(sk); S.map[ny][nx] = '.';
@@ -2748,6 +2849,9 @@ async function endTurn() {
   if (S.dead || S.won) return;
   S.turn++;
   if (S.cd > 0) S.cd--;
+  if (S.px === S.stillX && S.py === S.stillY) {
+    if (++S.still >= EGGS.ghost && !S.ghosted && !S.mons.some(m => !m.ally && S.vis && S.vis[m.y][m.x])) ghostVisit();
+  } else { S.stillX = S.px; S.stillY = S.py; S.still = 0; }
   if (S.invis > 0) { S.invis--; if (!S.invis) say('You fade back into view.'); }
   if (S.shield > 0) { S.shield--; if (!S.shield) say('You lower your shield.'); }
   if (B('regen') && S.turn % 3 === 0 && isVamp()) feedWard(B('regen'));
@@ -3025,7 +3129,7 @@ async function altAbility() {
       return true;
     }
     case 'trapper': {
-      const spots = DIRS4.map(([dx, dy]) => [S.px + dx, S.py + dy]).filter(([x, y]) => floor(x, y) && !monAt(x, y) && !shopAt(x, y) && !chestAt(x, y) && !S.traps.some(t => t.x === x && t.y === y));
+      const spots = DIRS4.map(([dx, dy]) => [S.px + dx, S.py + dy]).filter(([x, y]) => floor(x, y) && !monAt(x, y) && !shopAt(x, y) && !catAt(x, y) && !chestAt(x, y) && !S.traps.some(t => t.x === x && t.y === y));
       if (!spots.length) { say('No room for snares here.'); return false; }
       for (const [x, y] of spots) { S.traps.push({ x, y, kind: 'snare', seen: true, mine: true }); setFx(x, y, '×', 'snare', 300); }
       while (S.traps.filter(t => t.mine).length > 6) S.traps.splice(S.traps.findIndex(t => t.mine), 1);
@@ -3071,7 +3175,7 @@ async function ability() {
       if (!foes.length) say('No enemies in sight to trap.');
       else {
         const near = (x, y) => Math.min(...foes.map(f => Math.abs(f.x - x) + Math.abs(f.y - y)));
-        const spots = DIRS4.map(([dx, dy]) => [S.px + dx, S.py + dy]).filter(([x, y]) => floor(x, y) && !monAt(x, y) && !shopAt(x, y) && !chestAt(x, y) && !S.traps.some(t => t.x === x && t.y === y)).sort((a, b) => near(a[0], a[1]) - near(b[0], b[1]));
+        const spots = DIRS4.map(([dx, dy]) => [S.px + dx, S.py + dy]).filter(([x, y]) => floor(x, y) && !monAt(x, y) && !shopAt(x, y) && !catAt(x, y) && !chestAt(x, y) && !S.traps.some(t => t.x === x && t.y === y)).sort((a, b) => near(a[0], a[1]) - near(b[0], b[1]));
         if (!spots.length) say('No room to set a snare here.');
         else {
           const mine = S.traps.filter(t => t.mine);
@@ -3211,7 +3315,7 @@ async function ability() {
 
 async function volley(dx, dy) {
   const path = [];
-  for (let i = 1; i <= 8; i++) { const x = S.px + dx * i, y = S.py + dy * i; if (!floor(x, y) || shopAt(x, y)) break; path.push([x, y]); }
+  for (let i = 1; i <= 8; i++) { const x = S.px + dx * i, y = S.py + dy * i; if (!floor(x, y) || shopAt(x, y) || catAt(x, y)) break; path.push([x, y]); }
   SND.play('arrow');
   await fly(path, dx ? '-' : '|', 'arrow', 18);
   const hits = S.mons.filter(m => !m.ally && path.some(([x, y]) => m.x === x && m.y === y));
@@ -3534,7 +3638,7 @@ function showEnd(won, by, rec) {
   const runs = `${S.C.name} · ${S.M.name} · ${S.D.name}${S.asc ? ' · A' + S.asc : ''} · level ${S.lv} · ${S.kills} kills · ${S.gold} gold · ${S.turn} turns`;
   $('endmsg').innerHTML = won
     ? (S.trueEnd ? `You silenced the Amber Heart. For the first time in an age, the depths are quiet.<br>${esc(runs)}` : `You carry the Amber Heart out of the depths.<br>${esc(runs)}`)
-    : `Slain by ${esc(/^the /.test(by) ? by : (/^[aeiou]/i.test(by) ? 'an ' : 'a ') + by)} on floor ${S.depth}.${S.wyrmCredited ? ' The Wyrm\'s death still counts.' : ''}<br>${esc(runs)}`;
+    : `Slain by ${esc(/^the /.test(by) ? by : (/^[aeiou]/i.test(by) ? 'an ' : 'a ') + by)} on floor ${S.depth}.${S.depth === 13 ? ' Unlucky.' : ''}${S.wyrmCredited ? ' The Wyrm\'s death still counts.' : ''}<br>${esc(runs)}`;
   $('endrec').hidden = !rec;
   $('endunlock').hidden = !runNew.length;
   $('endunlock').innerHTML = runNew.map(c => `Challenge complete: ${esc(c.name)}${c.reward === 'Badge' ? '' : ` · ${esc(c.reward)}`}`).join('<br>');
@@ -3624,6 +3728,7 @@ function render() {
         if (cp) { ch = ','; cls = 'corpse'; }
         const it = itemAt(x, y); if (it) { ch = it.it.ch; cls = itemCls(it.it); }
         if (shopAt(x, y)) { ch = '&'; cls = 'shopk'; }
+        if (catAt(x, y)) { ch = 'f'; cls = 'cat'; }
         const m = monAt(x, y); if (m) { ch = m.ch; cls = now - m.flash < 170 ? 'hitf' : m.ally ? 'ally' : m.frozen > 0 ? 'frozen' : m.burn > 0 ? 'mburn' : m.poison > 0 ? 'mpois' : m.heart ? 'heart' : m.boss ? 'boss' : m.elite ? 'elite' : 'm'; }
         if (x === S.px && y === S.py) { ch = '@'; cls = now - S.hurtAt < 170 ? 'phurt' : S.invis ? 'pinv' : S.status.burn ? 'pburn' : S.status.poison ? 'ppois' : S.status.slow ? 'pslow' : 'p'; }
       }
@@ -3716,6 +3821,7 @@ const MOVE = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRig
   w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0], k: [0, -1], j: [0, 1], h: [-1, 0], l: [1, 0], '.': [0, 0], ' ': [0, 0], '5': [0, 0] };
 addEventListener('keydown', e => {
   if (e.metaKey || e.altKey || (e.ctrlKey && e.code !== 'ControlRight') || (e.code === 'ControlRight' && e.repeat)) return;
+  eggKey(e.key);
   // One-handed play. Numpad: 8 4 5 6 move like W A S D, 7 ability, 9 potion, . pack, 0 wait.
   // With the arrow keys: Delete ability, End wait, Page Down potion, right Ctrl pack.
   const np = screenNow === 'game' && { Numpad8: 'w', Numpad4: 'a', Numpad5: 's', Numpad6: 'd', Numpad7: 'q', Numpad9: 'p', Numpad0: '.', NumpadDecimal: 'i',
@@ -3846,6 +3952,7 @@ addEventListener('resize', fit);
 setInterval(() => { if (screenNow === 'title' && !reduce) drawLogo(); }, 70);
 setInterval(() => { if (screenNow === 'game' && !reduce) render(); }, 110);
 
+initEggs();
 showScreen('title');
 (document.fonts ? document.fonts.ready : Promise.resolve()).then(fit);
 })();

@@ -7,6 +7,14 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-07 — v71: easter eggs and class birthdays (staging)
+- All in the source's "easter eggs" section: odds in `EGGS` (cat nook 3%/floor, shop cat 10%/shop, footsteps 0.2%/floor,
+  ghost after 100 still turns with no enemy in sight). `xyzzy` in a run; Konami on the title (logo hue cycle); 10 torch
+  taps (blue, this session); Halloween/New Year (`HOLIDAYS`: map tint + title and run greeting); cats `S.cats` (sleeping
+  in a carved nook, or next to the merchant; one +1 max HP per run, `S.catPet`); floor 13 death "Unlucky."; Endless
+  floor 99 silent credits floor; class birthdays `BDAY` (10% off, shop greeting, shown in the Guide's class list).
+- Testing: on localhost and test.* only, `?eggs` forces every chance egg (ghost after 5 turns), `?date=MM-DD` fakes the date.
+
 ### 2026-11-07 — v70 live: item under a merchant fixed (commit `4e86721`)
 - `placeShop` picks from the room's open tiles (or nudges the item aside); was ~1 shop in 900.
 

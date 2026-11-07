@@ -24,7 +24,7 @@ window.__runGame = async (cls, mode, diff, maxTurns, relic, asc, alt) => {
         if (wall) continue;
         if (!S.seen[ny][nx] && !goal(nx, ny)) continue;
         const m = T.monAt(nx, ny); if (m && !m.ally && !goal(nx, ny)) continue;
-        if (T.shopAt(nx, ny) && !goal(nx, ny)) continue;
+        if ((T.shopAt(nx, ny) || T.catAt(nx, ny)) && !goal(nx, ny)) continue;
         if (S.danger.has(k) && !goal(nx, ny)) continue;
         if (S.traps.some(t => t.seen && t.x === nx && t.y === ny) && !goal(nx, ny)) continue;
         prev.set(k, [x, y]); q.push([nx, ny]);
@@ -49,7 +49,7 @@ window.__runGame = async (cls, mode, diff, maxTurns, relic, asc, alt) => {
       if (!Number.isFinite(m.hp)) note('monster NaN hp', m.name);
       if (m.hp <= 0) note('dead monster lingering', m.name + ' ' + m.hp);
     }
-    for (const e of S.items) { if (S.map[e.y][e.x] === '#') note('item in wall', e.it.type); if (T.shopAt(e.x, e.y)) note('item under merchant', e.it.type); }
+    for (const e of S.items) { if (S.map[e.y][e.x] === '#') note('item in wall', e.it.type); if (T.shopAt(e.x, e.y)) note('item under merchant', e.it.type); if (T.catAt(e.x, e.y)) note('item under cat', e.it.type); }
     for (const it of S.pack) if ((it.n || 1) < 1) note('empty stack', it.type);
   };
   const stairsReachable = () => {
@@ -57,7 +57,7 @@ window.__runGame = async (cls, mode, diff, maxTurns, relic, asc, alt) => {
     const seen = new Set([S.px + ',' + S.py]), q = [[S.px, S.py]];
     for (let i = 0; i < q.length; i++) { const [x, y] = q[i]; if (x === S.sx && y === S.sy) return true;
       for (const [dx, dy] of DIRS) { const nx = x + dx, ny = y + dy, k = nx + ',' + ny; if (seen.has(k) || nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
-        if ((S.map[ny][nx] === '#' && !S.secret.has(k)) || T.shopAt(nx, ny)) continue; seen.add(k); q.push([nx, ny]); } }
+        if ((S.map[ny][nx] === '#' && !S.secret.has(k)) || T.shopAt(nx, ny) || T.catAt(nx, ny)) continue; seen.add(k); q.push([nx, ny]); } }
     return false;
   };
   for (let step = 0; step < maxTurns * 3; step++) {
