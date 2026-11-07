@@ -8,14 +8,19 @@ under *Ideas (later)*; ask before building one.
 **Live on `main`:** v59 (merged 7 Nov 2026, commit `7df1995`): cloud sync (sync codes, "Save & sync" sheet, last 10
 saves kept) and leaderboards (daily, streaks, Endless, best); TEST bar on test.amberdepths.com; Vampire class; old
 github.io address shows only a "moved" screen. D1 database `amber-depths` is shared by live and test (test ignores scores).
-**On `staging`, not live yet:** nothing.
-**Next up:** title screen rework (Sam, 7 Nov: buttons more visible, Settings out of Challenges into its own tab, a
-place for the Ko-fi button); discuss first. Then Sam's Hard Endless run with Backup codes before boss floors.
+**On `staging`, not live yet:** v63 (7 Nov 2026): new title screen. Main menu (logo; Continue, Start game / New run,
+Save & sync, Settings, Guide, ♥ Support → ko-fi.com/samcarton) and a run setup page (top bar: Back, Challenges, Run
+history, Leaderboards, music, sound; smaller logo; Daily, then class and run choices). Settings (controls, text style,
+screen color, sound) moved out of Challenges into its own sheet. Sam tries it at test.amberdepths.com, then "merge".
+**Next up:** Sam's Hard Endless run with Backup codes before boss floors.
 **Cloudflare (6 Nov 2026):** live at amberdepths.com (Worker `amber-depths`, `main`); test at test.amberdepths.com
 (Worker `amber-depths-preview`, `staging`). Friends move their saves via the old address's moved screen; once all
 have, remove deploy.yml (and optionally make the repo private).
 
 ## To do
+
+- **Bug: an item can sit under a merchant** (test bot, 7 Nov 2026, Mage Short Normal: "item under merchant: potion"
+  on floor 2, repeated every turn). Probably shop placement not checking for items; the potion can't be picked up.
 
 - **Check the new deep curve against Sam's play** (retuned 5 Nov 2026 from his floor-40 Hard Rogue backup: Lv 70,
   ATK 123, 45 potions, 43k gold, one-shotting everything). Knobs: `DEEP_FROM` 12, `DEEP_HP` 1.05 (new: monster HP
