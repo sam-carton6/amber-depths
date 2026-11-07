@@ -59,7 +59,8 @@ have, remove deploy.yml (and optionally make the repo private).
   - (7 Nov) A rare shop cat (`f`) behind the counter: bump it, "It ignores you."
   - (7 Nov) Die on floor 13: the death screen says "Unlucky."
   - (7 Nov) 1-in-500 floor message: "You hear someone else's footsteps. They stop when you stop."
-  - (7 Nov) Birthday greeting + 10% off from the merchant (needs a birthday setting; maybe skip).
+  - (7 Nov) Class birthdays: each class gets a fixed date; play it that day, merchant says happy birthday, 10% off.
+  **Sam wants all of these (7 Nov 2026); build next chat (~15-20% of a window). The shop cat can give the +1 max HP.**
 - More classes, a second wave of relics, cosmetic titles on the daily share text.
 - **Echo** (reveal everything within 8 tiles for a few turns) as an upgrade or scroll; spare from the Mole design.
 - Leaderboards (would need a backend).
