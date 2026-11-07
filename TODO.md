@@ -9,6 +9,8 @@ under *Ideas (later)*; ask before building one.
 the Guide, the daily sets your run aside, cloud sync, 8 leaderboards (cleared 7 Nov); v70 fixed an item under a merchant). Details in DONE.md.
 **On `staging`, not live yet:** nothing.
 **Next up:** Sam's Hard Endless run with Backup codes before boss floors.
+**Bot chat (7 Nov 2026):** the deep bot ([bot/](bot/README.md)) v1 is in: Warrior Hard Endless averages floor 53
+(old bot: 16-23). Next: try a "dive" mode for deep floors, then other classes. Results: [bot/RESULTS.md](bot/RESULTS.md).
 **Cloudflare (6 Nov 2026):** live at amberdepths.com (Worker `amber-depths`, `main`); test at test.amberdepths.com
 (Worker `amber-depths-preview`, `staging`). Friends move their saves via the old address's moved screen; once all
 have, remove deploy.yml (and optionally make the repo private).
@@ -31,6 +33,12 @@ have, remove deploy.yml (and optionally make the repo private).
   the test page to try numbers without rebuilding.
 
 ## Ideas (later)
+
+- **Boss minion farm** (found by the deep bot, 7 Nov 2026): the Lich and Brood Mother make minions forever, 1 XP
+  each, so a patient player can level without limit on floor 10 (bot: level 17 → 41 in 12,000 turns). Fix if Sam
+  wants: minions give 0 XP after the first N, or the boss stops summoning after a while.
+- **Late gold has nothing to buy** (deep bot, 7 Nov 2026): ~57k unspent at death around floor 53; shops sell only 2
+  potions. Matches the open "potions and gold pile up" note above.
 
 - **"Equip best" button in the pack** (Sam, 6 Nov 2026): puts on the highest `gearScore` weapon and armor. Small: the
   game already scores gear (pickup message, sell-junk). Watch out for cursed gear and Vampiric/Thorned trade-offs.
@@ -83,7 +91,10 @@ have, remove deploy.yml (and optionally make the repo private).
   Unlock plan (Sam, 5 Nov 2026): ASCII stays the default; a greyscale pixel pack tinted by the screen colour you've
   unlocked (so the existing colour challenges carry over); full-colour pixel art as its own medium-hard challenge.
   Draw once in full colour: the game can make the greyscale version itself.
-- **Learning project (Sam):** write a smarter bot: rule-based first, then look-ahead search, then reinforcement learning
+- **Learning project (Sam):** write a smarter bot: rule-based first, then look-ahead search, then reinforcement learning.
+  **Started 7 Nov 2026:** rule-based v1 in [bot/deep-bot.js](bot/deep-bot.js) (in the test page, seeded replays;
+  headless Node comes later, for the search and learning stages). Bot ideas to try: dive past floor ~45 instead of
+  clearing floors; Frost/Teleport scrolls in bad fights; other classes.
   How (decided 5 Nov 2026): Sam writes the strategy as plain rules or pseudocode, Claude turns it into JavaScript in
   this repo (a `bot/` folder, outside `app/` so it never goes live), with comments Sam can tweak.
   (needs the game logic split out to run headless in Node).
