@@ -1,0 +1,17 @@
+// Cloudflare Workers settings: serves the app/ folder as static files, no server code.
+// main deploys the live game (Worker amber-depths, amberdepths.com) with `npx wrangler deploy`.
+// staging deploys the test copy (Worker amber-depths-preview, test.amberdepths.com) with
+// `npx wrangler deploy --env preview`. Each address keeps its own saves (localStorage is per address).
+{
+  "name": "amber-depths",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./app"
+  },
+  "routes": [{ "pattern": "amberdepths.com", "custom_domain": true }],
+  "env": {
+    "preview": {
+      "routes": [{ "pattern": "test.amberdepths.com", "custom_domain": true }]
+    }
+  }
+}
