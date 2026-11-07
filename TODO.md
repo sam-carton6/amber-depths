@@ -5,14 +5,10 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v59 (merged 7 Nov 2026, commit `7df1995`): cloud sync (sync codes, "Save & sync" sheet, last 10
-saves kept) and leaderboards (daily, streaks, Endless, best); TEST bar on test.amberdepths.com; Vampire class; old
-github.io address shows only a "moved" screen. D1 database `amber-depths` is shared by live and test (test ignores scores).
-**On `staging`, not live yet:** v63 (7 Nov 2026): new title screen. Main menu (logo; Continue, Start game / New run,
-Save & sync, Settings, Guide, ♥ Support → ko-fi.com/samcarton) and a run setup page (top bar: Back, Challenges, Run
-history, Leaderboards, music, sound; smaller logo; Daily, then class and run choices). Settings (controls, text style,
-screen color, sound) moved out of Challenges into its own sheet. v64: "How to play" folded into the Guide. v67: the daily sets your current run aside and gives it back when the daily ends; boards cleared 7 Nov and count only runs finished from then on (no past-history upload). v69: four more boards (Fastest win and Toughest win per mode, Biggest hit, Most kills). Sam tries it at test.amberdepths.com, then "merge".
-**Next up:** Sam's Hard Endless run with Backup codes before boss floors.
+**Live on `main`:** v69 (merged 7 Nov 2026, commit `61de9ef`): new title screen and Settings sheet, How to play in
+the Guide, the daily sets your run aside, cloud sync, 8 leaderboards (cleared 7 Nov). Details in DONE.md.
+**On `staging`, not live yet:** nothing.
+**Next up:** Sam's Hard Endless run with Backup codes before boss floors; the item-under-merchant bug below.
 **Cloudflare (6 Nov 2026):** live at amberdepths.com (Worker `amber-depths`, `main`); test at test.amberdepths.com
 (Worker `amber-depths-preview`, `staging`). Friends move their saves via the old address's moved screen; once all
 have, remove deploy.yml (and optionally make the repo private).

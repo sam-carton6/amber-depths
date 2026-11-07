@@ -7,6 +7,22 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-07 — v69 live: title screen, daily set-aside, more leaderboards (commit `61de9ef`)
+- Main menu (Continue, Start game / New run, Save & sync, Settings, Guide, Support → ko-fi.com/samcarton) and a run
+  setup page (`#title[data-page]`, `setPage()`; top bar Back/Challenges/History/Leaderboards/sound). The new menu's id
+  is `mainmenu`: `menu` is the in-game Main menu button. Settings sheet (`openSet`, `#setbody`) took controls, text
+  style, screen color and sound out of Challenges. "How to play" lives in the Guide (`#howtotpl`).
+- Starting the daily parks the saved run in `amber-depths-parked`; `finishRun` puts it back, the end screen offers
+  "Back to your … run".
+- Boards cleared on 7 Nov; only runs finished since then count (no history upload). Added fastest win / toughest win
+  (lowest first, `LOW` in worker/index.js), biggest hit, most kills.
+
+### 2026-11-07 — v59 live: cloud sync and leaderboards (commit `7df1995`)
+- worker/index.js + D1 `amber-depths` (shared with test.amberdepths.com, which ignores scores via `TEST_COPY`).
+  Sync codes (hashed), whole-save upload with version check (409 → take the newer save), last 10 saves kept.
+
+### 2026-11-06 — Moved to Cloudflare Workers (amberdepths.com, test.amberdepths.com); old github.io shows a moved screen
+
 ### 2026-11-06 — v51 on `staging`: the Vampire class
 - No healing from anything (potions, level-ups, merchant meal, Regen/Vamp boons, Vampiric gear: those feed the
   ward instead). Blood ward `S.ward` (25% of max HP) soaks hits first, refills by 10% of damage dealt (`hurtMon`)
