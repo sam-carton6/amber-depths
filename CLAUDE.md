@@ -12,12 +12,17 @@ every chat), [DONE.md](DONE.md) (the archive; history only). Code map and game c
 
 ## Where it runs
 - **Kind:** web app (PWA)
-- **Live:** GitHub Pages at https://sam-carton6.github.io/amber-depths/ — [deploy.yml](.github/workflows/deploy.yml)
-  publishes the `app/` folder on every push to `main`. **Every push to `main` changes the game on friends' phones.**
-- **Try `staging`:** `python -m http.server 8765` in the repo root, then http://localhost:8765/app/.
+- **Live:** https://amberdepths.com — Cloudflare Worker `amber-depths` serves the `app/` folder; Cloudflare builds
+  every push to `main` ([wrangler.jsonc](wrangler.jsonc)). **Every push to `main` changes the game on friends' phones.**
+- **Test copy of `staging`:** https://test.amberdepths.com — Worker `amber-depths-preview`
+  (`npx wrangler deploy --env preview`). Its own saves, separate from the live game.
+- **Old address (moving out, 6 Nov 2026):** https://sam-carton6.github.io/amber-depths/ still deploys from `main`
+  ([deploy.yml](.github/workflows/deploy.yml)) but shows only a "moved" screen with Backup, so friends can carry
+  their saves over (saves are tied to the address). Keep it until everyone has moved, then remove deploy.yml.
+- **Locally:** `python -m http.server 8765` in the repo root, then http://localhost:8765/app/.
   (The service worker doesn't register there in the Claude browser pane; that's expected.)
-- **Repo:** GitHub `sam-carton6/amber-depths` (**public**: free GitHub Pages needs it, so never commit anything
-  private). Main copy on the tower: `D:\Users\Sam\Documents\Projects\Amber Depths`.
+- **Repo:** GitHub `sam-carton6/amber-depths` (**public** while GitHub Pages still serves the moved screen, so never
+  commit anything private). Main copy on the tower: `D:\Users\Sam\Documents\Projects\Amber Depths`.
 - The game also exists as a claude.ai artifact (link in src/HANDOFF.md), where it was first built.
 
 ## Branches

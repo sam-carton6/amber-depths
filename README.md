@@ -2,8 +2,8 @@
 modules: [software]
 status: active
 summary: A little retro ASCII roguelike you can install on your phone.
-runs: github-pages
-live: https://sam-carton6.github.io/amber-depths/
+runs: cloudflare-workers
+live: https://amberdepths.com
 showcase: no
 ---
 # Amber Depths
@@ -24,8 +24,9 @@ Then go to http://localhost:8765.
 
 ## Where it runs
 
-- `main` = live: GitHub Pages at https://sam-carton6.github.io/amber-depths/ (every push to `main` redeploys it)
-- `staging` = work in progress: local only
+- `main` = live: https://amberdepths.com (Cloudflare Workers builds every push to `main`; see `wrangler.jsonc`)
+- `staging` = work in progress: test copy at https://test.amberdepths.com
+- The old address, https://sam-carton6.github.io/amber-depths/, only shows a "we've moved" screen with Backup
 
 ## Secrets
 
