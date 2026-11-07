@@ -13,9 +13,14 @@
 //   endless key = difficulty    val = deepest floor
 //   best    key = mode          val = score    (short / standard)
 // Daily streaks and wins are worked out from the daily rows.
+//
+// Safety net: the last KEEP uploads of each player's save stay in `saves`, so a damaged save (a bug in a test version,
+// a wrong restore) can be undone from the game's Save & sync sheet.
+// The test copy (test.amberdepths.com, env TEST_COPY) shares this database but ignores scores.
 
 const ALPHA = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // no 0/O, 1/I/L
 const MAX_SAVE = 1_000_000; // characters; a big save is ~60k
+const KEEP = 10; // earlier saves kept per player
 const JOINS_PER_DAY = 20; // new sync codes per network address per day
 
 const SCHEMA = [
@@ -24,6 +29,7 @@ const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS scores (id TEXT NOT NULL, board TEXT NOT NULL, k TEXT NOT NULL, val INTEGER NOT NULL,
      info TEXT, t INTEGER NOT NULL, PRIMARY KEY (id, board, k))`,
   `CREATE INDEX IF NOT EXISTS scores_board ON scores (board, k, val DESC)`,
+  `CREATE TABLE IF NOT EXISTS saves (id TEXT NOT NULL, t INTEGER NOT NULL, save TEXT NOT NULL, PRIMARY KEY (id, t))`,
   `CREATE TABLE IF NOT EXISTS joins (ip TEXT NOT NULL, day TEXT NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (ip, day))`,
 ];
 let ready = null; // tables are created once per Worker instance
@@ -137,10 +143,26 @@ async function route(req, env, url) {
     // Only replace the save this device last saw; otherwise another device got there first.
     const r = await env.DB.prepare('UPDATE players SET save = ?, save_t = ? WHERE id = ? AND save_t = ?').bind(b.data, t, me.id, +b.base || 0).run();
     if (!r.meta.changes) return json({ error: 'newer', t: me.save_t }, 409);
+    await env.DB.batch([
+      env.DB.prepare('INSERT INTO saves (id, t, save) VALUES (?, ?, ?)').bind(me.id, t, b.data),
+      env.DB.prepare('DELETE FROM saves WHERE id = ? AND t NOT IN (SELECT t FROM saves WHERE id = ? ORDER BY t DESC LIMIT ?)').bind(me.id, me.id, KEEP),
+    ]);
     return json({ t });
   }
 
+  // Earlier saves: the list (times only), or one of them with ?t=
+  if (path === '/api/saves' && m === 'GET') {
+    const t = +url.searchParams.get('t');
+    if (t) {
+      const row = await env.DB.prepare('SELECT t, save FROM saves WHERE id = ? AND t = ?').bind(me.id, t).first();
+      return row ? json({ t: row.t, data: row.save }) : fail(404, 'That save is no longer kept.');
+    }
+    const { results } = await env.DB.prepare('SELECT t FROM saves WHERE id = ? ORDER BY t DESC').bind(me.id).all();
+    return json({ rows: results.map(r => r.t) });
+  }
+
   if (path === '/api/score' && m === 'POST') {
+    if (env.TEST_COPY) return json({ ok: true, ignored: 'test copy' });
     const b = await body(req);
     const board = b && b.board, k = b && String(b.k || ''), val = b && Math.floor(+b.val);
     if (!BOARDS[board] || !BOARDS[board](k) || !Number.isFinite(val) || val < 0 || val > 1e7) return fail(400, 'Bad score.');

@@ -1324,8 +1324,9 @@ async function syncStartNew() {
   renderSync();
 }
 async function syncUseCode() {
-  const code = $('synccodein').value.trim().toUpperCase(), msg = $('syncmsg');
-  if (code.replace(/[^A-Z0-9]/g, '').length !== 12) { msg.textContent = 'A sync code looks like WOLF-7Q3K-M2XD.'; return; }
+  const raw = $('synccodein').value.toUpperCase().replace(/[^A-Z0-9]/g, ''), msg = $('syncmsg');
+  if (raw.length !== 12) { msg.textContent = 'A sync code looks like WOLF-7Q3K-M2XD.'; return; }
+  const code = `${raw.slice(0, 4)}-${raw.slice(4, 8)}-${raw.slice(8)}`;
   msg.textContent = 'Checking the code…';
   try {
     const me = await api('me', {}, code);
@@ -1340,6 +1341,25 @@ async function syncRename() {
   try { const o = await api('name', { method: 'POST', body: JSON.stringify({ name }) }); SYNC.name = o.name; storeSync(); $('syncmsg').textContent = ''; }
   catch (e) { $('syncmsg').textContent = e.message; }
   renderSync();
+}
+// The server keeps the last 10 uploads; going back to one makes it the newest save on every device.
+async function syncListOld() {
+  const box = $('syncolds'); box.innerHTML = '<p class="gtxt">Loading…</p>';
+  let rows; try { rows = (await api('saves')).rows; } catch (e) { box.innerHTML = `<p class="gtxt">${esc(e.message)}</p>`; return; }
+  const when = t => new Date(t).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  box.innerHTML = `<p class="gtxt">Go back to one of your last ${rows.length} synced saves. It replaces your progress on every device.</p>`
+    + rows.map((t, i) => `<div style="display:flex;gap:8px;align-items:center;justify-content:space-between" class="gtxt"><span>${when(t)}${i === 0 ? ' (current)' : ''}</span>${i ? `<button data-old="${t}">Use this</button>` : ''}</div>`).join('');
+  box.querySelectorAll('[data-old]').forEach(b => b.onclick = () => syncUseOld(+b.dataset.old));
+}
+async function syncUseOld(t) {
+  const msg = $('syncmsg');
+  try {
+    const o = await api(`saves?t=${t}`), b = await readBackup(o.data);
+    if (!confirm(`Go back to the save ${bakSummary(b)}? It replaces your progress here and on your other devices.`)) return;
+    replaceData(b.d); SYNC.sent = 0; storeSync();
+    await syncPush(); if (syncErr) { msg.textContent = syncErr; return; }
+    reloading = true; location.reload();
+  } catch (e) { msg.textContent = e.message; }
 }
 function syncStop() {
   if (!confirm(`Stop syncing on this device? Your progress stays here, and the code ${SYNC.code} keeps working on your other devices.`)) return;
@@ -1356,10 +1376,11 @@ function renderSync() {
   if (SYNC) {
     box.innerHTML = `<p class="gtxt">Syncing as <b>${esc(SYNC.name)}</b> · ${syncAgo()}${syncErr ? ` · <span style="color:var(--hot)">${esc(syncErr)}</span>` : ''}</p>
       <p class="gtxt">Your sync code: <span class="synccode">${esc(SYNC.code)}</span><br>Type it on your other phone or computer to play the same save there. Keep it private: anyone with the code can play your save.</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="synccopy">Copy code</button><button id="syncnow">Sync now</button><button id="syncren">Change name</button><button id="syncstop">Stop syncing here</button></div>`;
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="synccopy">Copy code</button><button id="syncnow">Sync now</button><button id="syncren">Change name</button><button id="syncold">Earlier saves</button><button id="syncstop">Stop syncing here</button></div>
+      <div id="syncolds" style="display:grid;gap:6px"></div>`;
     bind('synccopy', () => { try { navigator.clipboard.writeText(SYNC.code).then(() => { $('synccopy').textContent = 'Copied'; }); } catch (e) {} });
     bind('syncnow', async () => { $('syncmsg').textContent = 'Syncing…'; if (!(await syncPull())) { await syncPush(); $('syncmsg').textContent = syncErr || 'Up to date.'; renderSync(); } });
-    bind('syncren', syncRename); bind('syncstop', syncStop);
+    bind('syncren', syncRename); bind('syncstop', syncStop); bind('syncold', syncListOld);
   } else {
     box.innerHTML = `<p class="gtxt">Keep your progress on the Amber Depths server and play it on any device, no backup codes needed. You get a short sync code to type on your other devices, and your name goes on the leaderboards.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><input class="syncin" id="syncname" maxlength="16" placeholder="Your name" autocomplete="nickname"><button id="syncnew">Start syncing</button></div>

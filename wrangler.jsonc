@@ -2,8 +2,10 @@
 // (cloud saves and leaderboards, stored in the D1 database DB).
 // main deploys the live game (Worker amber-depths, amberdepths.com) with `npx wrangler deploy`.
 // staging deploys the test copy (Worker amber-depths-preview, test.amberdepths.com) with
-// `npx wrangler deploy --env preview`, with its own empty database so testing never touches real saves.
-// Locally: `npx wrangler dev` (a local copy of the database), then http://localhost:8787.
+// `npx wrangler deploy --env preview`. The test copy shares the live database, so a sync code works on both sites
+// and Sam's save follows him; TEST_COPY makes it ignore scores, so test runs never reach the real leaderboards.
+// The server keeps each player's last 10 saves in case a test version damages one.
+// Locally: `npx wrangler dev` (a local copy of the database), then http://127.0.0.1:8787.
 {
   "name": "amber-depths",
   "compatibility_date": "2026-11-01",
@@ -14,15 +16,16 @@
   },
   "routes": [{ "pattern": "amberdepths.com", "custom_domain": true }],
   "d1_databases": [
-    { "binding": "DB", "database_name": "amber-depths", "database_id": "TODO-create-with-wrangler" }
+    { "binding": "DB", "database_name": "amber-depths", "database_id": "f986bdfa-18fd-4d1d-86c0-6acb74e309b7" }
   ],
   "env": {
     "preview": {
       "routes": [{ "pattern": "test.amberdepths.com", "custom_domain": true }],
-      // Bindings aren't inherited by an environment, so the test copy names its own database.
+      // Bindings and vars aren't inherited by an environment, so they're repeated here.
       "d1_databases": [
-        { "binding": "DB", "database_name": "amber-depths-preview", "database_id": "TODO-create-with-wrangler" }
-      ]
+        { "binding": "DB", "database_name": "amber-depths", "database_id": "f986bdfa-18fd-4d1d-86c0-6acb74e309b7" }
+      ],
+      "vars": { "TEST_COPY": "1" }
     }
   }
 }
