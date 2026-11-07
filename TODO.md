@@ -5,9 +5,9 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v69 (merged 7 Nov 2026, commit `61de9ef`): new title screen and Settings sheet, How to play in
-the Guide, the daily sets your run aside, cloud sync, 8 leaderboards (cleared 7 Nov). Details in DONE.md.
-**On `staging`, not live yet:** v70: fix for an item sitting under a merchant.
+**Live on `main`:** v70 (merged 7 Nov 2026, commit `9e0926e`; v69 brought: new title screen and Settings sheet, How to play in
+the Guide, the daily sets your run aside, cloud sync, 8 leaderboards (cleared 7 Nov); v70 fixed an item under a merchant). Details in DONE.md.
+**On `staging`, not live yet:** nothing.
 **Next up:** Sam's Hard Endless run with Backup codes before boss floors.
 **Cloudflare (6 Nov 2026):** live at amberdepths.com (Worker `amber-depths`, `main`); test at test.amberdepths.com
 (Worker `amber-depths-preview`, `staging`). Friends move their saves via the old address's moved screen; once all
@@ -95,4 +95,4 @@ have, remove deploy.yml (and optionally make the repo private).
 
 ## What's new at the next merge
 
-- Fixed: a merchant could stand on top of an item, so you couldn't pick it up (about 1 shop in 900).
+(Nothing yet.)
