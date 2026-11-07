@@ -5,11 +5,10 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v53 (merged 6 Nov 2026, commit `4d75bfc`): the Vampire class; the old github.io address now
-shows only a "moved" screen with Backup (no play; preview with `?moved`); `wrangler.jsonc` for Cloudflare Workers.
-**On `staging`, not live yet:** v54 TEST bar on test.amberdepths.com; v59 (7 Nov 2026): cloud sync (sync codes,
-"Save & sync" sheet, last 10 saves kept) and leaderboards (daily, streaks, Endless, best). D1 database `amber-depths`
-is shared by live and test (test ignores scores). Sam tries sync on iPhone + PC at test.amberdepths.com, then "merge".
+**Live on `main`:** v59 (merged 7 Nov 2026, commit `7df1995`): cloud sync (sync codes, "Save & sync" sheet, last 10
+saves kept) and leaderboards (daily, streaks, Endless, best); TEST bar on test.amberdepths.com; Vampire class; old
+github.io address shows only a "moved" screen. D1 database `amber-depths` is shared by live and test (test ignores scores).
+**On `staging`, not live yet:** nothing.
 **Next up:** title screen rework (Sam, 7 Nov: buttons more visible, Settings out of Challenges into its own tab, a
 place for the Ko-fi button); discuss first. Then Sam's Hard Endless run with Backup codes before boss floors.
 **Cloudflare (6 Nov 2026):** live at amberdepths.com (Worker `amber-depths`, `main`); test at test.amberdepths.com
