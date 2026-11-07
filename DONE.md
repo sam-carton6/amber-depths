@@ -7,6 +7,9 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-07 — v70: item under a merchant fixed (commit `4e86721`)
+- `placeShop` picks from the room's open tiles (or nudges the item aside); was ~1 shop in 900.
+
 ### 2026-11-07 — v69 live: title screen, daily set-aside, more leaderboards (commit `61de9ef`)
 - Main menu (Continue, Start game / New run, Save & sync, Settings, Guide, Support → ko-fi.com/samcarton) and a run
   setup page (`#title[data-page]`, `setPage()`; top bar Back/Challenges/History/Leaderboards/sound). The new menu's id

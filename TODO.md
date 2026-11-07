@@ -26,7 +26,8 @@ have, remove deploy.yml (and optionally make the repo private).
 - Sam's iPhone bug list from real play (touch, Safari, feel) goes in BUGS.md as it comes.
 - **Tune the Vampire from Sam's play** (built 6 Nov 2026, v51). Knobs in `VAMP`: ward .25 of max HP, feed .1 of damage
   dealt, Bite refills .25 of the ward, +3 max HP per potion up to +60. Bot (Hard Endless, floors 10-12): ends with
-  30-90% HP, never died; it only Bites when the ward is under half. Deep floors untested. `__T.VAMP` is exposed in
+  30-90% HP, never died; it only Bites when the ward is under half. Deep floors (bot, Hard Endless, 7 Nov 2026, 7 games):
+  Vampire dies on floors 8-19 (mostly 13-19), Warrior 16-23, Rogue 12-13, Berserker 16-27: in line, no change needed yet. `__T.VAMP` is exposed in
   the test page to try numbers without rebuilding.
 
 ## Ideas (later)
@@ -47,6 +48,10 @@ have, remove deploy.yml (and optionally make the repo private).
   - Halloween and New Year's Day: themed floor tint and a one-line greeting on the title.
   - Wait 100 turns in one spot: a ghost (`G`) drifts by and says "Lost?" then vanishes.
   - Floor 99 in Endless: a quiet "credits" room thanking the players before the descent continues.
+  - (7 Nov) A rare shop cat (`f`) behind the counter: bump it, "It ignores you."
+  - (7 Nov) Die on floor 13: the death screen says "Unlucky."
+  - (7 Nov) 1-in-500 floor message: "You hear someone else's footsteps. They stop when you stop."
+  - (7 Nov) Birthday greeting + 10% off from the merchant (needs a birthday setting; maybe skip).
 - More classes, a second wave of relics, cosmetic titles on the daily share text.
 - **Echo** (reveal everything within 8 tiles for a few turns) as an upgrade or scroll; spare from the Mole design.
 - Leaderboards (would need a backend).
