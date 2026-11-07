@@ -47,14 +47,18 @@ every chat), [DONE.md](DONE.md) (the archive; history only). Code map and game c
 3. Play the change at http://localhost:8765/app/ and check the console.
 
 ## Stack
-Plain HTML/CSS/JS, no framework, no npm. Node is only used for the build script. Fonts and icons are local files in
-`app/`. [app/sw.js](app/sw.js) caches the files for offline play (network-first for the page). Data lives only in
-each player's browser (`localStorage`).
+Plain HTML/CSS/JS, no framework, no npm. Node is only used for the build script and `npx wrangler`. Fonts and icons
+are local files in `app/`. [app/sw.js](app/sw.js) caches the files for offline play (network-first for the page;
+`/api/` is never cached). Data lives in each player's browser (`localStorage`); players who turn on **cloud sync**
+also keep it on the server: [worker/index.js](worker/index.js) answers `/api/*` (sync codes, saves, leaderboards)
+from the D1 database `DB` (`amber-depths`; the test copy has its own, `amber-depths-preview`). Try it locally with
+`npx wrangler dev` → http://127.0.0.1:8787 (a second address, http://localhost:8787, acts as a second device).
 
 ## Conventions
 - `app/` is exactly what gets published; nothing else in the repo goes live.
 - `localStorage` keys are `amber-depths-*` (profile, save, sel, best, daily, history, mute, music, backupAt; the
-  old `unlocks` is migrated into the profile). The title's Backup button copies every `amber-depths-*` key into a code
+  old `unlocks` is migrated into the profile). The sync code lives in `ad-sync`, deliberately outside `amber-depths-*`
+  so backups and restores never copy or wipe it. The title's Backup button copies every `amber-depths-*` key into a code
   or file and restores it, so a new key is backed up automatically. Don't rename them or change their format without a migration: that
   would wipe friends' unlocks and progress.
 - Generation code uses `RNG()` / `rnd()` / `pick()`, never `Math.random`, so daily dungeons stay the same for everyone.

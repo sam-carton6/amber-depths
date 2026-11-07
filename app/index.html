@@ -155,6 +155,11 @@ html[data-crt="white"] { filter: grayscale(1) brightness(1.12); }
 .toast.out { opacity: 0; transform: translateY(-8px); }
 @keyframes tin { from { opacity: 0; transform: translateY(-10px); } }
 .chal-grp { display: grid; gap: 6px; }
+.lbtabs { display: flex; gap: 6px; flex-wrap: wrap; } .lbtabs:empty { display: none; }
+.lbtabs button { font-size: .8rem; padding: 4px 10px; } .lbtabs button[aria-pressed="true"] { border-color: var(--hot); color: var(--hot); background: #2a1c0e; }
+.lbrow { display: grid; grid-template-columns: 2.2em 1fr auto; gap: 8px; align-items: baseline; font-size: .8rem; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; }
+.lbrow.me { border-color: var(--hot); background: #1f160b; } .lbrow .rk { color: var(--dim); } .lbrow .nm { color: var(--hot); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lbrow .nm small { color: var(--dim); font-size: .68rem; margin-left: 6px; } .lbrow .v { color: var(--gold); text-align: right; }
 .chal { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; display: grid; gap: 4px; font-size: .74rem; }
 .chal.done { border-color: #5b4a2a; background: #1f160b; }
 .chal .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
@@ -374,6 +379,8 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 .greet { margin: 0; font-size: .8rem; color: var(--amber); font-style: italic; }
 .sub { margin: 4px 0 6px; font-family: var(--font-display); font-weight: 400; font-size: 1.2rem; color: var(--dim); letter-spacing: .06em; }
 .shopkeep { font-family: var(--font-mono); margin: 0; font-size: 12px; line-height: 1.1; color: var(--gold); text-shadow: 0 0 6px rgba(255,224,138,.4); }
+.syncin { font: 1rem var(--font-ui); color: var(--amber); background: #0b0805; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; min-width: 0; flex: 1 1 160px; user-select: text; -webkit-user-select: text; }
+.synccode { font-family: var(--font-mono); font-size: 1.1rem; color: var(--hot); letter-spacing: .08em; user-select: all; -webkit-user-select: all; }
 .sheet .hint { margin: 0; font-size: .7rem; color: var(--dim); }
 .end { text-align: center; justify-items: center; }
 .end pre { margin: 0; font-family: var(--font-mono); line-height: 1.1; color: var(--gold); text-shadow: 0 0 10px rgba(255,224,138,.5); font-size: 13px; }
@@ -422,7 +429,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
 <div class="testbar" id="testbar" hidden>TEST COPY · staging branch · saves here are separate</div>
 <section class="title" id="title">
   <div class="logo-wrap">
-    <span class="ver" id="ver" aria-label="Version">v54</span>
+    <span class="ver" id="ver" aria-label="Version">v57</span>
     <pre id="logo" aria-label="Amber Depths"></pre>
     <p class="tag"><span class="torch" id="t1">ψ</span> descend · loot · slay the wyrm <span class="torch" id="t2">ψ</span></p>
   </div>
@@ -436,7 +443,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
     <a class="addr" href="https://amberdepths.com/">amberdepths.com</a>
     <ol>
       <li>Tap <b>Backup</b> below, then <b>Copy backup code</b>.</li>
-      <li>Open <b>amberdepths.com</b>, tap <b>Backup</b> there, paste the code and tap <b>Restore code</b>.</li>
+      <li>Open <b>amberdepths.com</b>, tap <b>Save &amp; sync</b> there, paste the code and tap <b>Restore code</b>.</li>
       <li>Add the new site to your home screen and delete this old one.</li>
     </ol>
     <button id="movedbak">Backup</button>
@@ -471,7 +478,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
   <button class="start" id="start">Begin descent <span class="k">Enter</span></button>
   <p class="savenote" id="savenote" hidden>Starting a new run replaces your saved one.</p>
   <p class="bestline" id="bestline"></p>
-  <div class="audiorow"><button class="mini" id="chalbtn">Challenges <span class="k">C</span></button><button class="mini" id="tguide">Guide <span class="k">G</span></button><button class="mini" id="histbtn">Run history <span class="k">H</span></button><button class="mini" id="bakbtn">Backup</button><button class="mini" id="tmus"></button><button class="mini" id="tsnd"></button></div>
+  <div class="audiorow"><button class="mini" id="chalbtn">Challenges <span class="k">C</span></button><button class="mini" id="tguide">Guide <span class="k">G</span></button><button class="mini" id="histbtn">Run history <span class="k">H</span></button><button class="mini" id="lbbtn" hidden>Leaderboards</button><button class="mini" id="bakbtn">Save &amp; sync</button><button class="mini" id="tmus"></button><button class="mini" id="tsnd"></button></div>
   <details class="howto">
     <summary>How to play</summary>
     <ul>
@@ -489,7 +496,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
       <li><b>Challenges</b> unlock new classes, screen colors and a Nightmare difficulty. Press <b>C</b> on this screen to see them and to change the text style or screen color, and <b>G</b> any time for the guide.</li>
       <li>The <b>Daily Run</b> gives everyone the same dungeon, class and settings for the day. You get one try. Copy your result to compare with friends.</li>
       <li>On the last floor the Amber Wyrm breathes fire in a line. When the floor glows <b>≈</b>, step out of it.</li>
-      <li>Your run saves after every turn, but only in this browser. Use <b>Backup</b> on this screen to keep a copy of your progress or move it to another device. <b>Esc</b> returns to the menu. <b>B</b> toggles music and <b>M</b> mutes all sound.</li>
+      <li>Your run saves after every turn, but only in this browser. Use <b>Save &amp; sync</b> on this screen to sync your progress across devices, keep a copy of it, or move it to another device. <b>Esc</b> returns to the menu. <b>B</b> toggles music and <b>M</b> mutes all sound.</li>
     </ul>
   </details>
 </section>
@@ -580,8 +587,14 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
 <div class="toasts" id="toasts" aria-live="polite"></div>
 
 <div class="modal" id="bak" hidden>
-  <div class="sheet" role="dialog" aria-label="Backup and restore">
-    <header><h2>Backup</h2><span class="cnt" id="bakwhen"></span><button class="x" id="bakclose" aria-label="Close backup">✕</button></header>
+  <div class="sheet" role="dialog" aria-label="Save, sync and backup">
+    <header><h2>Save &amp; sync</h2><span class="cnt" id="bakwhen"></span><button class="x" id="bakclose" aria-label="Close backup">✕</button></header>
+    <div id="syncsec" hidden>
+      <h3 class="sub">CLOUD SYNC</h3>
+      <div id="syncbox" style="display:grid;gap:10px"></div>
+      <p class="gtxt" id="syncmsg" style="color:var(--dim)"></p>
+      <h3 class="sub">BACKUP</h3>
+    </div>
     <p class="gtxt">Your progress (unlocks, relics, challenges, history and any run in progress) lives only in this browser. Clearing website data, or moving to another phone or computer, loses it. Keep a backup: copy the code into a note, or save it as a file.</p>
     <div class="dr" style="display:flex;gap:8px;flex-wrap:wrap"><button id="bakcopy">Copy backup code</button><button id="bakfile">Save as file</button></div>
     <textarea class="copybox" id="bakcode" readonly hidden></textarea>
@@ -590,6 +603,16 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
     <textarea class="copybox" id="bakin" placeholder="Paste a backup code here"></textarea>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="bakrestore">Restore code</button><button id="bakopen">Open file</button><input type="file" id="bakpick" accept=".txt,text/plain" hidden></div>
     <p class="gtxt" id="bakmsg" style="color:var(--dim)"></p>
+  </div>
+</div>
+
+<div class="modal" id="lb" hidden>
+  <div class="sheet" role="dialog" aria-label="Leaderboards">
+    <header><h2>Leaderboards</h2><span class="cnt" id="lbcnt"></span><button class="x" id="lbclose" aria-label="Close leaderboards">✕</button></header>
+    <div class="lbtabs" id="lbtabs"></div>
+    <div class="lbtabs" id="lbsub"></div>
+    <div id="lbbody" style="display:grid;gap:4px"></div>
+    <p class="gtxt" id="lbnote" style="color:var(--dim)"></p>
   </div>
 </div>
 
@@ -1093,8 +1116,9 @@ const SND = (() => {
 
 /* ================= save ================= */
 const SAVE_KEY = 'amber-depths-save';
+let reloading = false; // set just before reloading onto a restored or synced save
 function saveGame() {
-  if (!S || S.dead || S.won) return;
+  if (!S || S.dead || S.won || reloading) return;
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify({ ...S, v: 1, C: null, M: null, D: null, fx: null, proj: null, anim: null, vis: null, danger: [...S.danger], torches: [...S.torches], secret: [...(S.secret || [])] }));
   } catch (e) {}
@@ -1207,9 +1231,13 @@ try { if (navigator.storage && navigator.storage.persist) navigator.storage.pers
 const b64 = bytes => { let t = ''; for (let i = 0; i < bytes.length; i += 0x8000) t += String.fromCharCode(...bytes.subarray(i, i + 0x8000)); return btoa(t); };
 const unb64 = str => Uint8Array.from(atob(str), c => c.charCodeAt(0));
 const pipe = async (bytes, Stream, kind) => new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new Stream(kind))).arrayBuffer());
-async function makeBackup() {
+function bakData() {
   const d = {};
   for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith(BAK_PRE) && k !== BAK_AT) d[k] = localStorage.getItem(k); }
+  return d;
+}
+async function makeBackup() {
+  const d = bakData();
   const raw = new TextEncoder().encode(JSON.stringify({ v: 1, t: Date.now(), d }));
   if (typeof CompressionStream === 'function') { try { return 'AD1z:' + b64(await pipe(raw, CompressionStream, 'gzip')); } catch (e) {} }
   return 'AD1:' + b64(raw);
@@ -1233,13 +1261,15 @@ async function restoreBackup(code) {
   const msg = $('bakmsg');
   let o; try { o = await readBackup(code); } catch (e) { msg.textContent = e.message || 'That backup could not be read.'; SND.play('deny'); return; }
   if (!confirm(`Restore the backup ${bakSummary(o)}? Everything on this device will be replaced.`)) return;
-  try {
-    const old = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith(BAK_PRE)) old.push(k); }
-    for (const k of old) localStorage.removeItem(k);
-    for (const [k, v] of Object.entries(o.d)) localStorage.setItem(k, v);
-    localStorage.setItem(BAK_AT, String(Date.now()));
-  } catch (e) { msg.textContent = 'Restoring failed: the browser would not save the data.'; return; }
-  location.reload();
+  try { replaceData(o.d); localStorage.setItem(BAK_AT, String(Date.now())); } catch (e) { msg.textContent = 'Restoring failed: the browser would not save the data.'; return; }
+  if (SYNC) { SYNC.sent = 0; storeSync(); } // a restored backup becomes the synced save on the next upload
+  reloading = true; location.reload();
+}
+// Swap every amber-depths-* key for the given set (restore and cloud sync). Throws if the browser won't store them.
+function replaceData(d) {
+  const old = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith(BAK_PRE) && k !== BAK_AT) old.push(k); }
+  for (const k of old) localStorage.removeItem(k);
+  for (const [k, v] of Object.entries(d)) localStorage.setItem(k, v);
 }
 function bakWhen() {
   const t = +(localStorage.getItem(BAK_AT) || 0);
@@ -1249,6 +1279,7 @@ function bakWhen() {
 }
 const markBackedUp = () => { try { localStorage.setItem(BAK_AT, String(Date.now())); } catch (e) {} $('bakwhen').textContent = bakWhen(); };
 function openBak() {
+  renderSync(); $('syncmsg').textContent = '';
   $('bakwhen').textContent = bakWhen(); $('bakmsg').textContent = ''; $('bakcode').hidden = true; $('bakin').value = '';
   $('bakcopy').textContent = 'Copy backup code'; $('bak').hidden = false;
   setTimeout(() => $('bakclose').focus(), 30);
@@ -1261,6 +1292,159 @@ async function bakFile() {
   try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Amber Depths backup' }); markBackedUp(); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
   const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000); markBackedUp();
+}
+/* ================= cloud sync ================= */
+// With a sync code, the whole save (every amber-depths-* key, the same set a backup code holds) is kept on the server
+// (worker/index.js) and shared by every device that uses the code. Uploads happen when something changed (checked
+// every 20 s and when the app is hidden); downloads when the game opens or comes back into view. If another device
+// uploaded since this one last synced, its save wins: this device takes it and reloads.
+const SYNC_KEY = 'ad-sync'; // not amber-depths-*, so backups and restores leave the code alone
+const API = /github\.io$/.test(location.hostname) ? null : '/api/'; // the old address has no server
+let SYNC = null, syncBusy = false, syncErr = '';
+try { SYNC = JSON.parse(localStorage.getItem(SYNC_KEY) || 'null'); if (!SYNC || !SYNC.code) SYNC = null; } catch (e) {}
+// SYNC = { code, name, t: server version this device last saw, sent: hash of the data last uploaded, at: when }
+function storeSync() { try { SYNC ? localStorage.setItem(SYNC_KEY, JSON.stringify(SYNC)) : localStorage.removeItem(SYNC_KEY); } catch (e) {} }
+async function api(path, opt = {}, code = SYNC && SYNC.code) {
+  if (!API) throw new Error('Cloud sync works at amberdepths.com.');
+  const headers = { 'content-type': 'application/json' }; if (code) headers['x-sync-code'] = code;
+  let res; try { res = await fetch(API + path, { ...opt, headers }); } catch (e) { throw new Error('Can\'t reach the server. Are you online?'); }
+  if (!(res.headers.get('content-type') || '').includes('json')) throw new Error('Cloud sync isn\'t available here.');
+  const o = await res.json().catch(() => ({}));
+  if (!res.ok && res.status !== 409) throw new Error(o.error || 'The server had a problem. Try again later.');
+  return Object.assign(o, { status: res.status });
+}
+const syncHash = d => hashStr(JSON.stringify(Object.keys(d).sort().map(k => [k, d[k]]))); // key order doesn't matter
+async function syncPush(keepalive = false) {
+  if (!SYNC || syncBusy || reloading) return;
+  const d = bakData(), h = syncHash(d);
+  if (h === SYNC.sent) return;
+  syncBusy = true;
+  try {
+    const o = await api('save', { method: 'PUT', body: JSON.stringify({ base: SYNC.t, data: await makeBackup() }), keepalive });
+    if (o.status === 409) { syncBusy = false; await syncPull(); return; }
+    Object.assign(SYNC, { t: o.t, sent: h, at: Date.now() }); storeSync(); syncErr = '';
+    backfillScores(); sendScores();
+  } catch (e) { syncErr = e.message; } finally { syncBusy = false; }
+}
+// Take the server's save if it's newer than what this device last saw. Returns true when it reloads.
+async function syncPull(ask = false) {
+  if (!SYNC || reloading) return false;
+  let o; try { o = await api('save'); syncErr = ''; } catch (e) { syncErr = e.message; return false; }
+  if (!o.data || o.t <= SYNC.t) return false;
+  const b = await readBackup(o.data);
+  if (ask && !confirm(`Use the synced save ${bakSummary(b)}? It replaces the progress on this device.`)) return false;
+  try { replaceData(b.d); } catch (e) { syncErr = 'This browser would not store the synced save.'; return false; }
+  Object.assign(SYNC, { t: o.t, sent: syncHash(bakData()), at: Date.now() }); storeSync();
+  reloading = true; location.reload(); return true;
+}
+async function syncStartNew() {
+  const name = $('syncname').value.trim(), msg = $('syncmsg');
+  if (!name) { msg.textContent = 'Pick a name first: it shows on the leaderboards.'; return; }
+  msg.textContent = 'Making your sync code…';
+  try {
+    const o = await api('join', { method: 'POST', body: JSON.stringify({ name }) }, null);
+    SYNC = { code: o.code, name: o.name, t: 0, sent: 0, at: 0 }; storeSync();
+    await syncPush(); msg.textContent = syncErr || 'Syncing. Type your code on your other devices.';
+  } catch (e) { msg.textContent = e.message; }
+  renderSync();
+}
+async function syncUseCode() {
+  const code = $('synccodein').value.trim().toUpperCase(), msg = $('syncmsg');
+  if (code.replace(/[^A-Z0-9]/g, '').length !== 12) { msg.textContent = 'A sync code looks like WOLF-7Q3K-M2XD.'; return; }
+  msg.textContent = 'Checking the code…';
+  try {
+    const me = await api('me', {}, code);
+    SYNC = { code, name: me.name, t: 0, sent: 0, at: 0 }; storeSync();
+    if (me.t) { if (!(await syncPull(true))) { SYNC = null; storeSync(); msg.textContent = syncErr || 'Kept this device\'s progress; not syncing.'; } }
+    else { await syncPush(); msg.textContent = syncErr || 'Syncing.'; }
+  } catch (e) { msg.textContent = e.message; }
+  renderSync();
+}
+async function syncRename() {
+  const name = prompt('Your name on the leaderboards:', SYNC.name); if (name == null) return;
+  try { const o = await api('name', { method: 'POST', body: JSON.stringify({ name }) }); SYNC.name = o.name; storeSync(); $('syncmsg').textContent = ''; }
+  catch (e) { $('syncmsg').textContent = e.message; }
+  renderSync();
+}
+function syncStop() {
+  if (!confirm(`Stop syncing on this device? Your progress stays here, and the code ${SYNC.code} keeps working on your other devices.`)) return;
+  SYNC = null; storeSync(); renderSync();
+}
+function syncAgo() {
+  if (!SYNC.at) return 'not synced yet';
+  const m = Math.floor((Date.now() - SYNC.at) / 6e4);
+  return m < 1 ? 'synced just now' : m < 60 ? `synced ${m} min ago` : `synced ${Math.floor(m / 60)} h ago`;
+}
+function renderSync() {
+  $('syncsec').hidden = !API; if (!API) return;
+  const box = $('syncbox'), esc = t => String(t).replace(/[&<>"]/g, c => `&#${c.charCodeAt(0)};`);
+  if (SYNC) {
+    box.innerHTML = `<p class="gtxt">Syncing as <b>${esc(SYNC.name)}</b> · ${syncAgo()}${syncErr ? ` · <span style="color:var(--hot)">${esc(syncErr)}</span>` : ''}</p>
+      <p class="gtxt">Your sync code: <span class="synccode">${esc(SYNC.code)}</span><br>Type it on your other phone or computer to play the same save there. Keep it private: anyone with the code can play your save.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="synccopy">Copy code</button><button id="syncnow">Sync now</button><button id="syncren">Change name</button><button id="syncstop">Stop syncing here</button></div>`;
+    bind('synccopy', () => { try { navigator.clipboard.writeText(SYNC.code).then(() => { $('synccopy').textContent = 'Copied'; }); } catch (e) {} });
+    bind('syncnow', async () => { $('syncmsg').textContent = 'Syncing…'; if (!(await syncPull())) { await syncPush(); $('syncmsg').textContent = syncErr || 'Up to date.'; renderSync(); } });
+    bind('syncren', syncRename); bind('syncstop', syncStop);
+  } else {
+    box.innerHTML = `<p class="gtxt">Keep your progress on the Amber Depths server and play it on any device, no backup codes needed. You get a short sync code to type on your other devices, and your name goes on the leaderboards.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><input class="syncin" id="syncname" maxlength="16" placeholder="Your name" autocomplete="nickname"><button id="syncnew">Start syncing</button></div>
+      <p class="gtxt">Already syncing on another device? Type its code here:</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><input class="syncin" id="synccodein" maxlength="16" placeholder="WOLF-7Q3K-M2XD" autocapitalize="characters" autocomplete="off" spellcheck="false"><button id="syncuse">Use code</button></div>`;
+    bind('syncnew', syncStartNew); bind('syncuse', syncUseCode);
+  }
+}
+/* ================= leaderboards ================= */
+// Synced players send each finished run's results (worker/index.js keeps each player's best per board):
+//   daily / date: score · endless / difficulty: deepest floor · best / mode: score (Short and Standard, not dailies).
+// Results wait in SYNC.pend until the server takes them, so a run finished offline still counts later.
+function runScores(r) {
+  const out = [], info = { cls: r.cls, depth: r.depth, won: !!r.won, diff: r.diff };
+  if (r.daily) out.push({ board: 'daily', k: r.daily, val: r.score, info });
+  else if (r.mode === 'endless') out.push({ board: 'endless', k: r.diff, val: r.depth, info });
+  else if (MODES[r.mode] && r.mode !== 'endless') out.push({ board: 'best', k: r.mode, val: r.score, info });
+  return out;
+}
+function syncScores(list) {
+  if (!SYNC || !list.length) return;
+  SYNC.pend = (SYNC.pend || []).concat(list).slice(-200); storeSync(); sendScores();
+}
+async function sendScores() {
+  while (SYNC && SYNC.pend && SYNC.pend.length) {
+    try { await api('score', { method: 'POST', body: JSON.stringify(SYNC.pend[0]) }); } catch (e) { return; }
+    SYNC.pend.shift(); storeSync();
+  }
+}
+// The first time a device syncs, its past results (daily records and run history) go up too.
+function backfillScores() {
+  if (!SYNC || SYNC.filled) return;
+  const list = [];
+  for (const [k, r] of Object.entries(loadJSON(DAILY_KEY, {}))) if (r && typeof r.score === 'number') list.push({ board: 'daily', k, val: r.score, info: { cls: r.cls, depth: r.depth, won: !!r.won } });
+  for (const r of loadHist()) if (!r.daily && typeof r.score === 'number') list.push(...runScores(r));
+  SYNC.filled = true; syncScores(list);
+}
+const LB_TABS = [['daily', 'Today\'s daily'], ['streak', 'Streaks'], ['endless', 'Endless'], ['best', 'Best scores']];
+let lbTab = 'daily', lbSub = { endless: 'normal', best: 'standard' };
+function openLb() { $('lb').hidden = false; renderLb(); setTimeout(() => $('lbclose').focus(), 30); }
+function closeLb() { $('lb').hidden = true; }
+async function renderLb() {
+  const tabs = (list, cur, fn) => list.map(([k, n]) => `<button data-lb="${k}" aria-pressed="${k === cur}">${esc(n)}</button>`).join('');
+  $('lbtabs').innerHTML = tabs(LB_TABS, lbTab);
+  $('lbtabs').querySelectorAll('button').forEach(b => b.onclick = () => { lbTab = b.dataset.lb; renderLb(); });
+  const subs = lbTab === 'endless' ? Object.entries(DIFFS).map(([k, d]) => [k, d.name]) : lbTab === 'best' ? [['short', 'Short'], ['standard', 'Standard']] : [];
+  $('lbsub').innerHTML = tabs(subs, lbSub[lbTab]);
+  $('lbsub').querySelectorAll('button').forEach(b => b.onclick = () => { lbSub[lbTab] = b.dataset.lb; renderLb(); });
+  const today = todayKey(), k = lbTab === 'daily' || lbTab === 'streak' ? today : lbSub[lbTab];
+  $('lbcnt').textContent = lbTab === 'daily' ? fmtDay(today) : '';
+  $('lbnote').textContent = SYNC ? '' : 'Start syncing (Save & sync on the title screen) to put your name on these boards.';
+  const body = $('lbbody'), want = lbTab + k; body.innerHTML = '<p class="gtxt">Loading…</p>';
+  let rows; try { rows = (await api(`board?b=${lbTab}&k=${encodeURIComponent(k)}`, {}, null)).rows; } catch (e) { body.innerHTML = `<p class="gtxt">${esc(e.message)}</p>`; return; }
+  if (want !== lbTab + (lbTab === 'daily' || lbTab === 'streak' ? today : lbSub[lbTab])) return; // a newer tab was picked meanwhile
+  if (!rows.length) { body.innerHTML = `<p class="gtxt">${lbTab === 'daily' ? 'Nobody has finished today\'s daily yet.' : 'No one on this board yet.'}</p>`; return; }
+  const who = r => { const c = CLASSES[r.cls]; return c ? `<small>${esc(c.name)}${r.diff && lbTab !== 'endless' && lbTab !== 'daily' ? ' · ' + esc((DIFFS[r.diff] || {}).name || '') : ''}</small>` : ''; };
+  const val = r => lbTab === 'streak' ? `${r.streak} day${r.streak === 1 ? '' : 's'} · ${r.wins} win${r.wins === 1 ? '' : 's'}`
+    : lbTab === 'endless' ? `floor ${r.val}`
+    : `${r.val.toLocaleString()}${r.won ? ' ✦' : r.depth ? ` · fl ${r.depth}` : ''}`;
+  body.innerHTML = rows.map((r, i) => `<div class="lbrow${SYNC && r.name === SYNC.name ? ' me' : ''}"><span class="rk">${i + 1}.</span><span class="nm">${esc(r.name)}${lbTab === 'streak' ? '' : who(r)}</span><span class="v">${val(r)}</span></div>`).join('');
 }
 const loadHist = () => { const h = loadJSON(HIST_KEY, []); return Array.isArray(h) ? h.filter(r => r && typeof r === 'object') : []; };
 const runScore = () => S.depth * 150 + S.kills * 10 + S.gold + S.lv * 25 + (S.won ? 1000 + Math.max(0, 1500 - S.turn) : 0);
@@ -1307,6 +1491,7 @@ function finishRun(by) {
   if (S.won || S.wyrmCredited) creditWyrm();
   if (S.trueEnd) complete('s_heart');
   checkProgress(); saveProf();
+  syncScores(runScores(S));
 }
 function openHist() {
   const h = loadHist();
@@ -3489,6 +3674,10 @@ addEventListener('keydown', e => {
     if (e.key === 'Escape') { e.preventDefault(); closeBak(); }
     return;
   }
+  if (!$('lb').hidden) {
+    if (e.key === 'Escape') { e.preventDefault(); closeLb(); }
+    return;
+  }
   if (!$('guide').hidden) {
     if (e.key === 'Escape' || k === 'g') { e.preventDefault(); closeGuide(); }
     return;
@@ -3546,7 +3735,8 @@ bind('start', () => newGame()); bind('again', () => newGame());
 bind('histbtn', openHist); bind('histclose', closeHist);
 bind('chalbtn', openChal); bind('chalclose', closeChal);
 bind('selljunk', sellJunk);
-bind('bakbtn', openBak); bind('movedbak', openBak);
+bind('bakbtn', openBak); bind('lbbtn', openLb); bind('lbclose', closeLb); $('lbbtn').hidden = !API;
+$('lb').addEventListener('click', e => { if (e.target === $('lb')) closeLb(); }); bind('movedbak', openBak);
 // Old GitHub Pages address only (or ?moved to preview): point players to the new site.
 // test.amberdepths.com (or ?test) runs the staging branch: say so in a bar, the tab and a home-screen icon's name.
 if (/^test\./.test(location.hostname) || /[?&]test\b/.test(location.search)) {
@@ -3574,7 +3764,10 @@ $('shop').addEventListener('click', e => { if (e.target === $('shop')) closeShop
 addEventListener('pointerdown', () => SND.unlock(), { passive: true });
 addEventListener('keydown', () => SND.unlock());
 addEventListener('pagehide', saveGame);
-document.addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) { saveGame(); syncPush(true); } else syncPull(); });
+// Cloud sync: take a newer save from another device on opening, then upload changes as they happen.
+if (SYNC && API) syncPull().then(r => { if (!r) syncPush(); });
+setInterval(() => { if (!document.hidden) { if (screenNow === 'game') saveGame(); syncPush(); } }, 20000);
 addEventListener('resize', fit);
 
 /* ================= loops ================= */

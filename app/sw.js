@@ -1,5 +1,5 @@
 // Amber Depths service worker: works offline, and picks up new versions whenever you're online.
-const VERSION = 'amber-depths-v54';
+const VERSION = 'amber-depths-v57';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './vt323.woff2', './jbm-400.woff2', './jbm-700.woff2', './ahm-400.woff2', './ahm-700.woff2',
   './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
@@ -12,7 +12,8 @@ self.addEventListener('activate', e => {
 });
 self.addEventListener('fetch', e => {
   const req = e.request;
-  if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+  // The server's /api/ answers (cloud saves, leaderboards) must always be fresh, so they skip the cache.
+  if (req.method !== 'GET' || new URL(req.url).origin !== location.origin || new URL(req.url).pathname.startsWith('/api/')) return;
   if (req.mode === 'navigate' || req.url.endsWith('/index.html')) {
     // The game page: try the network first so updates arrive, fall back to the cached copy offline.
     // cache: 'no-cache' asks the server every time (a cheap ETag check) instead of reusing a copy up to 10 minutes old.

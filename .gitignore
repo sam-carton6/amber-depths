@@ -38,4 +38,5 @@ desktop.ini
 
 # --- Stack: none (plain HTML, no build) ---
 node_modules/
+.wrangler/
 test/
