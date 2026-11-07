@@ -435,6 +435,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
   </div>
   <nav class="menu" id="mainmenu" aria-label="Main menu">
     <button class="start" id="cont" hidden></button>
+    <p class="savenote" id="parknote" hidden></p>
     <button class="start" id="go">Start game <span class="k">Enter</span></button>
     <button class="mbtn" id="bakbtn">Save &amp; sync</button>
     <button class="mbtn" id="setbtn">Settings</button>
@@ -594,7 +595,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
   <li>Partway down, a <b>Stone Golem</b> guards the stairs (floors 5, 15, 25… in Endless). When it raises its fists, step out of the glowing ring. In Standard and Endless, beating it lets you pick one of 3 upgrades for the rest of the run.</li>
   <li>On the last floor the <b>Amber Wyrm</b> breathes fire in a line: when the floor glows <b>≈</b>, step out of it.</li>
   <li>In <b>Endless</b>, every 10th floor is a boss floor (Cyclops, Drake, Lich, Brood Mother or Shadow, each before any repeats), and every 50th brings back the Wyrm. Bosses give better loot and <b>2</b> upgrade picks (the Wyrm: <b>3</b> and a relic). Past floor 12, monsters get tougher every floor.</li>
-  <li><b>Relics</b> join your collection forever; pick one on the run setup page to start with it. <b>Challenges</b> (<b>C</b>) unlock classes, screen colors and Nightmare. The <b>Daily Run</b> gives everyone the same dungeon for the day, one try each.</li>
+  <li><b>Relics</b> join your collection forever; pick one on the run setup page to start with it. <b>Challenges</b> (<b>C</b>) unlock classes, screen colors and Nightmare. The <b>Daily Run</b> gives everyone the same dungeon for the day, one try each; your current run waits until it's over.</li>
   <li>Your run saves after every turn. <b>Save &amp; sync</b> on the main menu keeps it across devices or as a backup. <b>Esc</b> returns to the menu, <b>G</b> opens this guide, <b>B</b> toggles music and <b>M</b> mutes all sound.</li>
 </template>
 
@@ -1113,6 +1114,14 @@ function saveGame() {
   } catch (e) {}
 }
 function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
+// Starting the daily sets your current run aside (amber-depths-parked, so backups and sync carry it) instead of
+// replacing it. It comes back as your saved run when the daily ends, won or lost.
+const PARK_KEY = 'amber-depths-parked';
+function readParked() { try { const o = JSON.parse(localStorage.getItem(PARK_KEY) || 'null'); if (o && o.v === 1 && CLASSES[o.cls] && MODES[o.mode]) return o; } catch (e) {} return null; }
+function parkRun() { try { const sv = localStorage.getItem(SAVE_KEY); if (sv) { localStorage.setItem(PARK_KEY, sv); localStorage.removeItem(SAVE_KEY); } } catch (e) {} }
+// Begin descent: a new run replaces both the saved run and one set aside for the daily (after asking).
+function newRun() { if (readParked() && !confirm('Start a new run? Your run set aside for the daily will be lost.')) return; try { localStorage.removeItem(PARK_KEY); } catch (e) {} newGame(); }
+function unparkRun() { try { const sv = localStorage.getItem(PARK_KEY); if (sv) { localStorage.setItem(SAVE_KEY, sv); localStorage.removeItem(PARK_KEY); } } catch (e) {} }
 function readSave() {
   try { const o = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); if (o && o.v === 1 && CLASSES[o.cls] && MODES[o.mode] && o.map) return o; } catch (e) {}
   return null;
@@ -1202,6 +1211,8 @@ function buildTitle() {
   $('savenote').hidden = !sv;
   $('start').classList.toggle('secondary', !!sv);
   $('start').innerHTML = sv ? 'New run <span class="k">N</span>' : 'Begin descent <span class="k">Enter</span>';
+  const pk = readParked(); $('parknote').hidden = !pk;
+  if (pk) $('parknote').textContent = `Set aside for the daily: ${CLASSES[pk.cls].name} · ${MODES[pk.mode].name} · Floor ${pk.depth}. It comes back when the daily ends.`;
   if (sv) $('cont').innerHTML = `Continue · ${sv.daily ? 'Daily · ' : ''}${esc(CLASSES[sv.cls].name)} · ${esc(MODES[sv.mode].name)} · ${esc(DIFFS[sv.diff || 'normal'].name)} · Floor ${sv.depth} <span class="k">Enter</span>`;
   const r = best[bestKey(sel.mode, sel.cls, sel.diff)] || (sel.diff === 'normal' ? best[sel.mode + '-' + sel.cls] : null);
   const what = `${CLASSES[sel.cls].name} on ${MODES[sel.mode].name} · ${DIFFS[sel.diff].name}`;
@@ -1483,13 +1494,15 @@ function renderDaily() {
 function canStartDaily() { const k = todayKey(), rec = loadJSON(DAILY_KEY, {})[k]; return !rec; }
 function startDaily() {
   if (!canStartDaily()) return;
-  if (readSave() && !confirm('Start the daily run? Your saved run will be lost.')) return;
+  if (readSave() && readParked() && !confirm('Start the daily run? Your saved run will be lost (one is already set aside).')) return;
+  if (!readParked()) parkRun(); // your run waits for you until the daily ends
   const k = todayKey(), store = loadJSON(DAILY_KEY, {});
   store[k] = { started: true, cls: dailyClass() };
   saveJSON(DAILY_KEY, store);
   newGame({ cls: dailyClass(), mode: 'short', diff: 'normal', daily: k });
 }
 function finishRun(by) {
+  if (S.daily) unparkRun();
   S.score = runScore();
   const h = loadHist();
   h.unshift({ t: Date.now(), asc: S.asc || 0, cls: S.cls, mode: S.mode, diff: S.diff, daily: S.daily || null, won: S.won, depth: S.depth, lv: S.lv, kills: S.kills, gold: S.gold, turns: S.turn, by: by || null,
@@ -3518,7 +3531,9 @@ function showEnd(won, by, rec) {
     const k = S.daily, r = { cls: S.cls, score: S.score, depth: S.depth, won: S.won };
     $('copyres').onclick = () => copyResult($('copyres'), $('endcopybox'), shareText(k, r));
   }
-  $('again').innerHTML = S.daily ? 'New run <span class="k">Enter</span>' : 'Descend again <span class="k">Enter</span>';
+  // After a daily, the run set aside for it is back: offer to return to it rather than replace it.
+  const back = readSave();
+  $('again').innerHTML = back ? `Back to your ${esc(MODES[back.mode].name)} run <span class="k">Enter</span>` : S.daily ? 'New run <span class="k">Enter</span>' : 'Descend again <span class="k">Enter</span>';
   $('end').hidden = false;
   setTimeout(() => $('again').focus(), 60);
 }
@@ -3729,14 +3744,14 @@ addEventListener('keydown', e => {
       if (e.key === 'Enter' && !onCtl) { e.preventDefault(); readSave() ? loadGame() : setPage('setup'); }
       else if (k === 'n') { e.preventDefault(); setPage('setup'); }
     } else if (e.key === 'Escape' || e.key === 'Backspace') { e.preventDefault(); setPage('menu'); }
-    else if (e.key === 'Enter' && !onCtl && !readSave()) { e.preventDefault(); newGame(); }
-    else if (k === 'n' && readSave()) { e.preventDefault(); newGame(); }
+    else if (e.key === 'Enter' && !onCtl && !readSave()) { e.preventDefault(); newRun(); }
+    else if (k === 'n' && readSave()) { e.preventDefault(); newRun(); }
     else if (k === 'b') { e.preventDefault(); SND.toggleMusic(); buildTitle(); }
     else if (k === 'm') { e.preventDefault(); SND.toggle(); buildTitle(); }
     return;
   }
   if (!$('end').hidden) {
-    if (e.key === 'Enter' || k === 'r') { e.preventDefault(); newGame(); }
+    if (e.key === 'Enter' || k === 'r') { e.preventDefault(); readSave() ? loadGame() : newGame(); }
     else if (e.key === 'Escape') { e.preventDefault(); toTitle(); }
     return;
   }
@@ -3772,8 +3787,8 @@ $('phstats').open = !!PROF.statsOpen;
 $('phstats').addEventListener('toggle', () => { PROF.statsOpen = $('phstats').open; saveProf(); setTimeout(fit, 0); });
 bind('abil', ability); bind('quaff', quaff); bind('packbtn', openPack); bind('packclose', closePack);
 $('pack').addEventListener('click', e => { if (e.target === $('pack')) closePack(); });
-bind('start', () => newGame()); bind('go', () => setPage('setup')); bind('backbtn', () => setPage('menu'));
-bind('setbtn', openSet); bind('setclose', closeSet); $('set').addEventListener('click', e => { if (e.target === $('set')) closeSet(); }); bind('again', () => newGame());
+bind('start', newRun); bind('go', () => setPage('setup')); bind('backbtn', () => setPage('menu'));
+bind('setbtn', openSet); bind('setclose', closeSet); $('set').addEventListener('click', e => { if (e.target === $('set')) closeSet(); }); bind('again', () => readSave() ? loadGame() : newGame());
 bind('histbtn', openHist); bind('histclose', closeHist);
 bind('chalbtn', openChal); bind('chalclose', closeChal);
 bind('selljunk', sellJunk);
@@ -3808,7 +3823,7 @@ addEventListener('keydown', () => SND.unlock());
 addEventListener('pagehide', saveGame);
 document.addEventListener('visibilitychange', () => { if (document.hidden) { saveGame(); syncPush(true); } else syncPull(); });
 // Cloud sync: take a newer save from another device on opening, then upload changes as they happen.
-if (SYNC && API) syncPull().then(r => { if (!r) syncPush(); });
+if (SYNC && API) syncPull().then(r => { if (!r) { syncPush(); backfillScores(); } });
 setInterval(() => { if (!document.hidden) { if (screenNow === 'game') saveGame(); syncPush(); } }, 20000);
 addEventListener('resize', fit);
 

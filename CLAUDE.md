@@ -56,7 +56,7 @@ from the D1 database `DB` (`amber-depths`; the test copy has its own, `amber-dep
 
 ## Conventions
 - `app/` is exactly what gets published; nothing else in the repo goes live.
-- `localStorage` keys are `amber-depths-*` (profile, save, sel, best, daily, history, mute, music, backupAt; the
+- `localStorage` keys are `amber-depths-*` (profile, save, parked, sel, best, daily, history, mute, music, backupAt; the
   old `unlocks` is migrated into the profile). The sync code lives in `ad-sync`, deliberately outside `amber-depths-*`
   so backups and restores never copy or wipe it. The title's Backup button copies every `amber-depths-*` key into a code
   or file and restores it, so a new key is backed up automatically. Don't rename them or change their format without a migration: that
