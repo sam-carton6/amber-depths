@@ -11,7 +11,7 @@ github.io address shows only a "moved" screen. D1 database `amber-depths` is sha
 **On `staging`, not live yet:** v63 (7 Nov 2026): new title screen. Main menu (logo; Continue, Start game / New run,
 Save & sync, Settings, Guide, ♥ Support → ko-fi.com/samcarton) and a run setup page (top bar: Back, Challenges, Run
 history, Leaderboards, music, sound; smaller logo; Daily, then class and run choices). Settings (controls, text style,
-screen color, sound) moved out of Challenges into its own sheet. v64: "How to play" folded into the Guide. v67: the daily sets your current run aside and gives it back when the daily ends; boards cleared 7 Nov and count only runs finished from then on (no past-history upload). Sam tries it at test.amberdepths.com, then "merge".
+screen color, sound) moved out of Challenges into its own sheet. v64: "How to play" folded into the Guide. v67: the daily sets your current run aside and gives it back when the daily ends; boards cleared 7 Nov and count only runs finished from then on (no past-history upload). v69: four more boards (Fastest win and Toughest win per mode, Biggest hit, Most kills). Sam tries it at test.amberdepths.com, then "merge".
 **Next up:** Sam's Hard Endless run with Backup codes before boss floors.
 **Cloudflare (6 Nov 2026):** live at amberdepths.com (Worker `amber-depths`, `main`); test at test.amberdepths.com
 (Worker `amber-depths-preview`, `staging`). Friends move their saves via the old address's moved screen; once all

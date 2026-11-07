@@ -12,6 +12,10 @@
 //   daily   key = date          val = score    (info: cls, depth, won)
 //   endless key = difficulty    val = deepest floor
 //   best    key = mode          val = score    (short / standard)
+//   fast    key = mode          val = turns    (winning runs; fewest is best)
+//   tough   key = mode          val = potions  (winning runs; fewest is best)
+//   hit     key = all           val = biggest single hit
+//   kills   key = all           val = monsters slain in one run
 // Daily streaks and wins are worked out from the daily rows.
 //
 // Safety net: the last KEEP uploads of each player's save stay in `saves`, so a damaged save (a bug in a test version,
@@ -69,7 +73,12 @@ const BOARDS = {
   daily: k => DAY.test(k),
   endless: k => ['easy', 'normal', 'hard', 'nightmare'].includes(k),
   best: k => ['short', 'standard'].includes(k),
+  fast: k => ['short', 'standard'].includes(k),
+  tough: k => ['short', 'standard'].includes(k),
+  hit: k => k === 'all',
+  kills: k => k === 'all',
 };
+const LOW = new Set(['fast', 'tough']); // boards where the smallest number wins
 
 // Daily streak (days in a row ending today or yesterday, by the player's dates) and total wins, per player.
 function streaks(rows, today) {
@@ -114,7 +123,7 @@ async function route(req, env, url) {
     }
     if (!BOARDS[board] || !BOARDS[board](k)) return fail(400, 'Unknown board.');
     const { results } = await env.DB.prepare(`SELECT p.name, s.val, s.info FROM scores s JOIN players p ON p.id = s.id
-      WHERE s.board = ? AND s.k = ? ORDER BY s.val DESC, s.t ASC LIMIT 50`).bind(board, k).all();
+      WHERE s.board = ? AND s.k = ? ORDER BY s.val ${LOW.has(board) ? 'ASC' : 'DESC'}, s.t ASC LIMIT 50`).bind(board, k).all();
     return json({ rows: results.map(r => ({ name: r.name, val: r.val, ...JSON.parse(r.info || '{}') })) });
   }
 
@@ -169,7 +178,8 @@ async function route(req, env, url) {
     const info = JSON.stringify(Object.fromEntries(Object.entries(b.info || {}).filter(([key, v]) => ['cls', 'depth', 'won', 'diff', 'lv'].includes(key)
       && (typeof v === 'string' ? v.length <= 20 : typeof v === 'number' || typeof v === 'boolean'))));
     await env.DB.prepare(`INSERT INTO scores (id, board, k, val, info, t) VALUES (?, ?, ?, ?, ?, ?)
-      ON CONFLICT (id, board, k) DO UPDATE SET val = excluded.val, info = excluded.info, t = excluded.t WHERE excluded.val > scores.val`)
+      ON CONFLICT (id, board, k) DO UPDATE SET val = excluded.val, info = excluded.info, t = excluded.t
+      WHERE excluded.val ${LOW.has(board) ? '<' : '>'} scores.val`)
       .bind(me.id, board, k, val, info, Date.now()).run();
     return json({ ok: true });
   }

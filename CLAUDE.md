@@ -50,7 +50,7 @@ every chat), [DONE.md](DONE.md) (the archive; history only). Code map and game c
 Plain HTML/CSS/JS, no framework, no npm. Node is only used for the build script and `npx wrangler`. Fonts and icons
 are local files in `app/`. [app/sw.js](app/sw.js) caches the files for offline play (network-first for the page;
 `/api/` is never cached). Data lives in each player's browser (`localStorage`); players who turn on **cloud sync**
-also keep it on the server: [worker/index.js](worker/index.js) answers `/api/*` (sync codes, saves, leaderboards)
+also keep it on the server: [worker/index.js](worker/index.js) answers `/api/*` (sync codes, saves, leaderboards: daily, streaks, Endless, best, fastest and toughest win, biggest hit, most kills)
 from the D1 database `DB` (`amber-depths`; the test copy has its own, `amber-depths-preview`). Try it locally with
 `npx wrangler dev` → http://127.0.0.1:8787 (a second address, http://localhost:8787, acts as a second device).
 

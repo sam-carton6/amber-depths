@@ -439,7 +439,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
     <button class="mini" id="backbtn">← Back <span class="k">Esc</span></button><span class="sp"></span><button class="mini" id="chalbtn">Challenges <span class="k">C</span></button><button class="mini" id="histbtn">Run history <span class="k">H</span></button><button class="mini" id="lbbtn" hidden>Leaderboards <span class="k">L</span></button><button class="mini" id="tmus"></button><button class="mini" id="tsnd"></button>
   </div>
   <div class="logo-wrap">
-    <span class="ver" id="ver" aria-label="Version">v68</span>
+    <span class="ver" id="ver" aria-label="Version">v69</span>
     <pre id="logo" aria-label="Amber Depths"></pre>
     <p class="tag"><span class="torch" id="t1">ψ</span> descend · loot · slay the wyrm <span class="torch" id="t2">ψ</span></p>
   </div>
@@ -1450,6 +1450,11 @@ function runScores(r) {
   if (r.daily) out.push({ board: 'daily', k: r.daily, val: r.score, info });
   else if (r.mode === 'endless') out.push({ board: 'endless', k: r.diff, val: r.depth, info });
   else if (MODES[r.mode] && r.mode !== 'endless') out.push({ board: 'best', k: r.mode, val: r.score, info });
+  if (r.won && (r.mode === 'short' || r.mode === 'standard')) {
+    out.push({ board: 'fast', k: r.mode, val: r.turn, info }, { board: 'tough', k: r.mode, val: r.potionsDrunk || 0, info });
+  }
+  if (r.rs && r.rs.bigDealt) out.push({ board: 'hit', k: 'all', val: r.rs.bigDealt, info });
+  if (r.kills) out.push({ board: 'kills', k: 'all', val: r.kills, info });
   return out;
 }
 function syncScores(list) {
@@ -1462,20 +1467,23 @@ async function sendScores() {
     SYNC.pend.shift(); storeSync();
   }
 }
-const LB_TABS = [['daily', 'Today\'s daily'], ['streak', 'Streaks'], ['endless', 'Endless'], ['best', 'Best scores']];
-let lbTab = 'daily', lbSub = { endless: 'normal', best: 'standard' };
+const LB_TABS = [['daily', 'Today\'s daily'], ['streak', 'Streaks'], ['endless', 'Endless'], ['best', 'Best scores'],
+  ['fast', 'Fastest win'], ['tough', 'Toughest win'], ['hit', 'Biggest hit'], ['kills', 'Most kills']];
+let lbTab = 'daily', lbSub = { endless: 'normal', best: 'standard', fast: 'short', tough: 'short', hit: 'all', kills: 'all' };
+const LB_MODES = ['best', 'fast', 'tough'];
+const LB_NOTES = { fast: 'Fewest turns to slay the Wyrm.', tough: 'Fewest potions drunk in a winning run.', hit: 'The hardest single blow in one run.', kills: 'Most monsters slain in one run.' };
 function openLb() { $('lb').hidden = false; renderLb(); setTimeout(() => $('lbclose').focus(), 30); }
 function closeLb() { $('lb').hidden = true; }
 async function renderLb() {
   const tabs = (list, cur, fn) => list.map(([k, n]) => `<button data-lb="${k}" aria-pressed="${k === cur}">${esc(n)}</button>`).join('');
   $('lbtabs').innerHTML = tabs(LB_TABS, lbTab);
   $('lbtabs').querySelectorAll('button').forEach(b => b.onclick = () => { lbTab = b.dataset.lb; renderLb(); });
-  const subs = lbTab === 'endless' ? Object.entries(DIFFS).map(([k, d]) => [k, d.name]) : lbTab === 'best' ? [['short', 'Short'], ['standard', 'Standard']] : [];
+  const subs = lbTab === 'endless' ? Object.entries(DIFFS).map(([k, d]) => [k, d.name]) : LB_MODES.includes(lbTab) ? [['short', 'Short'], ['standard', 'Standard']] : [];
   $('lbsub').innerHTML = tabs(subs, lbSub[lbTab]);
   $('lbsub').querySelectorAll('button').forEach(b => b.onclick = () => { lbSub[lbTab] = b.dataset.lb; renderLb(); });
   const today = todayKey(), k = lbTab === 'daily' || lbTab === 'streak' ? today : lbSub[lbTab];
   $('lbcnt').textContent = lbTab === 'daily' ? fmtDay(today) : '';
-  $('lbnote').textContent = SYNC ? '' : 'Start syncing (Save & sync on the title screen) to put your name on these boards.';
+  $('lbnote').textContent = (LB_NOTES[lbTab] ? LB_NOTES[lbTab] + ' ' : '') + (SYNC ? '' : 'Start syncing (Save & sync on the main menu) to put your name on these boards.');
   const body = $('lbbody'), want = lbTab + k; body.innerHTML = '<p class="gtxt">Loading…</p>';
   let rows; try { rows = (await api(`board?b=${lbTab}&k=${encodeURIComponent(k)}`, {}, null)).rows; } catch (e) { body.innerHTML = `<p class="gtxt">${esc(e.message)}</p>`; return; }
   if (want !== lbTab + (lbTab === 'daily' || lbTab === 'streak' ? today : lbSub[lbTab])) return; // a newer tab was picked meanwhile
@@ -1483,6 +1491,10 @@ async function renderLb() {
   const who = r => { const c = CLASSES[r.cls]; return c ? `<small>${esc(c.name)}${r.diff && lbTab !== 'endless' && lbTab !== 'daily' ? ' · ' + esc((DIFFS[r.diff] || {}).name || '') : ''}</small>` : ''; };
   const val = r => lbTab === 'streak' ? `${r.streak} day${r.streak === 1 ? '' : 's'} · ${r.wins} win${r.wins === 1 ? '' : 's'}`
     : lbTab === 'endless' ? `floor ${r.val}`
+    : lbTab === 'fast' ? `${r.val.toLocaleString()} turns`
+    : lbTab === 'tough' ? `${r.val} potion${r.val === 1 ? '' : 's'}`
+    : lbTab === 'hit' ? `${r.val.toLocaleString()} damage`
+    : lbTab === 'kills' ? `${r.val.toLocaleString()} kills`
     : `${r.val.toLocaleString()}${r.won ? ' ✦' : r.depth ? ` · fl ${r.depth}` : ''}`;
   body.innerHTML = rows.map((r, i) => `<div class="lbrow${SYNC && r.name === SYNC.name ? ' me' : ''}"><span class="rk">${i + 1}.</span><span class="nm">${esc(r.name)}${lbTab === 'streak' ? '' : who(r)}</span><span class="v">${val(r)}</span></div>`).join('');
 }
