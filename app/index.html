@@ -55,6 +55,7 @@ body {
   -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
 }
 *, *::before, *::after { box-sizing: border-box; }
+.testbar { margin: -6px 0 10px; padding: 3px 8px; text-align: center; font-size: .8rem; letter-spacing: .12em; color: #120c06; background: repeating-linear-gradient(135deg, var(--hot) 0 14px, var(--amber) 14px 28px); border-radius: 6px; }
 [hidden] { display: none !important; }
 button { font-family: var(--font-ui); color: var(--amber); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; touch-action: manipulation; }
 button:active { background: var(--line); }
@@ -418,9 +419,10 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
 <body>
 
 <!-- ================= TITLE ================= -->
+<div class="testbar" id="testbar" hidden>TEST COPY · staging branch · saves here are separate</div>
 <section class="title" id="title">
   <div class="logo-wrap">
-    <span class="ver" id="ver" aria-label="Version">v53</span>
+    <span class="ver" id="ver" aria-label="Version">v54</span>
     <pre id="logo" aria-label="Amber Depths"></pre>
     <p class="tag"><span class="torch" id="t1">ψ</span> descend · loot · slay the wyrm <span class="torch" id="t2">ψ</span></p>
   </div>
@@ -3546,6 +3548,11 @@ bind('chalbtn', openChal); bind('chalclose', closeChal);
 bind('selljunk', sellJunk);
 bind('bakbtn', openBak); bind('movedbak', openBak);
 // Old GitHub Pages address only (or ?moved to preview): point players to the new site.
+// test.amberdepths.com (or ?test) runs the staging branch: say so in a bar, the tab and a home-screen icon's name.
+if (/^test\./.test(location.hostname) || /[?&]test\b/.test(location.search)) {
+  $('testbar').hidden = false; document.title = 'TEST · ' + document.title;
+  const m = document.querySelector('meta[name="apple-mobile-web-app-title"]'); if (m) m.content = 'AD Test';
+}
 // Only the title, this notice and Backup work here; the game can't start (no keys, other title parts hidden).
 if (/github\.io$/.test(location.hostname) || /[?&]moved\b/.test(location.search)) {
   document.documentElement.dataset.moved = ''; $('moved').hidden = false;
