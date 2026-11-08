@@ -28,7 +28,8 @@ have, remove deploy.yml (and optionally make the repo private).
   Sam: "easy so far, nothing scary yet", but he got lucky with lots of damage upgrades.
   Floor 29: Lv 52, 215/337 HP, ATK 70, 56 potions (11 drunk in all), 20.6k gold, 411 kills, biggest hit taken 32.
   Damage taken on floors 19-29: 2,049 (twice floors 1-19 together), but potions still pile up faster than he drinks.
-  Backup in `test/sam-save-f29.json`.
+  Backup in `test/sam-save-f29.json`. Sam: "could breeze through most of them and spam potions if I was too
+  reckless"; the Brood Mother (floor 30) came for him right away (asked whether that was a surprise or a bug).
   Backup in `test/sam-save-f19.json` (ignored). Waiting for floors 29/39/49 before changing anything.
   Testing with a real save: decode the backup code into `test/sam-save.json` (ignored; private) and load it in the
   test page (`localStorage` save key + `__T.loadGame()`). Soak test: `test/soak.js` (ignored; see DONE.md).
