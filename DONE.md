@@ -7,6 +7,12 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-07 — v73: poisonous monsters no longer poison themselves (staging)
+- Sam: the Brood Mother came for him as soon as floor 30 started. Cause: a monster's poison bite and "this monster is
+  poisoned" shared one field (`m.poison`), so cave spiders, ghouls and the Brood Mother spawned poisoned, took a tick on
+  turn 1 (which wakes anything, even out of sight) and lost their bite once it ran out. The bite is now `venom`;
+  loadGame fills it in for monsters in older saves. Checked on Sam's floor-29 save: she sleeps until she sees you.
+
 ### 2026-11-07 — v72: step over seen traps (staging)
 - Sam: hallway traps you must cross again and again were annoying. A trap you've spotted (or that has already
   caught you) is now stepped over safely ("You step carefully over the ... trap."). Hidden traps still fire once.

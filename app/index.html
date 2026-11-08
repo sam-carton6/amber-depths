@@ -446,7 +446,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
     <button class="mini" id="backbtn">← Back <span class="k">Esc</span></button><span class="sp"></span><button class="mini" id="chalbtn">Challenges <span class="k">C</span></button><button class="mini" id="histbtn">Run history <span class="k">H</span></button><button class="mini" id="lbbtn" hidden>Leaderboards <span class="k">L</span></button><button class="mini" id="tmus"></button><button class="mini" id="tsnd"></button>
   </div>
   <div class="logo-wrap">
-    <span class="ver" id="ver" aria-label="Version">v72</span>
+    <span class="ver" id="ver" aria-label="Version">v73</span>
     <pre id="logo" aria-label="Amber Depths"></pre>
     <p class="tag"><span class="torch" id="t1">ψ</span> descend · loot · slay the wyrm <span class="torch" id="t2">ψ</span></p>
     <p class="tag" id="holiday" hidden></p>
@@ -900,10 +900,10 @@ const MONS = [
   { ch: 's', name: 'skeleton',      hp: 12, atk: [2, 4], xp: 5,  tier: 4 },
   { ch: 'o', name: 'orc',           hp: 16, atk: [3, 5], xp: 7,  tier: 5 },
   { ch: 'w', name: 'wraith',        hp: 14, atk: [4, 7], xp: 9,  tier: 7, erratic: true },
-  { ch: 'x', name: 'cave spider',   hp: 6,  atk: [1, 3], xp: 4,  tier: 2, poison: 3 },
+  { ch: 'x', name: 'cave spider',   hp: 6,  atk: [1, 3], xp: 4,  tier: 2, venom: 3 },
   { ch: 'i', name: 'fire imp',      hp: 8,  atk: [2, 4], xp: 6,  tier: 3, burn: 3, erratic: true, themes: ['amber'] },
   { ch: 'f', name: 'frost wisp',    hp: 9,  atk: [2, 4], xp: 7,  tier: 4, chill: 4, erratic: true, themes: ['flooded'] },
-  { ch: 'z', name: 'ghoul',         hp: 18, atk: [3, 6], xp: 10, tier: 6, poison: 4, themes: ['crypt'] },
+  { ch: 'z', name: 'ghoul',         hp: 18, atk: [3, 6], xp: 10, tier: 6, venom: 4, themes: ['crypt'] },
   { ch: 'T', name: 'troll',         hp: 28, atk: [4, 8], xp: 14, tier: 8, regen: true },
 ];
 const WEAPONS = [['Dagger', 1], ['Short sword', 2], ['Mace', 3], ['Longsword', 4], ['War axe', 5], ['Runeblade', 7]];
@@ -1164,6 +1164,8 @@ function loadGame() {
   S = o; S.C = CLASSES[o.cls]; S.M = MODES[o.mode]; S.diff = DIFFS[o.diff] ? o.diff : 'normal'; S.D = buildD(S.diff, S.asc || 0);
   S.fx = new Map(); S.danger = new Set(o.danger || []); S.torches = new Set(o.torches || []);
   S.proj = null; S.anim = null; S.hurtAt = 0;
+  const VENOM = { 'cave spider': 3, ghoul: 4, 'Brood Mother': 4 }; // saves from before v73 kept the bite in m.poison
+  for (const m of S.mons || []) if (m.venom == null && VENOM[m.name]) m.venom = VENOM[m.name];
   S.secret = new Set(o.secret || []); S.cats = o.cats || []; S.traps = o.traps || []; S.corpses = o.corpses || []; S.frenzy = o.frenzy || 0; S.aiming = false; S.brew = o.brew || 0; runNew = []; S.status = o.status || { poison: 0, burn: 0, slow: 0 };
   S.theme = o.theme || themeFor(S.depth);
   for (const m of S.mons) m.flash = 0;
@@ -1949,7 +1951,7 @@ const ARENA_BOSS = {
   cyclops: { ch: 'C', name: 'Cyclops', atk: [5, 9], intro: 'A Cyclops rises from its pile of bones, one huge eye fixed on you.', down: 'The Cyclops topples like a felled tree. The runes on the stairs go dark.' },
   drake:   { ch: 'd', name: 'Drake', atk: [3, 6], intro: 'A Drake uncoils from the rafters, embers dripping from its jaws.', down: 'The Drake crashes down in a shower of sparks. The runes on the stairs go dark.' },
   lich:    { ch: 'L', name: 'Lich', atk: [3, 5], intro: 'A Lich turns toward you. Its bones rattle with laughter.', down: 'The Lich comes apart in a cloud of grave dust. Its servants fall with it.' },
-  brood:   { ch: 'B', name: 'Brood Mother', atk: [3, 6], poison: 4, intro: 'A Brood Mother drops from the ceiling on a thread, legs twitching.', down: 'The Brood Mother curls up and goes still. Her webs dry to dust.' },
+  brood:   { ch: 'B', name: 'Brood Mother', atk: [3, 6], venom: 4, intro: 'A Brood Mother drops from the ceiling on a thread, legs twitching.', down: 'The Brood Mother curls up and goes still. Her webs dry to dust.' },
   shadow:  { ch: 'S', name: 'Shadow', atk: [4, 7], intro: 'The torchlight bends. A Shadow peels itself off the wall.', down: 'The Shadow tears apart like smoke in the wind. The torches burn steady again.' },
   wyrm:    { ch: 'D', name: 'Amber Wyrm', atk: [3, 6], intro: 'The Amber Wyrm has followed you down. It is bigger now, and it remembers you.', down: 'The Amber Wyrm crashes down and lies still, for now. Its hoard spills across the floor.' },
 };
@@ -1999,7 +2001,7 @@ function placeArenaBoss(x, y) {
   const e = eff(), k = DEEP_DMG ** deep(), kind = nextArenaKind(), t = ARENA_BOSS[kind];
   const hp = Math.round((60 + e * 9) * S.D.hp * (S.D.bossHp || 1) * ({ lich: .65, wyrm: 1.2 }[kind] || 1) * DEEP_HP ** (deep() * .75)); // the Lich spends turns blinking away
   S.mons = S.mons.filter(m => m.x < S.arena.x0 - 1);
-  S.mons.push({ ch: t.ch, name: t.name, kind, arena: true, boss: true, poison: t.poison, hp, maxhp: hp, atk: [Math.round(t.atk[0] * k), Math.round(t.atk[1] * k)], bonus: Math.round(Math.floor(e / 3) * k), x, y, timer: 0, awake: false, flash: 0, xp: (40 + e * 3) * (kind === 'wyrm' ? 2 : 1) });
+  S.mons.push({ ch: t.ch, name: t.name, kind, arena: true, boss: true, venom: t.venom, hp, maxhp: hp, atk: [Math.round(t.atk[0] * k), Math.round(t.atk[1] * k)], bonus: Math.round(Math.floor(e / 3) * k), x, y, timer: 0, awake: false, flash: 0, xp: (40 + e * 3) * (kind === 'wyrm' ? 2 : 1) });
   S.stairsLocked = true;
 }
 const cheb = (a, x, y) => Math.max(Math.abs(a.x - x), Math.abs(a.y - y));
@@ -3375,7 +3377,7 @@ function monHit(m) {
   if (dodged(m)) return;
   const dmg = Math.max(1, Math.round((rnd(m.atk[0], m.atk[1]) + m.bonus) * S.D.dmg) - st.def);
   if (damagePlayer(dmg, `The ${m.name} hits you for ${dmg}.`, m.name)) return;
-  if (m.poison && Math.random() < .45) applyStatus('poison', m.poison);
+  if (m.venom && Math.random() < .45) applyStatus('poison', m.venom); // venom = its bite poisons you; m.poison = it is poisoned
   if (m.burn && Math.random() < .4) applyStatus('burn', m.burn);
   if (m.chill && !(S.status.slow > 0) && !(S.status.thaw > 0) && Math.random() < .4) applyStatus('slow', m.chill); // frost doesn't refresh a slow, and can't re-chill for 3 turns after it wears off
   if (st.thorns && m.hp > 0) { hurtMon(m, st.thorns, false, true); }
