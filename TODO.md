@@ -23,6 +23,9 @@ have, remove deploy.yml (and optionally make the repo private).
   ~4 hits and now hit for 33-43 of his 300 HP (~8 hits to kill him; was 56-69, 5 hits, deadly when surrounded).
   Deep floors draw from the last 4 monster types only; flooded floors are ~40% frost wisps. Still open: potions
   (45) and gold (43k) pile up; a carry cap or pricier deep shops are the next knobs if he says so.
+  **Sam's Hard Endless Berserker run (test copy, v71), 7 Nov 2026:** floor 19: Lv 38, 231/253 HP, ATK 45, DEF 0,
+  41 potions (2 drunk all run), 9.3k gold, 253 kills, 12,160 damage dealt vs 1,069 taken. Too easy so far.
+  Backup in `test/sam-save-f19.json` (ignored). Waiting for floors 29/39/49 before changing anything.
   Testing with a real save: decode the backup code into `test/sam-save.json` (ignored; private) and load it in the
   test page (`localStorage` save key + `__T.loadGame()`). Soak test: `test/soak.js` (ignored; see DONE.md).
 - Sam's iPhone bug list from real play (touch, Safari, feel) goes in BUGS.md as it comes.
