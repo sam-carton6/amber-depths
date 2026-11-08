@@ -446,7 +446,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
     <button class="mini" id="backbtn">← Back <span class="k">Esc</span></button><span class="sp"></span><button class="mini" id="chalbtn">Challenges <span class="k">C</span></button><button class="mini" id="histbtn">Run history <span class="k">H</span></button><button class="mini" id="lbbtn" hidden>Leaderboards <span class="k">L</span></button><button class="mini" id="tmus"></button><button class="mini" id="tsnd"></button>
   </div>
   <div class="logo-wrap">
-    <span class="ver" id="ver" aria-label="Version">v71</span>
+    <span class="ver" id="ver" aria-label="Version">v72</span>
     <pre id="logo" aria-label="Amber Depths"></pre>
     <p class="tag"><span class="torch" id="t1">ψ</span> descend · loot · slay the wyrm <span class="torch" id="t2">ψ</span></p>
     <p class="tag" id="holiday" hidden></p>
@@ -624,7 +624,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
 <template id="howtotpl">
   <li><b>Move</b> with the arrow keys, WASD, the numpad (<b>8 4 5 6</b>; <b>7</b> ability, <b>9</b> potion, <b>.</b> pack, <b>0</b> wait) or the d-pad. Walk into a monster to attack it. On a phone, <b>Settings → Controls</b> offers big arrows, or tapping the map (top, bottom, left or right part to move, middle to wait).</li>
   <li><b>Q</b> uses your class ability, <b>P</b> drinks a potion, <b>Space</b> waits a turn. <b>I</b> opens your pack: <b>1–9</b> uses or equips an item, <b>Shift + number</b> drops it. With the arrow keys: <b>Delete</b> ability, <b>End</b> wait, <b>Page Down</b> potion, <b>right Ctrl</b> pack.</li>
-  <li>Find the <b>&gt;</b> on each floor to go deeper. Merchants <b>&amp;</b> sell gear, potions and upgrades, and buy your spares. Hidden traps <b>^</b> lurk (Rogues spot them far more often). Cracked walls <b>▒</b> hide secret rooms, and chests <b>=</b> hold loot, though some bite back.</li>
+  <li>Find the <b>&gt;</b> on each floor to go deeper. Merchants <b>&amp;</b> sell gear, potions and upgrades, and buy your spares. Hidden traps <b>^</b> lurk (Rogues spot them far more often). Once you've seen a trap, or it has caught you, you step over it safely. Cracked walls <b>▒</b> hide secret rooms, and chests <b>=</b> hold loot, though some bite back.</li>
   <li>Partway down, a <b>Stone Golem</b> guards the stairs (floors 5, 15, 25… in Endless). When it raises its fists, step out of the glowing ring. In Standard and Endless, beating it lets you pick one of 3 upgrades for the rest of the run.</li>
   <li>On the last floor the <b>Amber Wyrm</b> breathes fire in a line: when the floor glows <b>≈</b>, step out of it.</li>
   <li>In <b>Endless</b>, every 10th floor is a boss floor (Cyclops, Drake, Lich, Brood Mother or Shadow, each before any repeats), and every 50th brings back the Wyrm. Bosses give better loot and <b>2</b> upgrade picks (the Wyrm: <b>3</b> and a relic). Past floor 12, monsters get tougher every floor.</li>
@@ -2778,7 +2778,8 @@ async function playerMove(dx, dy) {
       S.traps = S.traps.filter(t => t !== tr);
       const g = 3 * eff(); S.gold += g;
       say(`You disarm the ${tr.kind} trap and salvage ${g} gold.`, 'good'); SND.play('coin');
-    } else { springTrap(tr); if (S.dead) return false; }
+    } else if (tr.seen) say(`You step carefully over the ${tr.kind} trap.`); // a trap you know about never catches you
+    else { springTrap(tr); if (S.dead) return false; }
   }
   pickup();
   if (S.map[ny][nx] === '~' && S.status.burn) { S.status.burn = 0; say('The water hisses. The flames go out.', 'good'); }

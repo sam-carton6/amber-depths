@@ -7,7 +7,7 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v70 (merged 7 Nov 2026, commit `9e0926e`; v69 brought: new title screen and Settings sheet, How to play in
 the Guide, the daily sets your run aside, cloud sync, 8 leaderboards (cleared 7 Nov); v70 fixed an item under a merchant). Details in DONE.md.
-**On `staging`, not live yet:** v71: 11 easter eggs + class birthdays (test with `?eggs` and `?date=MM-DD` on test.amberdepths.com).
+**On `staging`, not live yet:** v71: 11 easter eggs + class birthdays; v72: step over seen traps (test with `?eggs` and `?date=MM-DD` on test.amberdepths.com).
 **Next up:** Sam's Hard Endless run with Backup codes before boss floors.
 **Bot chat (7 Nov 2026):** the deep bot ([bot/](bot/README.md)) v1 is in: Warrior Hard Endless averages floor 53
 (old bot: 16-23). Next: try a "dive" mode for deep floors, then other classes. Results: [bot/RESULTS.md](bot/RESULTS.md).
@@ -99,3 +99,4 @@ have, remove deploy.yml (and optionally make the repo private).
 ## What's new at the next merge
 
 - Easter eggs. Some are rare and some need a keyboard. Each class now has a birthday (it's in the Guide).
+- Traps you've already seen (or that got you once) no longer go off: you step over them.

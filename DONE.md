@@ -7,6 +7,11 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-07 — v72: step over seen traps (staging)
+- Sam: hallway traps you must cross again and again were annoying. A trap you've spotted (or that has already
+  caught you) is now stepped over safely ("You step carefully over the ... trap."). Hidden traps still fire once.
+  Webs, snares and the Trapper's disarm are unchanged. Guide's How to play line updated. Bot: 4 classes clean.
+
 ### 2026-11-07 — v71: easter eggs and class birthdays (staging)
 - All in the source's "easter eggs" section: odds in `EGGS` (cat nook 3%/floor, shop cat 10%/shop, footsteps 0.2%/floor,
   ghost after 100 still turns with no enemy in sight). `xyzzy` in a run; Konami on the title (logo hue cycle); 10 torch
