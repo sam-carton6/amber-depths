@@ -60,10 +60,6 @@ have, remove deploy.yml (and optionally make the repo private).
 
 ## Ideas (later)
 
-- **Boss minion farm** (found by the deep bot, 7 Nov 2026): the Lich and Brood Mother make minions forever, 1 XP
-  each, so a patient player can level without limit on floor 10 (bot: level 17 → 41 in 12,000 turns). Fix if Sam
-  wants: minions give 0 XP after the first N, or the boss stops summoning after a while.
-
 - **"Equip best" button in the pack** (Sam, 6 Nov 2026): puts on the highest `gearScore` weapon and armor. Small: the
   game already scores gear (pickup message, sell-junk). Watch out for cursed gear and Vampiric/Thorned trade-offs.
 
@@ -121,3 +117,5 @@ have, remove deploy.yml (and optionally make the repo private).
 - Three new potions: Strength (double damage for 10 turns), Haste (two moves for every monster move) and Antidote
   (cures poison, burning and slowness, and keeps them off for a while). Drink them from your pack; P still drinks healing.
 - New upgrade: Scavenger. Gear you find or buy is +1 better and more often has a bonus.
+- A boss's summoned minions (Lich skeletons, Brood Mother spiderlings) no longer give XP or drop loot, so they can't
+  be farmed.

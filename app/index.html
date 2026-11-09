@@ -295,6 +295,8 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 @keyframes bosspulse { 50% { color: var(--gold); } }
 .ig { color: var(--gold); text-shadow: 0 0 6px rgba(255,224,138,.6); }
 .ip { color: var(--heal); }
+.ipm { color: #ff7a5a; } .iph { color: #ff9ad5; } .ipc { color: #c8f07a; } /* Strength, Haste, Antidote */
+.chip.str { background: #5a120e; color: #ff9a8a; } .chip.haste { background: #4a1a3a; color: #ffb0e0; } .chip.cure { background: #2a3a0e; color: #d8f59a; }
 .is { color: var(--magic); }
 .ie { color: var(--loot); }
 .ir { color: var(--magic); text-shadow: 0 0 8px var(--magic); }
@@ -475,7 +477,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
     <button class="mini" id="backbtn">← Back <span class="k">Esc</span></button><span class="sp"></span><button class="mini" id="chalbtn">Challenges <span class="k">C</span></button><button class="mini" id="histbtn">Run history <span class="k">H</span></button><button class="mini" id="lbbtn" hidden>Leaderboards <span class="k">L</span></button><button class="mini" id="tmus"></button><button class="mini" id="tsnd"></button>
   </div>
   <div class="logo-wrap">
-    <span class="ver" id="ver" aria-label="Version">v80</span>
+    <span class="ver" id="ver" aria-label="Version">v82</span>
     <pre id="logo" aria-label="Amber Depths"></pre>
     <p class="tag"><span class="torch" id="t1">ψ</span> descend · loot · slay the wyrm <span class="torch" id="t2">ψ</span></p>
     <p class="tag" id="holiday" hidden></p>
@@ -1684,9 +1686,9 @@ function openGuide() {
   const all = `<div class="chal-grp"><h3 class="sub">CLASSES</h3><div class="gcls">${Object.entries(CLASSES).map(([id, k]) => isLocked(id)
     ? `<div class="c"><b>@? ${esc(k.name)}</b> · locked<br><span style="color:var(--dim)">Unlock: ${esc(CHI[k.unlock].desc)}.</span></div>`
     : `<div class="c${id === cur ? ' me' : ''}"><b>${esc(k.sig)} ${esc(k.name)}</b> · HP ${k.hp} · ATK +${k.atk} · DEF +${k.def} · CRIT ${Math.round(k.crit * 100)}% · Birthday ${fmtMD(BDAY[id])}<br>${esc(ABIL_DETAIL[id]())}</div>`).join('')}</div></div>`;
-  const syms = [['@', 'you', 'p'], ['>', 'stairs down', 'st'], [')', 'weapon', 'ie'], ['[', 'armor', 'ie'], ['!', 'healing potion', 'ip'], ['?', 'scroll', 'is'], ['$', 'gold', 'ig'], ['=', 'chest (or mimic)', 'chest'], ['&', 'merchant', 'shopk'], ['^', 'trap you spotted', 'trap'], ['×', 'your snare', 'snare'], ['▒', 'cracked wall', 'crack'], ['~', 'water', 'wat0'], ['%', 'bones', 'bone'], [',', 'corpse', 'corpse'], ['ψ', 'torch', 'tc0'], ['¤', 'rune (rare)', 'rune'], ['"', 'web (slows you)', 'web'], ['≈', 'danger: move!', 'dg']];
+  const syms = [['@', 'you', 'p'], ['>', 'stairs down', 'st'], [')', 'weapon', 'ie'], ['[', 'armor', 'ie'], ['!', 'healing potion', 'ip'], ['!', 'Strength potion', 'ipm'], ['!', 'Haste potion', 'iph'], ['!', 'Antidote', 'ipc'], ['?', 'scroll', 'is'], ['$', 'gold', 'ig'], ['=', 'chest (or mimic)', 'chest'], ['&', 'merchant', 'shopk'], ['^', 'trap you spotted', 'trap'], ['×', 'your snare', 'snare'], ['▒', 'cracked wall', 'crack'], ['~', 'water', 'wat0'], ['%', 'bones', 'bone'], [',', 'corpse', 'corpse'], ['ψ', 'torch', 'tc0'], ['¤', 'rune (rare)', 'rune'], ['"', 'web (slows you)', 'web'], ['≈', 'danger: move!', 'dg']];
   const sym = `<div class="chal-grp"><h3 class="sub">SYMBOLS</h3><div class="gsym">${syms.map(([g, t, cl]) => { const sp = sprId(g === '@' ? (S && SPRITES['player:' + S.cls] != null ? 'player:' + S.cls : 'player') : null, g); return `<span>${sp ? `<b class="gspr" style="--top:var(--sp-${sp})" aria-label="${esc(g)}"></b>` : `<b class="${cl}">${esc(g)}</b>`}${esc(t)}</span>`; }).join('')}</div><p class="gtxt" style="font-size:.72rem;color:var(--dim)">Rare gear glows violet. Your allies show in green. Frozen monsters turn ice blue.</p></div>`;
-  const stat = `<div class="chal-grp"><h3 class="sub">STATUS EFFECTS</h3><p class="gtxt"><b>Poison</b>: lose 1 HP a turn. A potion cures it.<br><b>Burning</b>: lose 2 HP a turn. Step in water or drink a potion.<br><b>Slowed</b>: monsters sometimes get two moves in a row. Frost doesn't make it last longer, and once it wears off it can't slow you again for 3 turns.<br><b>Frozen</b> (Scroll of Frost): monsters skip their turns. Bosses thaw twice as fast.<br>Monsters can be <b>poisoned</b> (green) and <b>set alight</b> (orange) too, and they take damage every turn. Fire scrolls and Firebolt leave them burning. Monsters also set off traps.</p></div>`;
+  const stat = `<div class="chal-grp"><h3 class="sub">STATUS EFFECTS</h3><p class="gtxt"><b>Poison</b>: lose 1 HP a turn. A potion cures it.<br><b>Burning</b>: lose 2 HP a turn. Step in water or drink a potion.<br><b>Slowed</b>: monsters sometimes get two moves in a row. Frost doesn't make it last longer, and once it wears off it can't slow you again for 3 turns.<br><b>Frozen</b> (Scroll of Frost): monsters skip their turns. Bosses thaw twice as fast.<br>Monsters can be <b>poisoned</b> (green) and <b>set alight</b> (orange) too, and they take damage every turn. Fire scrolls and Firebolt leave them burning. Monsters also set off traps.<br><b>Rarer potions</b> (drink them from your pack; <b>P</b> only drinks healing): <b>Strength</b> doubles your damage for 10 turns, <b>Haste</b> gives you two moves for every monster move for 8 of their turns, and an <b>Antidote</b> cures poison, burning and slowness and keeps them off for 30 turns.</p></div>`;
   const relicTxt = S && S.relic ? `<div class="chal-grp"><h3 class="sub">YOUR RELIC</h3><p class="gtxt"><b>♦ ${esc(RELICS[S.relic].name)}</b>: ${esc(RELICS[S.relic].desc)}.</p></div>` : '';
   const best = `<div class="chal-grp"><h3 class="sub">BESTIARY</h3><div class="gbest">${BESTIARY.map(n => PROF.seen[n] || PROF.kills[n]
     ? `<div><b class="m">${esc(BEST_CH[n])}</b><span><b style="color:var(--hot)">${esc(n.charAt(0).toUpperCase() + n.slice(1))}</b> · ${esc(MON_NOTES[n])}</span><span class="kc">${PROF.kills[n] || 0} slain</span></div>`
@@ -1779,6 +1781,7 @@ const BOONS = {
   skin:     { name: 'Iron Skin', desc: t => `+${1 + Math.ceil(t / 2)} defense`, take: t => bump('def', 1 + Math.ceil(t / 2)) },
   regen:    { name: 'Regeneration', desc: t => `Heal ${Math.ceil(t / 2)} HP every 3 turns`, take: t => bump('regen', Math.ceil(t / 2)) },
   thirst:   { name: 'Bloodthirst', desc: t => `Heal ${t} HP for every kill`, take: t => bump('vamp', t) },
+  scav:     { name: 'Scavenger', desc: () => 'Gear you find or buy is +1 better and more often has a bonus', take: () => bump('scav', 1) },
   reckless: { name: 'Reckless', desc: () => '+40% attack, but you take 20% more damage', take: () => bump('reckless', 1) },
 };
 function offerBoons(skip) {
@@ -1824,18 +1827,23 @@ function gear(kind, i, mod) {
   const tbl = kind === 'weapon' ? WEAPONS : ARMORS;
   i = clamp(i, 0, tbl.length - 1);
   if (mod === undefined && S && S.asc >= 5 && RNG() < .2) mod = 'cursed';
-  if (mod === undefined) mod = RNG() < .18 ? pick(kind === 'weapon' ? ['keen', 'vampiric'] : ['vigor', 'thorns']) : null;
-  const plus = gearPlus();
+  if (mod === undefined) mod = RNG() < .18 + .15 * B('scav') ? pick(kind === 'weapon' ? ['keen', 'vampiric'] : ['vigor', 'thorns']) : null;
+  const plus = gearPlus() + B('scav'); // Scavenger: +1 per pick
   return { type: 'gear', kind, name: tbl[i][0], val: tbl[i][1] + plus, ...(plus ? { plus } : {}), mod, ch: kind === 'weapon' ? ')' : '[' };
 }
 const rollGear = () => gear(RNG() < .5 ? 'weapon' : 'armor', Math.floor(eff() / 2) + rnd(-1, 1));
-const potion = () => ({ type: 'potion', ch: '!' });
+const potion = kind => kind ? { type: 'potion', kind, ch: '!' } : { type: 'potion', ch: '!' }; // no kind = healing (and every potion in saves from before v81)
+// The rarer potions: [name, what it does, colour class]. Turns are yours; Haste's 16 of yours are 8 of the monsters'.
+const POTIONS = { str: ['Strength potion', 'Double damage for 10 turns', 'ipm'], haste: ['Haste potion', 'Two moves for every monster move, for 8 of their turns', 'iph'], cure: ['Antidote', 'Cures poison, burning and slowness, and keeps them off for 30 turns', 'ipc'] };
+const POT_ORDER = ['str', 'haste', 'cure'];
+const isHeal = it => it.type === 'potion' && !it.kind;
+const oddPotion = (f = RNG) => potion(POT_ORDER[Math.floor(f() * POT_ORDER.length)]); // f: RNG for map generation, Math.random for kills
 const scroll = kind => ({ type: 'scroll', kind: kind || pick(['fire', 'fire', 'frost', 'teleport', 'mapping']), ch: '?' });
 const stackable = it => it.type === 'potion' || it.type === 'scroll';
-const sameStack = (a, b) => a.type === b.type && (a.type !== 'scroll' || a.kind === b.kind);
+const sameStack = (a, b) => a.type === b.type && ((a.type !== 'scroll' && a.type !== 'potion') || a.kind === b.kind);
 const canAdd = it => (stackable(it) && S.pack.some(p => sameStack(p, it))) || S.pack.length < packMax();
 const SCROLL_ORDER = ['fire', 'frost', 'teleport', 'mapping'];
-const sortKey = it => it.type === 'potion' ? 0 : it.type === 'scroll' ? 1 + SCROLL_ORDER.indexOf(it.kind) * .1 : it.kind === 'weapon' ? 2 : 3;
+const sortKey = it => it.type === 'potion' ? (POT_ORDER.indexOf(it.kind) + 1) * .1 : it.type === 'scroll' ? 1 + SCROLL_ORDER.indexOf(it.kind) * .1 : it.kind === 'weapon' ? 2 : 3;
 function sortPack() { S.pack.sort((a, b) => sortKey(a) - sortKey(b) || gearScore(b) - gearScore(a)); }
 function addToPack(it) {
   if (stackable(it)) {
@@ -1860,7 +1868,7 @@ const healAmt = () => { const b = 8 + Math.round(stats().max * .35); return S &&
 const gearScore = it => it ? it.val + (it.mod && it.mod !== 'cursed' ? 1.5 : 0) : 0;
 function itemName(it) {
   if (it.type === 'gear') return `${it.mod ? MODNAME[it.mod] + ' ' : ''}${it.name} +${it.val}`;
-  if (it.type === 'potion') return 'Healing potion';
+  if (it.type === 'potion') return it.kind ? POTIONS[it.kind][0] : 'Healing potion';
   if (it.type === 'gold') return it.n + ' gold';
   if (it.type === 'chest') return 'chest';
   if (it.type === 'rune') return 'rune';
@@ -1868,6 +1876,7 @@ function itemName(it) {
 }
 function itemDesc(it) {
   if (it.type === 'gear') return `+${it.val} ${it.kind === 'weapon' ? 'attack' : 'defense'}${it.mod ? ' · ' + modDesc(it) : ''}`;
+  if (it.type === 'potion' && it.kind) return POTIONS[it.kind][1];
   if (it.type === 'potion') return isVamp() ? `+${VAMP.pot} max HP for good (${S.blood || 0}/${VAMP.potCap})` : `Restores ${healAmt()} HP`;
   return { fire: 'Burns every enemy in sight', frost: 'Freezes every enemy in sight for 4 turns', teleport: 'Moves you somewhere else on this floor', mapping: 'Reveals the whole floor' }[it.kind];
 }
@@ -1876,7 +1885,7 @@ function itemCls(it) {
   if (it.type === 'chest') return 'chest';
   if (it.type === 'rune') return 'rune';
   if (it.mod === 'cursed') return 'icur';
-  if (it.type === 'potion') return 'ip';
+  if (it.type === 'potion') return it.kind ? POTIONS[it.kind][2] : 'ip';
   if (it.type === 'scroll') return 'is';
   return it.mod ? 'ir' : 'ie';
 }
@@ -2085,7 +2094,7 @@ async function arenaStrike(b) {
   if (fire && S.hp > 0) applyStatus('burn', 3);
 }
 const arenaFoes = () => S.mons.filter(m => m.minion).length;
-const brittle = m => ({ ...m, hp: Math.ceil(m.maxhp / 2), maxhp: Math.ceil(m.maxhp / 2), atk: m.atk.map(v => Math.max(1, Math.round(v * .6))), bonus: Math.round(m.bonus * .5), xp: 1, awake: true, minion: true });
+const brittle = m => ({ ...m, hp: Math.ceil(m.maxhp / 2), maxhp: Math.ceil(m.maxhp / 2), atk: m.atk.map(v => Math.max(1, Math.round(v * .6))), bonus: Math.round(m.bonus * .5), xp: 0, awake: true, minion: true }); // minions give no XP or loot, so they can't be farmed
 const ARENA_AI = {
   // Slow and heavy. Stomp (everything within 2 tiles) up close, boulders at range; both give 2 turns to get clear.
   async cyclops(b, d) {
@@ -2315,6 +2324,7 @@ function stock(rooms, scale) {
   const drop = it => { const p = spot(); if (p) S.items.push({ x: p[0], y: p[1], it }); };
   for (let i = rnd(3, 5); i > 0; i--) drop({ type: 'gold', ch: '$', n: Math.max(1, Math.round(rnd(3, 8) * e * S.D.gold)) });
   for (let i = rnd(S.D.floorPots[0], S.D.floorPots[1]); i > 0; i--) drop(potion());
+  if (RNG() < .35) drop(oddPotion());
   if (RNG() < .55) drop(scroll());
   drop(rollGear()); if (RNG() < .4) drop(rollGear());
   return drop;
@@ -2499,6 +2509,7 @@ function placeShop(rooms) {
     { it: potion(), price: 14 + 4 * e },
     { it: potion(), price: 14 + 4 * e },
     { it: scroll(), price: 18 + 5 * e },
+    { it: oddPotion(), price: 20 + 5 * e },
     { it: g1, price: gearPrice(g1) },
     { it: g2, price: gearPrice(g2) },
     { svc: 'sharpen', ch: '/', name: 'Whetstone', desc: '+1 attack, permanently', price: 35 + 12 * e },
@@ -2913,6 +2924,8 @@ function springTrap(t) {
 }
 
 function applyStatus(kind, turns) {
+  if (S.cure > 0) { if (!S.cureMsg) { say('The antidote keeps it off.', 'good'); S.cureMsg = true; } return; } // poison, burn and slow are the only statuses
+  if (kind === 'slow' && S.haste > 0) return;
   if (kind === 'burn' && S.relic === 'ward') { if (!S.wardFire) { say('The Ashen Ward drinks the flames.', 'good'); S.wardFire = true; } return; }
   if (kind === 'poison' && S.cls === 'paladin') { if (!S.wardMsg) { say('Your faith wards off the poison.', 'good'); S.wardMsg = true; } return; }
   if (kind === 'burn' && S.map[S.py][S.px] === '~') { say('Flames lick at you, but the water snuffs them out.', 'good'); return; }
@@ -2953,6 +2966,8 @@ async function endTurn() {
   else if (B('regen') && S.turn % 3 === 0 && S.hp > 0 && S.hp < stats().max) S.hp = Math.min(stats().max, S.hp + B('regen'));
   if (S.invuln > 0) { S.invuln--; if (!S.invuln) say('The divine shield fades.'); }
   if (S.frenzy > 0) { S.frenzy--; if (!S.frenzy) say('The frenzy fades.'); }
+  if (S.str > 0) { S.str--; if (!S.str) say('Your strength fades.'); }
+  if (S.cure > 0) { S.cure--; if (!S.cure) { S.cureMsg = false; say('The antidote wears off.'); } }
   const st = S.status;
   if (st.poison > 0) { st.poison--; if (hurtSelf(1, 'the poison')) return; if (!st.poison) say('The poison wears off.', 'good'); }
   if (st.burn > 0) {
@@ -2967,7 +2982,9 @@ async function endTurn() {
     if (dd > 2) continue;
     if (Math.random() < (S.cls === 'rogue' || S.cls === 'ranger' ? .5 : .15)) { t.seen = true; say('You spot a trap.', 'hl'); }
   }
-  await monstersTurn();
+  let quick = false; // Haste: the monsters miss every other one of your turns
+  if (S.haste > 0) { quick = S.haste % 2 === 0; S.haste--; if (!S.haste) say('You slow back down.'); }
+  if (!quick) await monstersTurn();
   if (st.thaw > 0) st.thaw--;
   if (st.slow > 0 && !S.dead && !S.won) {
     st.slow--;
@@ -2981,6 +2998,7 @@ function attack(m) {
   const st = stats();
   let dmg = rnd(2, 4) + st.atk, crit = false;
   if (S.cls === 'berserker') dmg = Math.round(dmg * (1 + .5 * (1 - Math.max(0, S.hp) / st.max)));
+  if (S.str > 0) dmg *= 2;
   if (S.invis) { dmg *= 3; S.invis = 0; crit = true; say(`You strike the ${m.name} from the shadows!`, 'hl'); }
   else if (Math.random() < st.crit) { dmg *= 2; crit = true; }
   hurtMon(m, dmg, crit);
@@ -3014,9 +3032,10 @@ function killMon(m) {
   if (B('vamp') && !m.ally && isVamp()) feedWard(B('vamp'));
   else if (B('vamp') && !m.ally && S.hp > 0 && S.hp < stats().max) S.hp = Math.min(stats().max, S.hp + B('vamp'));
   gainXp(m.xp);
+  if (m.minion) return; // a boss's summons drop nothing (the boss makes them forever)
   const r = Math.random();
   const pc = .16 * DEEP_POTS ** deep();
-  const drop = r < .12 ? rollGear() : r < .12 + pc ? potion() : r < .2 + pc ? scroll() : null;
+  const drop = r < .12 ? rollGear() : r < .12 + pc ? (Math.random() < .2 ? oddPotion(Math.random) : potion()) : r < .2 + pc ? scroll() : null; // 1 potion in 5 is a rarer one
   if (drop && !itemAt(m.x, m.y)) S.items.push({ x: m.x, y: m.y, it: drop });
 }
 
@@ -3080,7 +3099,7 @@ async function useItem(i) {
   const it = S && S.pack[i];
   if (!it || busy || S.dead || S.won) return;
   if (it.type === 'potion' && S.frenzy > 0) { say('You\'re in a frenzy. No time to drink!', 'bad'); SND.play('deny'); closePack(); update(); return; }
-  if (it.type === 'potion' && (isVamp() ? (S.blood || 0) >= VAMP.potCap : S.hp >= stats().max) && !S.status.poison && !S.status.burn) { say(isVamp() ? 'Your blood can take no more.' : 'You are already at full health.'); SND.play('deny'); closePack(); update(); return; }
+  if (isHeal(it) && (isVamp() ? (S.blood || 0) >= VAMP.potCap : S.hp >= stats().max) && !S.status.poison && !S.status.burn) { say(isVamp() ? 'Your blood can take no more.' : 'You are already at full health.'); SND.play('deny'); closePack(); update(); return; }
   const foeInSight = () => S.mons.some(m => !m.ally && S.vis[m.y] && S.vis[m.y][m.x]);
   const keepOpen = it.type === 'gear' && !foeInSight(); // between fights, swapping gear is free and keeps the pack open
   if (!keepOpen) closePack();
@@ -3093,6 +3112,9 @@ async function useItem(i) {
       say(`You equip the ${itemName(it)}.`, 'good');
       SND.play('equip');
       if (keepOpen) { saveGame(); return; } // no enemy in sight: no turn used
+    } else if (it.type === 'potion' && it.kind) {
+      SND.play('potion'); PROF.potions++; S.potionsDrunk = (S.potionsDrunk || 0) + 1;
+      drinkOdd(it.kind);
     } else if (it.type === 'potion') {
       SND.play('potion'); PROF.potions++; S.potionsDrunk = (S.potionsDrunk || 0) + 1;
       if (isVamp()) {
@@ -3152,10 +3174,16 @@ function dropItem(i) {
   renderPack(); update();
 }
 
+function drinkOdd(k) {
+  for (const [dx, dy] of DIRS8) setFx(S.px + dx, S.py + dy, '+', 'puff', 260);
+  if (k === 'str') { S.str = 10; say('Strength floods your arms. Double damage for 10 turns!', 'hl'); }
+  else if (k === 'haste') { S.haste = 16; S.status.slow = 0; say('The world slows around you. Two moves for every one of theirs!', 'hl'); }
+  else { const st = S.status; st.poison = 0; st.burn = 0; st.slow = 0; S.cure = 30; say('A clean, bitter taste. Poison, fire and frost can\'t touch you for 30 turns.', 'good'); }
+}
 function quaff() {
   if (!canAct()) return;
-  const i = S.pack.findIndex(it => it.type === 'potion');
-  if (i < 0) { say('You have no potions.', 'bad'); update(); return; }
+  const i = S.pack.findIndex(isHeal); // P only drinks healing; the rarer potions are drunk from the pack
+  if (i < 0) { say('You have no healing potions.', 'bad'); update(); return; }
   if (isVamp() ? (S.blood || 0) >= VAMP.potCap && !S.status.poison && !S.status.burn : S.hp >= stats().max && !S.status.poison && !S.status.burn) { say(isVamp() ? 'Your blood can take no more.' : 'You are already at full health.'); update(); return; }
   useItem(i);
 }
@@ -3282,7 +3310,7 @@ async function ability() {
         }
       }
     } else if (S.cls === 'alch') {
-      const pi = S.pack.findIndex(i => i.type === 'potion');
+      const pi = S.pack.findIndex(isHeal);
       const seen = S.mons.filter(m => !m.ally && S.vis[m.y][m.x] && clear(S.px, S.py, m.x, m.y))
         .sort((a, b) => Math.hypot(a.x - S.px, a.y - S.py) - Math.hypot(b.x - S.px, b.y - S.py));
       if (pi < 0) say('You need a potion to brew a bomb.', 'bad');
@@ -3853,13 +3881,13 @@ function update() {
   $('zone').textContent = '· ' + THEMES[S.theme].name;
   for (const m of S.mons) if (!m.ally && S.vis && S.vis[m.y] && S.vis[m.y][m.x]) PROF.seen[m.name.replace('bribed ', '')] = 1;
   checkProgress(); saveProf();
-  $('chips').innerHTML = (S.shield > 0 ? `<span class="chip shield">SHIELD ${S.shield}</span>` : '') + (S.invuln > 0 ? `<span class="chip shield">DIVINE ${S.invuln}</span>` : '') + (S.aiming ? '<span class="chip aim">AIMING</span>' : '') + (S.relic ? `<span class="chip aim" title="${esc(RELICS[S.relic].desc)}">♦ ${esc(RELICS[S.relic].name)}</span>` : '') + (S.frenzy > 0 ? `<span class="chip frenzy">FRENZY ${S.frenzy}</span>` : '') + ['poison', 'burn', 'slow'].filter(k => S.status[k] > 0).map(k => `<span class="chip ${k}">${{ poison: 'POISON', burn: 'BURNING', slow: 'SLOWED' }[k]} ${S.status[k]}</span>`).join('');
+  $('chips').innerHTML = (S.shield > 0 ? `<span class="chip shield">SHIELD ${S.shield}</span>` : '') + (S.invuln > 0 ? `<span class="chip shield">DIVINE ${S.invuln}</span>` : '') + (S.aiming ? '<span class="chip aim">AIMING</span>' : '') + (S.relic ? `<span class="chip aim" title="${esc(RELICS[S.relic].desc)}">♦ ${esc(RELICS[S.relic].name)}</span>` : '') + (S.frenzy > 0 ? `<span class="chip frenzy">FRENZY ${S.frenzy}</span>` : '') + (S.str > 0 ? `<span class="chip str">STRENGTH ${S.str}</span>` : '') + (S.haste > 0 ? `<span class="chip haste">HASTE ${Math.ceil(S.haste / 2)}</span>` : '') + (S.cure > 0 ? `<span class="chip cure">ANTIDOTE ${S.cure}</span>` : '') + ['poison', 'burn', 'slow'].filter(k => S.status[k] > 0).map(k => `<span class="chip ${k}">${{ poison: 'POISON', burn: 'BURNING', slow: 'SLOWED' }[k]} ${S.status[k]}</span>`).join('');
   $('abilname').textContent = abilName();
   $('abilcd').textContent = S.aiming ? 'pick a direction' : S.cd ? `${S.cd} turn${S.cd > 1 ? 's' : ''}` : S.invis ? `hidden ${S.invis}` : 'ready';
   $('abil').classList.toggle('cooling', S.cd > 0);
   const cdMax = S.alt ? ALT[S.cls].cd : S.C.cd;
   $('cdfill').style.width = ((cdMax - Math.min(S.cd, cdMax)) / cdMax * 100) + '%';
-  const pots = S.pack.filter(i => i.type === 'potion').reduce((a, i) => a + (i.n || 1), 0);
+  const pots = S.pack.filter(isHeal).reduce((a, i) => a + (i.n || 1), 0);
   $('quaffn').textContent = `${pots} left`;
   $('packn').textContent = `${S.pack.length}/${packMax()}`;
   $('log').innerHTML = S.log.map(l => `<div class="${l.cls}">${esc(l.t)}</div>`).join('');

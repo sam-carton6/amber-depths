@@ -17,6 +17,10 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - Checked: each potion's effect (Strength 2x hits, Haste 4 monster moves in 8 turns, Antidote cures and blocks), stacking,
   save/reload, shop and floor drops, Scavenger (+2 plus and 45% bonus rate at 2 picks); 5 bot games clean.
 
+### 2026-11-09 — v81: boss minions give no XP or loot (staging)
+- Found by the deep bot (a run went from level 17 to 41 farming the Lich on floor 10). `brittle()` gives `xp: 0`
+  and `killMon` returns before the drop roll for `m.minion`, so farming yields no potions or gear either.
+
 ### 2026-11-09 — v80 live
 - Merged `staging` → `main` at `adb9bc6`: easter eggs and class birthdays (v71), step over seen traps (v72), Brood
   Mother/spider wake-up fix (v73), merchant temper/reinforce/bigger pack (v78), sprites hidden on live (v80).

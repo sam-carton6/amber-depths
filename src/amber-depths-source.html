@@ -2055,7 +2055,7 @@ async function arenaStrike(b) {
   if (fire && S.hp > 0) applyStatus('burn', 3);
 }
 const arenaFoes = () => S.mons.filter(m => m.minion).length;
-const brittle = m => ({ ...m, hp: Math.ceil(m.maxhp / 2), maxhp: Math.ceil(m.maxhp / 2), atk: m.atk.map(v => Math.max(1, Math.round(v * .6))), bonus: Math.round(m.bonus * .5), xp: 1, awake: true, minion: true });
+const brittle = m => ({ ...m, hp: Math.ceil(m.maxhp / 2), maxhp: Math.ceil(m.maxhp / 2), atk: m.atk.map(v => Math.max(1, Math.round(v * .6))), bonus: Math.round(m.bonus * .5), xp: 0, awake: true, minion: true }); // minions give no XP or loot, so they can't be farmed
 const ARENA_AI = {
   // Slow and heavy. Stomp (everything within 2 tiles) up close, boulders at range; both give 2 turns to get clear.
   async cyclops(b, d) {
@@ -2993,6 +2993,7 @@ function killMon(m) {
   if (B('vamp') && !m.ally && isVamp()) feedWard(B('vamp'));
   else if (B('vamp') && !m.ally && S.hp > 0 && S.hp < stats().max) S.hp = Math.min(stats().max, S.hp + B('vamp'));
   gainXp(m.xp);
+  if (m.minion) return; // a boss's summons drop nothing (the boss makes them forever)
   const r = Math.random();
   const pc = .16 * DEEP_POTS ** deep();
   const drop = r < .12 ? rollGear() : r < .12 + pc ? (Math.random() < .2 ? oddPotion(Math.random) : potion()) : r < .2 + pc ? scroll() : null; // 1 potion in 5 is a rarer one
