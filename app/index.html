@@ -486,7 +486,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
     <button class="mini" id="backbtn">← Back <span class="k">Esc</span></button><span class="sp"></span><button class="mini" id="chalbtn">Challenges <span class="k">C</span></button><button class="mini" id="histbtn">Run history <span class="k">H</span></button><button class="mini" id="lbbtn" hidden>Leaderboards <span class="k">L</span></button><button class="mini" id="tmus"></button><button class="mini" id="tsnd"></button>
   </div>
   <div class="logo-wrap">
-    <span class="ver" id="ver" aria-label="Version">v86</span>
+    <span class="ver" id="ver" aria-label="Version">v87</span>
     <pre id="logo" aria-label="Amber Depths"></pre>
     <p class="tag"><span class="torch" id="t1">ψ</span> descend · loot · slay the wyrm <span class="torch" id="t2">ψ</span></p>
     <p class="tag" id="holiday" hidden></p>
@@ -667,7 +667,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
   <li>Find the <b>&gt;</b> on each floor to go deeper. Merchants <b>&amp;</b> sell gear, potions and upgrades, and buy your spares. They also temper your weapon, reinforce your armor and sell a bigger pack as often as you can pay; the price goes up each time. Hidden traps <b>^</b> lurk (Rogues spot them far more often). Once you've seen a trap, or it has caught you, you step over it safely. Cracked walls <b>▒</b> hide secret rooms, and chests <b>=</b> hold loot, though some bite back.</li>
   <li>Partway down, a <b>Stone Golem</b> guards the stairs (floors 5, 15, 25… in Endless). When it raises its fists, step out of the glowing ring. In Standard and Endless, beating it lets you pick one of 3 upgrades for the rest of the run.</li>
   <li>On the last floor the <b>Amber Wyrm</b> breathes fire in a line: when the floor glows <b>≈</b>, step out of it.</li>
-  <li>In <b>Endless</b>, every 10th floor is a boss floor (Cyclops, Drake, Lich, Brood Mother or Shadow, each before any repeats), and every 50th brings back the Wyrm. Bosses give better loot and <b>2</b> upgrade picks (the Wyrm: <b>3</b> and a relic). Past floor 12, monsters get tougher every floor.</li>
+  <li>In <b>Endless</b>, every 10th floor is a boss floor (Cyclops, Drake, Lich, Brood Mother or Shadow, each before any repeats), and every 50th brings back the Wyrm. Once you step into its arena, the doorway seals until the boss falls. Bosses give better loot and <b>2</b> upgrade picks (the Wyrm: <b>3</b> and a relic). Past floor 12, monsters get tougher every floor.</li>
   <li><b>Relics</b> join your collection forever; pick one on the run setup page to start with it. <b>Challenges</b> (<b>C</b>) unlock classes, screen colors and Nightmare. The <b>Daily Run</b> gives everyone the same dungeon for the day, one try each; your current run waits until it's over.</li>
   <li>Your run saves after every turn. <b>Save &amp; sync</b> on the main menu keeps it across devices or as a backup. <b>Esc</b> returns to the menu, <b>G</b> opens this guide, <b>B</b> toggles music and <b>M</b> mutes all sound.</li>
 </template>
@@ -2075,7 +2075,7 @@ function placeArenaBoss(x, y) {
 const cheb = (a, x, y) => Math.max(Math.abs(a.x - x), Math.abs(a.y - y));
 const manh = (a, x, y) => Math.abs(a.x - x) + Math.abs(a.y - y);
 function stepAway(m) {
-  const opts = DIRS4.map(([dx, dy]) => [m.x + dx, m.y + dy]).filter(([x, y]) => free(x, y) && !S.danger.has(key(x, y)))
+  const opts = DIRS4.map(([dx, dy]) => [m.x + dx, m.y + dy]).filter(([x, y]) => free(x, y) && !S.danger.has(key(x, y)) && (!m.arena || !S.arena || inArena(x, y)))
     .sort((p, q) => (Math.abs(q[0] - S.px) + Math.abs(q[1] - S.py)) - (Math.abs(p[0] - S.px) + Math.abs(p[1] - S.py)));
   if (opts.length && manh({ x: opts[0][0], y: opts[0][1] }, S.px, S.py) > manh(m, S.px, S.py)) { m.x = opts[0][0]; m.y = opts[0][1]; monStep(m); return true; }
   return false;
@@ -2222,7 +2222,23 @@ Object.assign(ARENA_AI, {
     if (b.timer % 2 === 0) stepToward(b, d);
   },
 });
+// Once you're inside and the boss is awake, runes seal the arena's doorways (so it can't lead you out into the
+// corridors, and you can't step out); they open again when it falls (arenaDown). S.arena.sealed keeps the tiles.
+const inArena = (x, y, ar = S.arena) => !!ar && x >= ar.x0 && x <= ar.x1 && y >= ar.y0 && y <= ar.y1;
+function sealArena(b) {
+  const ar = S.arena; if (!ar || !inArena(S.px, S.py)) return;
+  const fresh = [];
+  for (let y = ar.y0 - 1; y <= ar.y1 + 1; y++) for (let x = ar.x0 - 1; x <= ar.x1 + 1; x++) {
+    if (inArena(x, y) || !inb(x, y) || S.map[y][x] === '#' || monAt(x, y)) continue; // a monster in a doorway: next turn
+    S.map[y][x] = '#'; fresh.push(key(x, y));
+    for (let i = 0; i < 3; i++) setFx(x, y, pick(['≡', '#', '▒']), 'slam', 300);
+  }
+  if (!fresh.length) return;
+  if (!ar.sealed) { say(`Runes flare across the doorway behind you. The ${b.name} won't let you leave.`, 'bad'); SND.play('rumble'); }
+  ar.sealed = [...(ar.sealed || []), ...fresh];
+}
 async function arenaTurn(b, d) {
+  if (b.awake) sealArena(b);
   if (!b.awake) {
     if (S.vis[b.y][b.x] && !S.invis) {
       b.awake = true;
@@ -2237,6 +2253,10 @@ async function arenaTurn(b, d) {
 }
 function arenaDown(m) {
   S.stairsLocked = false; S.danger = new Set();
+  if (S.arena && S.arena.sealed) { // open the doorways again, so you can go back
+    for (const k of S.arena.sealed) { const [x, y] = k.split(',').map(Number); S.map[y][x] = '.'; setFx(x, y, '·', 'puff', 400); }
+    S.arena.sealed = null; say('The runes on the doorway fade. The way back is open.', 'good');
+  }
   for (const o of S.mons.filter(o => o.minion)) setFx(o.x, o.y, '%', 'crack', 400);
   S.mons = S.mons.filter(o => !o.minion); S.traps = S.traps.filter(t => !t.web);
   const big = m.kind === 'wyrm';

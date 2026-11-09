@@ -127,5 +127,7 @@ have, remove deploy.yml (and optionally make the repo private).
 - A boss's summoned minions (Lich skeletons, Brood Mother spiderlings) no longer give XP or drop loot, so they can't
   be farmed, and they're weaker on deep floors (only half the deep-floor HP growth: the Lich's skeletons were ~650 HP
   walls on floor 60).
+- Boss arenas seal behind you once the boss sees you, and open again when it falls (the Lich could back away out of
+  its arena and stay out of reach forever). The Guide says so.
 - The merchant's list is shorter: potions and scrolls are small tiles two to a row (two of the same potion share one
   tile, ×2), and temper, reinforce and the bigger pack sit side by side.

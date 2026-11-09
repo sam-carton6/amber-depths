@@ -17,6 +17,12 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - Checked: each potion's effect (Strength 2x hits, Haste 4 monster moves in 8 turns, Antidote cures and blocks), stacking,
   save/reload, shop and floor drops, Scavenger (+2 plus and 45% bonus rate at 2 picks); 5 bot games clean.
 
+### 2026-11-09 — boss arenas seal during the fight (staging)
+- `sealArena()` (called from `arenaTurn` while the boss is awake and you're inside) walls up every doorway on the arena's
+  edge, skipping a tile a monster stands on until it moves; `arenaDown()` opens them again. Bosses that back away
+  (`stepAway`) stay inside the arena. The deep bot found the Lich escaping into corridors (5 stuck games). Checked: seals,
+  survives save/load, reopens when the boss dies. Guide's boss-floor line updated.
+
 ### 2026-11-09 — weaker boss minions, condensed merchant list (staging)
 - Minions get half the deep-floor HP growth (`minionHp` in `brittle()`): the deep bot found the Lich unbeatable on
   floor 60 (skeletons ~650 HP, two more raised every few turns). Sam chose this over capping the waves.
