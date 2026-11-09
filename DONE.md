@@ -17,6 +17,13 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - Checked: each potion's effect (Strength 2x hits, Haste 4 monster moves in 8 turns, Antidote cures and blocks), stacking,
   save/reload, shop and floor drops, Scavenger (+2 plus and 45% bonus rate at 2 picks); 5 bot games clean.
 
+### 2026-11-09 — weaker boss minions, condensed merchant list (staging)
+- Minions get half the deep-floor HP growth (`minionHp` in `brittle()`): the deep bot found the Lich unbeatable on
+  floor 60 (skeletons ~650 HP, two more raised every few turns). Sam chose this over capping the waves.
+- Merchant list (`renderShop`): potions/scrolls as half-width tiles with the price first on line 2, identical ones
+  merged (×2, each tap buys one; `shopKeys` maps number keys to stock), temper/reinforce/pack as third-width tiles.
+  Checked at 375 px wide: no overflow, prices visible, buying one of a ×2 leaves ×1.
+
 ### 2026-11-09 — v81: boss minions give no XP or loot (staging)
 - Found by the deep bot (a run went from level 17 to 41 farming the Lich on floor 10). `brittle()` gives `xp: 0`
   and `killMon` returns before the drop roll for `m.minion`, so farming yields no potions or gear either.

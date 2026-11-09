@@ -411,6 +411,15 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 #plist .tile .use { padding: 6px 8px; gap: 1px 8px; }
 #plist .tile .nm, #plist .tile .ds { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #plist .tile .drop { width: 30px; font-size: .9rem; }
+/* Merchant: potions and scrolls two to a row (like the pack), temper/reinforce/bigger pack three to a row. */
+#slist { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+#slist li { grid-column: 1 / -1; }
+#slist li.tile { grid-column: span 3; min-width: 0; }
+#slist li.third { grid-column: span 2; min-width: 0; }
+#slist .tile .use, #slist .third .use { padding: 6px 8px; gap: 1px 8px; }
+#slist .tile .nm, #slist .tile .ds, #slist .third .nm, #slist .third .ds { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#slist .third .use { display: block; } #slist .third .num { display: none; }
+#slist .third .nm, #slist .third .ds { display: block; } #slist .tile .price, #slist .third .price { margin-left: 0; }
 .plist .use .up { color: var(--heal); }
 .plist .use .down { color: var(--red); }
 .toss { width: 100%; padding: 8px 10px; font-size: .75rem; color: var(--dim); border-style: dashed; }
@@ -477,7 +486,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
     <button class="mini" id="backbtn">← Back <span class="k">Esc</span></button><span class="sp"></span><button class="mini" id="chalbtn">Challenges <span class="k">C</span></button><button class="mini" id="histbtn">Run history <span class="k">H</span></button><button class="mini" id="lbbtn" hidden>Leaderboards <span class="k">L</span></button><button class="mini" id="tmus"></button><button class="mini" id="tsnd"></button>
   </div>
   <div class="logo-wrap">
-    <span class="ver" id="ver" aria-label="Version">v82</span>
+    <span class="ver" id="ver" aria-label="Version">v86</span>
     <pre id="logo" aria-label="Amber Depths"></pre>
     <p class="tag"><span class="torch" id="t1">ψ</span> descend · loot · slay the wyrm <span class="torch" id="t2">ψ</span></p>
     <p class="tag" id="holiday" hidden></p>
@@ -2094,7 +2103,9 @@ async function arenaStrike(b) {
   if (fire && S.hp > 0) applyStatus('burn', 3);
 }
 const arenaFoes = () => S.mons.filter(m => m.minion).length;
-const brittle = m => ({ ...m, hp: Math.ceil(m.maxhp / 2), maxhp: Math.ceil(m.maxhp / 2), atk: m.atk.map(v => Math.max(1, Math.round(v * .6))), bonus: Math.round(m.bonus * .5), xp: 0, awake: true, minion: true }); // minions give no XP or loot, so they can't be farmed
+// Minions get only half the deep-floor HP growth (full growth made the Lich's skeletons ~650 HP walls on floor 60).
+const minionHp = m => Math.max(1, Math.ceil(m.maxhp / 2 / DEEP_HP ** (deep() / 2)));
+const brittle = m => ({ ...m, hp: minionHp(m), maxhp: minionHp(m), atk: m.atk.map(v => Math.max(1, Math.round(v * .6))), bonus: Math.round(m.bonus * .5), xp: 0, awake: true, minion: true }); // minions give no XP or loot, so they can't be farmed
 const ARENA_AI = {
   // Slow and heavy. Stomp (everything within 2 tiles) up close, boulders at range; both give 2 turns to get clear.
   async cyclops(b, d) {
@@ -2517,9 +2528,9 @@ function placeShop(rooms) {
   ] };
   if (S.relic === 'coin') { const k = RNG() < .5 ? 'weapon' : 'armor', g3 = gear(k, tier + 2, pick(k === 'weapon' ? ['keen', 'vampiric'] : ['vigor', 'thorns'])); S.shop.stock.splice(5, 0, { it: g3, price: gearPrice(g3) }); }
   S.shop.stock.push( // gold sinks: never sell out, and cost more each time you buy (S.smith / S.packX count it for the run)
-    { svc: 'temper', dyn: 1, ch: ')', name: 'Temper your weapon', desc: '+1 attack for the rest of the run. Each temper or reinforce costs double.' },
-    { svc: 'reinforce', dyn: 1, ch: '[', name: 'Reinforce your armor', desc: '+1 defence for the rest of the run. Each temper or reinforce costs double.' },
-    { svc: 'packx', dyn: 1, ch: '(', name: 'A bigger pack', desc: `+${PACKX_STEP} pack slots for the rest of the run (up to +${PACKX_MAX}).` });
+    { svc: 'temper', dyn: 1, ch: ')', name: 'Temper your weapon', short: 'Temper', tag: '+1 atk', desc: '+1 attack for the rest of the run. Each temper or reinforce costs double.' },
+    { svc: 'reinforce', dyn: 1, ch: '[', name: 'Reinforce your armor', short: 'Reinforce', tag: '+1 def', desc: '+1 defence for the rest of the run. Each temper or reinforce costs double.' },
+    { svc: 'packx', dyn: 1, ch: '(', name: 'A bigger pack', short: `Pack +${PACKX_STEP}`, tag: 'more slots', desc: `+${PACKX_STEP} pack slots for the rest of the run (up to +${PACKX_MAX}).` });
   if (S.cls === 'gambler') for (const st of S.shop.stock) if (!st.dyn) st.price = Math.round(st.price * .75);
   if (isBday()) { for (const st of S.shop.stock) if (!st.dyn) st.price = Math.round(st.price * .9); S.shop.greet = '"Happy birthday! Ten percent off, today only."'; }
 }
@@ -2537,17 +2548,33 @@ function cmpTag(it) {
 }
 function openShop() { renderShop(); $('shop').hidden = false; SND.play('shop'); setTimeout(() => $('shopclose').focus(), 30); }
 function closeShop() { $('shop').hidden = true; focusGame(); update(); }
+let shopKeys = []; // the stock index behind each row's number key (rows can hold two potions)
 function renderShop() {
   const sh = S.shop;
   $('shopgold').textContent = `${S.gold} gold`;
   $('shopgreet').textContent = sh.greet;
   for (const s of sh.stock) if (s.dyn) s.price = dynPrice(s);
   sh.stock = sh.stock.filter(s => !(s.svc === 'packx' && (S.packX || 0) >= PACKX_MAX));
-  $('slist').innerHTML = sh.stock.length ? sh.stock.map((s, i) => {
-    const nm = s.it ? itemName(s.it) : s.name, ds = s.it ? itemDesc(s.it) : s.desc;
+  // Potions and scrolls are small tiles, two to a row, and identical ones share a tile (×2: each tap buys one).
+  // Temper, reinforce and the bigger pack sit side by side, three to a row. shopKeys maps number keys to the stock.
+  const rows = [];
+  sh.stock.forEach((s, i) => {
+    const twin = s.it && stackable(s.it) && rows.find(r => r.s.it && sameStack(r.s.it, s.it) && r.s.price === s.price);
+    if (twin) twin.n++; else rows.push({ s, i, n: 1 });
+  });
+  shopKeys = rows.map(r => r.i);
+  $('slist').innerHTML = rows.length ? rows.map(({ s, i, n }, k) => {
+    const nm = s.it ? itemName(s.it) : s.short || s.name, ds = s.it ? itemDesc(s.it) : s.desc;
     const cls = s.it ? itemCls(s.it) : s.svc === 'heal' ? 'ip' : 'ig';
-    const off = S.gold < s.price;
-    return `<li><button class="use" data-buy="${i}"${off ? ' disabled' : ''}><span class="num k">${(i + 1) % 10}</span><span class="gl ${cls}">${esc(s.it ? s.it.ch : s.ch)}</span><span class="nm">${esc(nm)}<span class="price">${s.price}g</span>${s.it ? cmpTag(s.it) : ''}</span><span class="ds">${esc(ds)}</span></button></li>`;
+    const off = S.gold < s.price, size = s.it && stackable(s.it) ? 'tile' : s.dyn ? 'third' : '';
+    const cnt = n > 1 ? ` <span class="cnt">×${n}</span>` : '';
+    const price = `<span class="price">${s.price}g</span>`;
+    // Small tiles put the price first on the second line, so it shows even when the text is cut short.
+    const glyph = size === 'third' ? '' : `<span class="gl ${cls}">${esc(s.it ? s.it.ch : s.ch)}</span>`;
+    const body = size === 'third' ? `<span class="nm">${esc(nm)}</span><span class="ds">${price} · ${esc(s.tag)}</span>`
+      : size === 'tile' ? `<span class="nm">${esc(nm)}${cnt}</span><span class="ds">${price} · ${esc(ds)}</span>`
+      : `<span class="nm">${esc(nm)}${price}${s.it ? cmpTag(s.it) : ''}</span><span class="ds">${esc(ds)}</span>`;
+    return `<li class="${size}"><button class="use" data-buy="${i}"${off ? ' disabled' : ''} title="${esc(s.name || nm)}: ${esc(ds)}"><span class="num k">${k < 10 ? (k + 1) % 10 : ''}</span>${glyph}${body}</button></li>`;
   }).join('') : '<li class="empty">Sold out. "Come back when I restock. I won\'t."</li>';
   const sellable = S.pack.map((it, i) => [it, i]).filter(([it]) => it.type === 'gear');
   $('sellwrap').hidden = !sellable.length;
@@ -4010,7 +4037,7 @@ addEventListener('keydown', e => {
   if (!$('shop').hidden) {
     const dm = /^Digit(\d)$/.exec(e.code);
     if (e.key === 'Escape') { e.preventDefault(); closeShop(); }
-    else if (dm) { e.preventDefault(); buy(dm[1] === '0' ? 9 : +dm[1] - 1); }
+    else if (dm) { e.preventDefault(); const r = shopKeys[dm[1] === '0' ? 9 : +dm[1] - 1]; if (r !== undefined) buy(r); }
     return;
   }
   if (!$('pack').hidden) {

@@ -125,4 +125,7 @@ have, remove deploy.yml (and optionally make the repo private).
   (cures poison, burning and slowness, and keeps them off for a while). Drink them from your pack; P still drinks healing.
 - New upgrade: Scavenger. Gear you find or buy is +1 better and more often has a bonus.
 - A boss's summoned minions (Lich skeletons, Brood Mother spiderlings) no longer give XP or drop loot, so they can't
-  be farmed.
+  be farmed, and they're weaker on deep floors (only half the deep-floor HP growth: the Lich's skeletons were ~650 HP
+  walls on floor 60).
+- The merchant's list is shorter: potions and scrolls are small tiles two to a row (two of the same potion share one
+  tile, ×2), and temper, reinforce and the bigger pack sit side by side.
