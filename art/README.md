@@ -1,20 +1,23 @@
 # Art (sprites)
 
 This folder is in the repo (so it's backed up on GitHub) but **outside `app/`, so nothing here goes live by
-itself**. The build reads one file from it, `sprites.png`, and puts it inside the game.
+itself**. The build reads only `art/sprites/*.png` and puts those pictures inside the game.
 
-- **`sprites.png`**: the sprite sheet the game uses. A PNG with a see-through background, made of
-  **16x16-pixel squares**. Any number of columns and rows works; the game counts the squares left to right, top to
-  bottom, starting at 0. Empty squares are fine.
-- **Working files** (PicSquare/Pixquare projects, sketches, older versions): keep them here too, under any name.
-  The build ignores everything except `sprites.png`.
-- The repo is public for now (see CLAUDE.md), so anything in here can be seen by anyone.
+- **`sprites/`**: one PNG per sprite, **16x16 pixels**, see-through background, named after what it is
+  (`rat.png`, `wall.png`; only a-z, 0-9 and `-` in the name). No sprite sheet needed.
+- **Working files** (PicSquare projects, sketches, older versions): keep them anywhere in `art/` *outside*
+  `sprites/`. The build ignores them.
+- The repo is public for now (see CLAUDE.md), so anyone can see what's in here.
 
-Which square is what lives in `SPRITES` in `src/amber-depths-source.html` (keyed by monster name, `player`,
-`player:<class>`, or a map letter such as `>`). Anything not listed there keeps its letter.
+Which picture goes with what lives in `SPRITES` in `src/amber-depths-source.html`: a monster's name, `player`
+(or `player:<class>`), or a map letter. Anything not listed keeps its letter.
 
-## Squares so far
+## Sprites so far
 
-| # | What |
-|---|------|
-| (none yet) | |
+| File | Drawn for | Added |
+|------|-----------|-------|
+| floor.png | `.` floor (tiled, so neighbours join up) | 8 Nov 2026 |
+| wall.png | `#` wall (tiled) | 8 Nov 2026 |
+| knight.png | the player, every class | 8 Nov 2026 |
+| rat.png | rat | 8 Nov 2026 |
+| potion.png | `!` potion | 8 Nov 2026 |

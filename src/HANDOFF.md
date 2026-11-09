@@ -76,10 +76,12 @@ The phone picks up a new version the next time the app opens online, because the
   - Challenges are in the `CH` table. Count-based ones have a `prog()`; event-based ones call `complete(id)`.
   - `creditWyrm()` handles everything that happens when the Wyrm dies.
   - `finishRun()` writes run history and the daily result.
-- **Sprites:** `SPRITES` (which square of the sheet to draw for a monster name, `player`, `player:<class>` or a map
-  letter), `sprIdx()` / `sprSpan()`, used at the end of `render()`. A sprite cell keeps its letter (invisible) so the
-  grid and tap-to-move stay lined up; CSS `#map .spr::before` draws the picture, size `--spr` (.6em = one cell wide).
-  The sheet is `art/sprites.png`; `src/build.mjs` inlines it as a data: URL. No sheet (or the artifact) = all letters.
+- **Sprites:** 16x16 PNGs in `art/sprites/` (one file each, e.g. `rat.png`). `src/build.mjs` puts each into a CSS
+  variable `--sp-<name>` on `:root` and lists the names in `SPRITE_IDS`. `SPRITES` says what each is drawn for
+  (monster name, `player`, `player:<class>`, or map letter); `sprId()` looks it up, `cellSpan()` in `render()` draws
+  a cell: floor/wall as the cell's tiled background (class `tt`, dimmed by `--shade`), anything on top by `::before`
+  (class `st`, size `--spr`). The letter stays in the cell, invisible, so the grid and tap-to-move stay lined up.
+  The Guide's symbol list shows the sprite where one exists. No `art/sprites/` (or the artifact) = all letters.
 - **Sound and music:** the `SND` module, which generates WebAudio in code. It has three music tracks (title, dungeon, boss) and named sound effects.
 - **Other localStorage keys:**
   - `amber-depths-save` (current run)

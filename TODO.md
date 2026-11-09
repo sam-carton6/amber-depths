@@ -8,7 +8,7 @@ under *Ideas (later)*; ask before building one.
 **Live on `main`:** v70 (merged 7 Nov 2026, commit `9e0926e`; v69 brought: new title screen and Settings sheet, How to play in
 the Guide, the daily sets your run aside, cloud sync, 8 leaderboards (cleared 7 Nov); v70 fixed an item under a merchant). Details in DONE.md.
 **On `staging`, not live yet:** v71: 11 easter eggs + class birthdays; v72: step over seen traps; v73: Brood Mother/spider wake-up bug fixed (test with `?eggs` and `?date=MM-DD` on test.amberdepths.com).
-**Art (8 Nov 2026):** sprite plumbing in (v74, no visible change); waiting for Sam's first 5 sprites. See *Art* below.
+**Art (8 Nov 2026):** Sam's first 5 sprites are in (v76, staging), waiting for him to try them on the iPhone. See *Art* below.
 **Next up:** Sam's Hard Endless run with Backup codes before boss floors.
 **Bot chat (7 Nov 2026):** the deep bot ([bot/](bot/README.md)) v1 is in: Warrior Hard Endless averages floor 53
 (old bot: 16-23). Next: try a "dive" mode for deep floors, then other classes. Results: [bot/RESULTS.md](bot/RESULTS.md).
@@ -46,13 +46,12 @@ have, remove deploy.yml (and optionally make the repo private).
 
 ## Art (sprites)
 
-- **Plumbing ready (8 Nov 2026, v74):** Sam is drawing the first 5 sprites (16x16, PicSquare). When they arrive: save
-  the PNG as `art/sprites.png`, fill the table in [art/README.md](art/README.md), add each square to `SPRITES` in the
-  source, rebuild, look at it on test.amberdepths.com on the iPhone. `?ascii` turns sprites off there for comparing.
-- **Size question to settle with the real art:** a map cell is only ~7 pt wide on an iPhone (40 columns across the
-  screen; ~22 real screen pixels on a 3x iPhone), so a 16x16 sprite is drawn about the width of one letter. Bigger
-  means either letting it overlap its neighbours (`--spr` in CSS) or square cells with a map that scrolls with the
-  player (a real layout change; parked until Sam has seen the first sprites in the game).
+- **First 5 sprites in (8 Nov 2026, v76, staging):** floor, wall, knight (player, all classes), rat, potion. Sam to
+  look at them on test.amberdepths.com on the iPhone (`?ascii` turns them off there to compare). PicSquare can't
+  export a sheet, so each sprite is its own file in `art/sprites/` (see [art/README.md](art/README.md)).
+- **Size question to settle with Sam:** a map cell is ~7 pt wide on an iPhone (40 columns across), so the knight and
+  rat are drawn 1.15em (a row's height) and overlap the cells beside them; floor and wall tiles fill their cell and
+  join up. Bigger would need square cells and a map that scrolls with the player (a real layout change; parked).
 - Later, if wanted: a Settings choice Letters / Pictures; tinting sprites for hurt, poisoned, burning (only hit-flash,
   frozen and invisible have a look so far); walls and floors as tiles.
 

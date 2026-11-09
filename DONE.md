@@ -7,7 +7,12 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
-### 2026-11-08 — v74: sprite sheet support, no art yet (staging)
+### 2026-11-08 — v76: Sam's first 5 sprites in the game (staging)
+- floor, wall, knight (player), rat, potion; one PNG per sprite in `art/sprites/` (PicSquare can't export a sheet), so
+  the v74 sheet code was swapped for per-file sprites. Floor/wall tile across cells; the player draws above monsters;
+  the Guide's symbol list shows sprites. Bot: 2 games, no issues; checked at phone width.
+
+: sprite sheet support, no art yet (staging)
 - `art/sprites.png` (16x16 squares, any number of rows/columns) is inlined by the build; `SPRITES` in the source maps
   monster names / `player` / map letters to squares. Tested with a throwaway sheet: draws on the map, bot played 400
   turns with no issues; with no sheet the game is unchanged. Details in src/HANDOFF.md (Sprites) and TODO.md (Art).

@@ -16,19 +16,27 @@ const swap = (from, to) => {
   src = src.replace(from, () => to);
 };
 
-// Sprites: art/sprites.png (16x16 squares) goes into the page as a data: URL, so there's no extra file to cache.
-// No sheet yet, or a sheet that isn't whole 16x16 squares, means the game stays all letters (with a warning).
-const sheetPath = path.join(root, 'art/sprites.png');
-if (fs.existsSync(sheetPath)) {
-  const png = fs.readFileSync(sheetPath);
-  const isPng = png.length > 24 && png.toString('latin1', 1, 4) === 'PNG';
-  const w = isPng ? png.readUInt32BE(16) : 0, h = isPng ? png.readUInt32BE(20) : 0;
-  if (!isPng) console.warn('art/sprites.png is not a PNG file; sprites left out');
-  else if (w % 16 || h % 16) console.warn(`art/sprites.png is ${w}x${h}, not whole 16x16 squares; sprites left out`);
-  else {
-    swap("const SPRITE_SHEET = '', SPRITE_COLS = 0, SPRITE_ROWS = 0;",
-      `const SPRITE_SHEET = 'data:image/png;base64,${png.toString('base64')}', SPRITE_COLS = ${w / 16}, SPRITE_ROWS = ${h / 16};`);
-    console.log(`sprites: ${w / 16} x ${h / 16} squares`);
+// Sprites: every PNG in art/sprites/ (16x16, named e.g. rat.png) goes into the page as a data: URL in a CSS variable
+// (--sp-rat), so there are no extra files to cache, and its name goes into SPRITE_IDS. No folder = all letters.
+const sprDir = path.join(root, 'art/sprites');
+let sprCss = '';
+if (fs.existsSync(sprDir)) {
+  const ids = [];
+  for (const f of fs.readdirSync(sprDir).filter(f => f.toLowerCase().endsWith('.png')).sort()) {
+    const id = f.slice(0, -4).toLowerCase();
+    const png = fs.readFileSync(path.join(sprDir, f));
+    if (!/^[a-z0-9-]+$/.test(id)) { console.warn(`art/sprites/${f}: use only a-z, 0-9 and - in the name; left out`); continue; }
+    if (png.toString('latin1', 1, 4) !== 'PNG') { console.warn(`art/sprites/${f} is not a PNG; left out`); continue; }
+    const w = png.readUInt32BE(16), h = png.readUInt32BE(20);
+    if (w !== 16 || h !== 16) console.warn(`art/sprites/${f} is ${w}x${h}, not 16x16 (it will be squeezed into 16x16)`);
+    sprCss += `--sp-${id}: url("data:image/png;base64,${png.toString('base64')}"); `;
+    ids.push(id);
+  }
+  if (ids.length) {
+    swap('const SPRITE_IDS = [];', `const SPRITE_IDS = ${JSON.stringify(ids)};`);
+    sprCss = `:root { ${sprCss}}
+`;
+    console.log(`sprites: ${ids.join(', ')}`);
   }
 }
 
@@ -44,7 +52,7 @@ swap('<style>\n', `<style>
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 html { overscroll-behavior: none; -webkit-text-size-adjust: 100%; background: #120d08; }
 body { margin: 0; font-size: 14px; }
-
+${sprCss}
 `);
 
 // The test copy runs with reduced motion, like the original Playwright sweep (reducedMotion: 'reduce').

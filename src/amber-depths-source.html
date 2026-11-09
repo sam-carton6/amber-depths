@@ -173,6 +173,7 @@ html[data-crt="white"] { filter: grayscale(1) brightness(1.12); }
 .gcls .c b { color: var(--hot); }
 .gsym { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px 12px; font-size: .74rem; }
 .gsym span b { display: inline-block; width: 1.6em; font-weight: 700; }
+.gsym span b.gspr { width: 1.2em; height: 1.2em; margin-right: .4em; vertical-align: middle; background: var(--top) center / contain no-repeat; image-rendering: pixelated; }
 .gbest { display: grid; gap: 4px; font-size: .74rem; }
 .gbest div { display: grid; grid-template-columns: 1.6em minmax(0, 1fr) auto; gap: 8px; align-items: baseline; }
 .gbest .unk { color: var(--line); }
@@ -224,14 +225,20 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 .mapwrap { position: relative; width: max-content; max-width: 100%; margin: 0 auto; }
 #map { margin: 0; font-family: var(--font-mono); line-height: 1.15; white-space: pre; text-shadow: 0 0 5px rgba(255,181,71,.25); color: var(--amber); }
 /* No ligatures on the map: JetBrains Mono joins pairs like #[ #! #? into one glyph, painting the wall in the item's color. */
-/* A sprite keeps its letter (invisible) so the grid and tap-to-move stay lined up; the picture is drawn on top.
-   --spr is how big the picture is: .6em fills a map cell's width exactly (cells are .6em wide, 1.15em tall). */
-#map { --spr: .6em; }
-#map .spr { position: relative; color: transparent !important; text-shadow: none !important; }
-#map .spr::before { content: ''; position: absolute; left: 50%; top: 50%; width: var(--spr); height: var(--spr); transform: translate(-50%, -50%); background: var(--sheet) var(--bx) var(--by) / var(--sheet-size) no-repeat; image-rendering: pixelated; pointer-events: none; }
-#map .spr.hitf::before, #map .spr.phurt::before { filter: brightness(2.5) saturate(0); }
-#map .spr.frozen::before { filter: hue-rotate(180deg) saturate(.6) brightness(1.2); }
-#map .spr.pinv::before { opacity: .4; }
+/* Sprites. A sprite cell keeps its letter (made invisible) so the grid and tap-to-move stay lined up.
+   Floor and wall tiles (.tt) are the cell's background, tiled across the map so neighbours join up (16 px = 1.15em,
+   one row's height; --x shifts each cell along). --shade darkens them with distance like the letters.
+   Things standing on a tile (.st) are drawn on top by ::before, --spr big (1.15em overlaps the cells beside it a bit). */
+#map { --spr: 1.15em; }
+#map .tt, #map .st { display: inline-block; width: .6em; height: 1.15em; vertical-align: top; position: relative; }
+#map .tt { background-image: linear-gradient(rgba(14,9,4,var(--shade,0)), rgba(14,9,4,var(--shade,0))), var(--tile); background-size: auto, 1.15em 1.15em; background-position: 0 0, calc(var(--x) * -.6em) 0; image-rendering: pixelated; }
+#map .tt.tl1 { --shade: .2; } #map .tt.tl2 { --shade: .4; } #map .tt.tl3 { --shade: .55; } #map .tt.tlf { --shade: .78; }
+#map .hide { color: transparent !important; text-shadow: none !important; }
+#map .st::before { content: ''; position: absolute; z-index: 1; left: 50%; top: 50%; width: var(--spr); height: var(--spr); transform: translate(-50%, -50%); background: var(--top) center / contain no-repeat; image-rendering: pixelated; pointer-events: none; }
+#map .st[class^="p"]::before { z-index: 2; } /* the player (classes p, phurt, pinv...) stays on top */
+#map .st.hitf::before, #map .st.phurt::before { filter: brightness(2.5) saturate(0); }
+#map .st.frozen::before { filter: hue-rotate(180deg) saturate(.6) brightness(1.2); }
+#map .st.pinv::before { opacity: .4; }
 #map, .ascii, pre { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
 #fx { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
 .focus-hint { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 4; font-size: .72rem; background: rgba(11,8,5,.9); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; color: var(--amber); white-space: nowrap; }
@@ -836,19 +843,24 @@ const MASTERY = [['short', 'Bronze', 'Slay the Wyrm on Short'], ['standard', 'Si
 const isLocked = id => !!CLASSES[id].unlock && !PROF.done[CLASSES[id].unlock];
 const CRTS = { amber: { name: 'Amber', unlock: null }, heart: { name: 'Heartlight', unlock: 's_heart' }, green: { name: 'Green', unlock: 'c_green' }, ice: { name: 'Ice', unlock: 'c_ice' }, red: { name: 'Red alarm', unlock: 'c_red' }, white: { name: 'White', unlock: 'c_white' } };
 const crtOk = id => CRTS[id] && (!CRTS[id].unlock || PROF.done[CRTS[id].unlock]);
-// Sprites (pictures on the map). The sheet is art/sprites.png: 16x16 squares, read left to right, top to bottom
-// (square 0 is top-left). src/build.mjs fills in SPRITE_SHEET (a data: URL) and its size; here, and in the claude.ai
-// artifact, it stays empty and the map is all letters. SPRITES says which square to draw for what: a monster's name
-// (e.g. 'Goblin'), 'player' (or 'player:warrior' for one class), or the map letter (e.g. '>' for stairs, '#' walls).
+// Sprites (pictures on the map). Each is a 16x16 PNG in art/sprites/ (e.g. art/sprites/rat.png); src/build.mjs
+// puts them into the page and lists their names in SPRITE_IDS. Here, and in the claude.ai artifact, the list stays
+// empty and the map is all letters. SPRITES says which picture to draw for what: a monster's name ('rat'), 'player'
+// (or 'player:warrior' for one class), or a map letter ('.' floor, '#' wall, '!' potion, '>' stairs).
 // Anything not listed keeps its letter. Turn them off with ?ascii (localhost and test.* only).
-const SPRITE_SHEET = '', SPRITE_COLS = 0, SPRITE_ROWS = 0;
-const SPRITES = {};
-const SPR_ON = !!SPRITE_SHEET && !(/^(localhost|127\.0\.0\.1|test\.)/.test(location.hostname) && /[?&]ascii/.test(location.search));
-function sprIdx(k, ch) { if (!SPR_ON) return -1; const i = k != null && SPRITES[k] != null ? SPRITES[k] : SPRITES[ch]; return i == null || i >= SPRITE_COLS * SPRITE_ROWS ? -1 : i; }
-function sprSpan(i, cls, ch) {
-  const c = i % SPRITE_COLS, r = (i / SPRITE_COLS) | 0;
-  const bx = SPRITE_COLS > 1 ? c / (SPRITE_COLS - 1) * 100 : 0, by = SPRITE_ROWS > 1 ? r / (SPRITE_ROWS - 1) * 100 : 0;
-  return `<span class="${cls} spr" style="--bx:${bx}%;--by:${by}%">${esc(ch)}</span>`;
+const SPRITE_IDS = [];
+const SPRITES = { '.': 'floor', '#': 'wall', player: 'knight', rat: 'rat', '!': 'potion' };
+const SPR_ON = SPRITE_IDS.length > 0 && !(/^(localhost|127\.0\.0\.1|test\.)/.test(location.hostname) && /[?&]ascii/.test(location.search));
+function sprId(k, ch) { if (!SPR_ON) return null; const id = k != null && SPRITES[k] != null ? SPRITES[k] : SPRITES[ch]; return id != null && SPRITE_IDS.includes(id) ? id : null; }
+// One map cell. tch/tl: the floor or wall letter under it and its light level (0-3, or 'f' remembered).
+function cellSpan(x, cls, ch, sk, tch, tl) {
+  const t = tch != null ? sprId(null, tch) : null, top = ch !== tch ? sprId(sk, ch) : null;
+  if (!t && !top) return `<span class="${cls}">${esc(ch)}</span>`;
+  let c = cls, st = '';
+  if (t) { c += ` tt tl${tl}`; st = `--x:${x};--tile:var(--sp-${t})`; }
+  if (top) { c += ' st'; st += `${st ? ';' : ''}--top:var(--sp-${top})`; }
+  if (top || ch === tch) c += ' hide';
+  return `<span class="${c}" style="${st}">${esc(ch)}</span>`;
 }
 // Text style: swaps the UI font. The map always stays on JetBrains Mono (it needs box-drawing glyphs).
 const FONTS = { pixel: { name: 'Pixel' }, clean: { name: 'Clean' }, readable: { name: 'Readable' } };
@@ -1632,7 +1644,7 @@ function openGuide() {
     ? `<div class="c"><b>@? ${esc(k.name)}</b> · locked<br><span style="color:var(--dim)">Unlock: ${esc(CHI[k.unlock].desc)}.</span></div>`
     : `<div class="c${id === cur ? ' me' : ''}"><b>${esc(k.sig)} ${esc(k.name)}</b> · HP ${k.hp} · ATK +${k.atk} · DEF +${k.def} · CRIT ${Math.round(k.crit * 100)}% · Birthday ${fmtMD(BDAY[id])}<br>${esc(ABIL_DETAIL[id]())}</div>`).join('')}</div></div>`;
   const syms = [['@', 'you', 'p'], ['>', 'stairs down', 'st'], [')', 'weapon', 'ie'], ['[', 'armor', 'ie'], ['!', 'healing potion', 'ip'], ['?', 'scroll', 'is'], ['$', 'gold', 'ig'], ['=', 'chest (or mimic)', 'chest'], ['&', 'merchant', 'shopk'], ['^', 'trap you spotted', 'trap'], ['×', 'your snare', 'snare'], ['▒', 'cracked wall', 'crack'], ['~', 'water', 'wat0'], ['%', 'bones', 'bone'], [',', 'corpse', 'corpse'], ['ψ', 'torch', 'tc0'], ['¤', 'rune (rare)', 'rune'], ['"', 'web (slows you)', 'web'], ['≈', 'danger: move!', 'dg']];
-  const sym = `<div class="chal-grp"><h3 class="sub">SYMBOLS</h3><div class="gsym">${syms.map(([g, t, cl]) => `<span><b class="${cl}">${esc(g)}</b>${esc(t)}</span>`).join('')}</div><p class="gtxt" style="font-size:.72rem;color:var(--dim)">Rare gear glows violet. Your allies show in green. Frozen monsters turn ice blue.</p></div>`;
+  const sym = `<div class="chal-grp"><h3 class="sub">SYMBOLS</h3><div class="gsym">${syms.map(([g, t, cl]) => { const sp = sprId(g === '@' ? (S && SPRITES['player:' + S.cls] != null ? 'player:' + S.cls : 'player') : null, g); return `<span>${sp ? `<b class="gspr" style="--top:var(--sp-${sp})" aria-label="${esc(g)}"></b>` : `<b class="${cl}">${esc(g)}</b>`}${esc(t)}</span>`; }).join('')}</div><p class="gtxt" style="font-size:.72rem;color:var(--dim)">Rare gear glows violet. Your allies show in green. Frozen monsters turn ice blue.</p></div>`;
   const stat = `<div class="chal-grp"><h3 class="sub">STATUS EFFECTS</h3><p class="gtxt"><b>Poison</b>: lose 1 HP a turn. A potion cures it.<br><b>Burning</b>: lose 2 HP a turn. Step in water or drink a potion.<br><b>Slowed</b>: monsters sometimes get two moves in a row. Frost doesn't make it last longer, and once it wears off it can't slow you again for 3 turns.<br><b>Frozen</b> (Scroll of Frost): monsters skip their turns. Bosses thaw twice as fast.<br>Monsters can be <b>poisoned</b> (green) and <b>set alight</b> (orange) too, and they take damage every turn. Fire scrolls and Firebolt leave them burning. Monsters also set off traps.</p></div>`;
   const relicTxt = S && S.relic ? `<div class="chal-grp"><h3 class="sub">YOUR RELIC</h3><p class="gtxt"><b>♦ ${esc(RELICS[S.relic].name)}</b>: ${esc(RELICS[S.relic].desc)}.</p></div>` : '';
   const best = `<div class="chal-grp"><h3 class="sub">BESTIARY</h3><div class="gbest">${BESTIARY.map(n => PROF.seen[n] || PROF.kills[n]
@@ -3744,6 +3756,7 @@ function render() {
       } else if (tile === '~') { ch = ((now / 450 + x * .7 + y) | 0) % 3 ? '~' : '-'; cls = v ? 'wat' + Math.min(2, lv) : 'f'; }
       else if (tile === '%') { ch = '%'; cls = v ? 'bone' : 'bonef'; }
       else { ch = '.'; cls = v ? 'l' + lv : 'f'; }
+      const tch = ch === '.' || ch === '#' ? ch : null, tl = v ? lv : 'f';
       if (S.stairs && x === S.sx && y === S.sy) { ch = '>'; cls = S.stairsLocked ? 'stl' : v ? 'st' : 'stf'; }
       const trap = S.traps.find(t => t.seen && t.x === x && t.y === y);
       if (trap) { ch = trap.web ? '"' : trap.mine ? '×' : '^'; cls = trap.web ? 'web' : trap.mine ? 'snare' : v ? 'trap' : 'f'; }
@@ -3757,14 +3770,12 @@ function render() {
         const m = monAt(x, y); if (m) { ch = m.ch; sk = m.name.replace('bribed ', ''); cls = now - m.flash < 170 ? 'hitf' : m.ally ? 'ally' : m.frozen > 0 ? 'frozen' : m.burn > 0 ? 'mburn' : m.poison > 0 ? 'mpois' : m.heart ? 'heart' : m.boss ? 'boss' : m.elite ? 'elite' : 'm'; }
         if (x === S.px && y === S.py) { ch = '@'; sk = SPRITES['player:' + S.cls] != null ? 'player:' + S.cls : 'player'; cls = now - S.hurtAt < 170 ? 'phurt' : S.invis ? 'pinv' : S.status.burn ? 'pburn' : S.status.poison ? 'ppois' : S.status.slow ? 'pslow' : 'p'; }
       }
-      const si = sprIdx(sk, ch);
-      out += si >= 0 ? sprSpan(si, cls, ch) : `<span class="${cls}">${esc(ch)}</span>`;
+      out += cellSpan(x, cls, ch, sk, tch, tl);
     }
     if (y < H - 1) out += '\n';
   }
   $('map').innerHTML = out;
   $('map').className = 'th-' + S.theme;
-  if (SPR_ON && !$('map').style.getPropertyValue('--sheet')) { $('map').style.setProperty('--sheet', `url("${SPRITE_SHEET}")`); $('map').style.setProperty('--sheet-size', `${SPRITE_COLS * 100}% ${SPRITE_ROWS * 100}%`); }
 }
 
 function update() {
