@@ -135,6 +135,7 @@ have, remove deploy.yml (and optionally make the repo private).
 
 ## What's new at the next merge
 
+- A ♥ Support button on the character select screen too (top row, next to Music and Sound).
 - Three new potions: Strength (double damage for 10 turns), Haste (two moves for every monster move) and Antidote
   (cures poison, burning and slowness, and keeps them off for a while). Drink them from your pack; P still drinks healing.
 - New upgrade: Scavenger. Gear you find or buy is +1 better and more often has a bonus.

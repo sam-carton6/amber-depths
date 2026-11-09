@@ -120,6 +120,7 @@ html[data-holiday="newyear"] #map { filter: hue-rotate(165deg) saturate(.75) bri
 .menu .mbtn { font-family: var(--font-display); font-size: 1.35rem; padding: 7px 14px; text-align: center; text-decoration: none; color: var(--amber); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
 .menu .mbtn:hover, .menu .mbtn:focus-visible { border-color: var(--amber); color: var(--hot); }
 .menu #support { color: var(--hot); border-style: dashed; }
+#tsup { color: var(--hot); border-style: dashed; }
 .bestline { margin: -10px 0 0; text-align: center; font-size: .75rem; color: var(--dim); }
 .howto-list { margin: 0; padding-left: 18px; font-size: .78rem; line-height: 1.6; color: var(--dim); display: grid; gap: 4px; }
 .howto-list b { color: var(--amber); font-weight: 700; }
@@ -444,7 +445,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
 <section class="title" id="title" data-page="menu">
   <!-- The title has two pages: the menu (logo and big buttons) and run setup (daily, class and run choices). -->
   <div class="topbar" id="topbar">
-    <button class="mini" id="backbtn">← Back <span class="k">Esc</span></button><span class="sp"></span><button class="mini" id="chalbtn">Challenges <span class="k">C</span></button><button class="mini" id="histbtn">Run history <span class="k">H</span></button><button class="mini" id="lbbtn" hidden>Leaderboards <span class="k">L</span></button><button class="mini" id="tmus"></button><button class="mini" id="tsnd"></button>
+    <button class="mini" id="backbtn">← Back <span class="k">Esc</span></button><span class="sp"></span><button class="mini" id="chalbtn">Challenges <span class="k">C</span></button><button class="mini" id="histbtn">Run history <span class="k">H</span></button><button class="mini" id="lbbtn" hidden>Leaderboards <span class="k">L</span></button><button class="mini" id="tmus"></button><button class="mini" id="tsnd"></button><button class="mini" id="tsup">♥ Support</button>
   </div>
   <div class="logo-wrap">
     <span class="ver" id="ver" aria-label="Version">dev</span>
@@ -4069,6 +4070,7 @@ bind('shopclose', closeShop); bind('menubtn', () => { if (!busy && !(S && (S.dea
 bind('sndbtn', () => { SND.toggle(); update(); });
 bind('musbtn', () => { SND.toggleMusic(); update(); });
 bind('tmus', () => { SND.toggleMusic(); buildTitle(); });
+bind('tsup', () => window.open($('support').href, '_blank', 'noopener')); // same Ko-fi page as the menu's Support button
 bind('tsnd', () => { SND.toggle(); buildTitle(); });
 $('shop').addEventListener('click', e => { if (e.target === $('shop')) closeShop(); });
 addEventListener('pointerdown', () => SND.unlock(), { passive: true });
