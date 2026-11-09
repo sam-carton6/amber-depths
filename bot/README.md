@@ -18,6 +18,7 @@ Open the Amber Depths folder in VS Code, then **Terminal → Run Task...**:
   them about 25 at a time (20 games take a minute) and opens a results page with charts: floor reached, what killed
   it, the character floor by floor next to your own run, a fair-play "weird things" list, and every game.
 - **Bot: watch a seed**: replays one seed slowly in a visible window (same seed = same game).
+  To step through one floor turn by turn instead: `node bot/run.mjs --watch 5 --from 25 --to 25 --text`.
 - **Bot: open last results**: reopens the latest results page.
 
 Each batch is saved in `bot/runs/<date>-<name>/` (not in git): one file per game, `summary.json`, `report.html`.
