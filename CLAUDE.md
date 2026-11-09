@@ -63,7 +63,9 @@ from the D1 database `DB` (`amber-depths`; the test copy has its own, `amber-dep
   or file and restores it, so a new key is backed up automatically. Don't rename them or change their format without a migration: that
   would wipe friends' unlocks and progress.
 - Generation code uses `RNG()` / `rnd()` / `pick()`, never `Math.random`, so daily dungeons stay the same for everyone.
-- When adding or renaming a file in `app/`, update `ASSETS` in `sw.js`.
+- When adding or renaming a file in `app/`, update `ASSETS` in `sw.js` (not `robots.txt` / `sitemap.xml`: only
+  search engines read them). The search listing's title and description live in the source's `<title>` and
+  `src/build.mjs` (`<meta name="description">`, canonical link).
 - Fonts: UI text uses `--font-ui` (VT323 scaled 137% as "VT323 UI", defined in `src/build.mjs`); the map, logo and
   ASCII art stay on `--font-mono` (JetBrains Mono) because VT323 lacks box-drawing glyphs and would break the grid.
   In the claude.ai artifact, "VT323 UI" doesn't exist, so UI text there falls back to unscaled VT323 (small).
