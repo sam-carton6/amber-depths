@@ -104,7 +104,8 @@ const hideTip = () => { tip.hidden = true; };
 const hover = (node, html) => { node.addEventListener('mousemove', ev => showTip(ev, html)); node.addEventListener('mouseleave', hideTip); };
 // Dark or light text, whichever reads on a cell's fill.
 const inkOn = hex => { const n = parseInt(hex.slice(1), 16), l = (0.299 * (n >> 16) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) / 255; return l > .55 ? '#0b0b0b' : '#ffffff'; };
-const killer = by => (by || '').replace(/^(An? |The )/, '').replace(/('s|’s| hits| slam| breath| bites| bolt).*$/, '').replace(/^.*?(poison|flames).*$/, 'the $1').trim() || '?';
+const killer = by => { // fallback for runs saved before the bot recorded the game's own killer name
+  const m = /^(?:The |An? )?(.+?) \w+s\b.*\byou\b/.exec(by || ''); return (m ? m[1] : by || '?').replace(/('s|’s).*$/, '').replace(/^.*?(poison|flames).*$/, 'the $1').trim(); };
 
 $('sub').textContent = `${D.label} · ${D.diff} ${D.mode}, seeds ${D.seeds} · ${D.stamp.replace(/-(\d\d)-(\d\d)$/, ' $1:$2')}`;
 const rows = [...D.rows].sort((a, b) => b.summary.avg - a.summary.avg);
@@ -139,12 +140,13 @@ const rows = [...D.rows].sort((a, b) => b.summary.avg - a.summary.avg);
 // --- 2. Heatmap: class x killer ---
 {
   const totals = {};
-  const counts = rows.map(r => { const c = {}; for (const g of r.games) if (g.by && !g.stuck) { const k = killer(g.by); c[k] = (c[k] || 0) + 1; totals[k] = (totals[k] || 0) + 1; } return c; });
+  const counts = rows.map(r => { const c = {}; for (const g of r.games) if (g.by && !g.stuck) { const k = g.killer || killer(g.by); c[k] = (c[k] || 0) + 1; totals[k] = (totals[k] || 0) + 1; } return c; });
   const cols = Object.keys(totals).sort((a, b) => totals[b] - totals[a]).slice(0, 10);
   const W = 900, m = { l: 110, r: 8, t: 34, b: 6 }, rowH = 26, cw = (W - m.l - m.r) / Math.max(1, cols.length), H = m.t + rows.length * rowH + m.b;
   const max = Math.max(1, ...counts.flatMap(c => cols.map(k => c[k] || 0)));
   const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'What killed each class' }, $('heat'));
-  cols.forEach((k, j) => el('text', { x: m.l + j * cw + cw / 2, y: m.t - 10, 'text-anchor': 'middle', class: 'row' }, svg).textContent = k);
+  const fit = Math.max(4, Math.floor(cw / 7)); // characters that fit over a column; the full name is in the hover
+  cols.forEach((k, j) => el('text', { x: m.l + j * cw + cw / 2, y: m.t - 10, 'text-anchor': 'middle', class: 'row' }, svg).textContent = k.length > fit ? k.slice(0, fit - 1) + '…' : k);
   rows.forEach((r, i) => {
     const y = m.t + i * rowH;
     el('text', { x: m.l - 10, y: y + rowH / 2 + 4, 'text-anchor': 'end', class: 'row' }, svg).textContent = r.name;

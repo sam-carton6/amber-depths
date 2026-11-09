@@ -49,8 +49,7 @@ window.DeepBotKnobs = {
     const dropped = new Set(); // gear the bot put down on purpose: don't pick it back up
     const bumped = new Set(); // unseen tiles it walked into that turned out to be walls (a player learns that too)
     let guardian = null; // where it last saw the Golem or arena boss that holds the stairs
-    const ignored = new Map(); // enemies it couldn't get any closer to: monster -> turn to try again
-    let chase = null; // { m, steps, since }: the enemy it's walking to, and its best distance so far
+    const chased = new Map(); // monster -> turn it last went after where that monster vanished (once per 30 turns)
     let lastFoe = null; // where it last saw the enemy it was going for (so it doesn't lose interest when it steps out of view)
     let bossBest = Infinity, bossSince = 0, cutThrough = false; // arena fights: switch tactics when one goes nowhere
     const visited = new Set(); // tiles stood on this floor (to go and look around when stuck for ideas)
@@ -386,18 +385,18 @@ window.DeepBotKnobs = {
         const bossInSight = foes.find(m => m.boss && m.awake);
         if (bossInSight) { mv = path((x, y) => x === bossInSight.x && y === bossInSight.y); why = 'go for ' + bossInSight.name; }
         if (!mv && archer) { mv = path((x, y) => x === archer.x && y === archer.y); why = 'charge archer'; }
-        const reachable = foes.filter(m => !(ignored.get(m) > S.turn));
-        if (!mv && reachable.length) {
-          mv = path((x, y) => reachable.some(m => m.x === x && m.y === y)); why = 'go fight';
-          // An enemy it can't get any closer to in 20 turns (behind water, a chest, a crowd): ignore it for 50 turns.
-          const m = mv && reachable.find(m => dist(m.x, m.y, S.px + mv.dx, S.py + mv.dy) < dist(m.x, m.y, S.px, S.py)) || reachable[0];
-          if (!chase || chase.m !== m) chase = { m, steps: mv ? mv.steps : 99, since: S.turn };
-          else if (mv && mv.steps < chase.steps) { chase.steps = mv.steps; chase.since = S.turn; }
-          else if (S.turn - chase.since > 20) { ignored.set(m, S.turn + 50); chase = null; mv = null; log('give up on the ' + m.name + ' for now'); }
+        if (!mv && foes.length) {
+          mv = path((x, y) => foes.some(m => m.x === x && m.y === y)); why = 'go fight';
+          // Remember where it was, to follow it a few steps if it slips out of view; but only once per 30 turns per
+          // monster, so an enemy that keeps popping in and out of view (across water, say) can't lead it in circles.
+          const m = foes[0];
+          if (mv && !(chased.get(m) > S.turn - 30)) lastFoe = { x: m.x, y: m.y, turn: S.turn, m };
         }
-        if (mv && why === 'go fight') { const m = chase ? chase.m : foes[0]; lastFoe = { x: m.x, y: m.y, turn: S.turn }; }
         // ...and if it just stepped out of view, keep going to where you last saw it for a few turns (no flip-flopping).
-        if (!mv && !foes.length && lastFoe && S.turn - lastFoe.turn <= 8 && !(S.px === lastFoe.x && S.py === lastFoe.y)) { mv = path((x, y) => x === lastFoe.x && y === lastFoe.y); why = 'after the enemy I saw'; }
+        if (!mv && !foes.length && lastFoe && S.turn - lastFoe.turn <= 8 && !(S.px === lastFoe.x && S.py === lastFoe.y)) {
+          mv = path((x, y) => x === lastFoe.x && y === lastFoe.y); why = 'after the enemy I saw';
+          if (lastFoe.m && !chased.has(lastFoe.m)) chased.set(lastFoe.m, S.turn); else if (lastFoe.m) chased.set(lastFoe.m, Math.max(chased.get(lastFoe.m), lastFoe.turn));
+        }
         if (lastFoe && S.px === lastFoe.x && S.py === lastFoe.y) lastFoe = null;
         // RULE 12b: a cracked wall (hidden room) you've seen: break in first. Monsters on the way get fought (rule 7).
         if (!mv) { mv = path((x, y) => S.secret.has(x + ',' + y) && S.seen[y][x]); why = 'break into hidden room'; }
@@ -482,7 +481,10 @@ window.DeepBotKnobs = {
     }
     S = T.S;
     snapshotFloor();
-    const death = S.dead || stuck || stall > 40 ? { by: (S.log.find(l => l.cls === 'bad') || {}).t, map: mapText(S), last: trail.slice(-25) } : null;
+    // The killer's name as the game records it in the run history (e.g. "troll", "the Lich"); by = the last bad message.
+    let killer = null; try { if (S.dead) killer = (JSON.parse(localStorage.getItem('amber-depths-history') || '[]')[0] || {}).by || null; } catch (e) {}
+    if (killer) killer = killer.replace(/^(the|an?) /i, '');
+    const death = S.dead || stuck || stall > 40 ? { killer, by: (S.log.find(l => l.cls === 'bad') || {}).t, map: mapText(S), last: trail.slice(-25) } : null;
     return { seed: o.seed, cls: o.cls, mode: o.mode, diff: o.diff, depth: S.depth, dead: S.dead, won: S.won, turns: S.turn, lv: S.lv, kills: S.kills, peeks, rest: restAll, stalled: stall > 40, stuck, floors, death, ...(o.frames ? { frames } : {}) };
   }
 

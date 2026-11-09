@@ -120,7 +120,7 @@ if (watchSeed) {
 // What the page needs from each game (the full record stays in games/).
 function lean(r) {
   return { seed: r.seed, depth: r.depth, dead: r.dead, turns: r.turns, lv: r.lv, kills: r.kills, rest: r.rest || 0, peeks: r.peeks || 0, stuck: r.stuck, stalled: r.stalled,
-    error: r.error, secs: r.secs, by: r.death && r.death.by, floors: (r.floors || []).map(f => [f.floor, f.turn, f.hp, f.max, f.lv, f.atk, f.def, f.potions, f.gold, f.rest || 0]),
+    error: r.error, secs: r.secs, by: r.death && r.death.by, killer: r.death && r.death.killer, floors: (r.floors || []).map(f => [f.floor, f.turn, f.hp, f.max, f.lv, f.atk, f.def, f.potions, f.gold, f.rest || 0]),
     boons: r.floors && r.floors.length ? r.floors[r.floors.length - 1].boons : '' };
 }
 
@@ -161,7 +161,7 @@ function summarise(rs) {
     });
   }
   const killers = {};
-  for (const r of ok) if (r.death) { const k = (r.death.by || '?').replace(/^(An? |The )/, '').replace(/('s|’s| hits| slam| breath| bites| bolt).*$/, '').replace(/^.*?(poison|flames).*$/, 'the $1').trim(); killers[k] = (killers[k] || 0) + 1; }
+  for (const r of ok) if (r.death && r.dead) { const k = r.death.killer || (r.death.by || '?').replace(/^(An? |The )/, '').replace(/('s|’s| hits| slam| breath| bites| bolt).*$/, '').replace(/^.*?(poison|flames).*$/, 'the $1').trim(); killers[k] = (killers[k] || 0) + 1; }
   return { games: rs.length, errors: rs.length - ok.length, avg: +(depths.reduce((a, b) => a + b, 0) / (depths.length || 1)).toFixed(1), min: depths[0], median: q(depths, .5), max: depths[depths.length - 1],
     turns: Math.round(ok.reduce((a, r) => a + r.turns, 0) / (ok.length || 1)), medFloorTurns: medTurns, killers, floors, flags };
 }

@@ -1,6 +1,7 @@
 // Plays every class (bot/run.mjs once per class) and makes one page comparing them, with charts.
 // From VS Code: Terminal > Run Task > "Bot: all classes". By hand: node bot/all.mjs --seeds 1-20 --label classes
-// Options: --seeds, --diff, --mode, --label (default "classes"), --only "warrior,rogue" (a subset), --no-open.
+// Options: --seeds, --diff, --mode, --label (default "classes"), --only "warrior,rogue" (a subset), --no-open,
+// --compare-only (no games: just rebuild the comparison page from the newest runs with that label).
 // Each class keeps its own folder and report in bot/runs/; the comparison goes in bot/runs/<date>-<label>-compare/.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -16,8 +17,8 @@ const only = opt('only', '') ? String(opt('only')).split(',').map(s => s.trim())
 const seeds = opt('seeds', '1-20'), diff = opt('diff', 'hard'), mode = opt('mode', 'endless');
 const t0 = Date.now();
 
-// 1. Play each class.
-for (const cls of only) {
+// 1. Play each class (--compare-only skips this and rebuilds the page from the newest runs under --label).
+if (!args.includes('--compare-only')) for (const cls of only) {
   console.log(`\n=== ${NAMES[cls] || cls} ===`);
   spawnSync(process.execPath, [path.join(BOT, 'run.mjs'), '--cls', cls, '--seeds', seeds, '--diff', diff, '--mode', mode, '--label', `${label}-${cls}`, '--no-open'], { stdio: 'inherit' });
 }
@@ -29,7 +30,7 @@ for (const cls of only) {
   if (!dir) continue;
   const summary = JSON.parse(fs.readFileSync(path.join(runs, dir, 'summary.json'), 'utf8'));
   const games = fs.readdirSync(path.join(runs, dir, 'games')).map(f => JSON.parse(fs.readFileSync(path.join(runs, dir, 'games', f), 'utf8')))
-    .map(r => ({ seed: r.seed, depth: r.depth, stuck: r.stuck || r.stalled, error: r.error, by: r.death && r.death.by, lv: r.lv,
+    .map(r => ({ seed: r.seed, depth: r.depth, stuck: r.stuck || r.stalled, error: r.error, by: r.death && r.death.by, killer: r.death && r.death.killer, lv: r.lv,
       at30: (r.floors || []).find(f => f.floor === 30) || null }));
   rows.push({ cls, name: NAMES[cls] || cls, dir, summary, games });
 }
