@@ -247,6 +247,14 @@ html[data-crt="heart"] { filter: hue-rotate(255deg) saturate(1.25); }
 .mapwrap { position: relative; width: max-content; max-width: 100%; margin: 0 auto; }
 #map { margin: 0; font-family: var(--font-mono); line-height: 1.15; white-space: pre; text-shadow: 0 0 5px rgba(255,181,71,.25); color: var(--amber); }
 /* No ligatures on the map: JetBrains Mono joins pairs like #[ #! #? into one glyph, painting the wall in the item's color. */
+/* A sprite keeps its letter (invisible) so the grid and tap-to-move stay lined up; the picture is drawn on top.
+   --spr is how big the picture is: .6em fills a map cell's width exactly (cells are .6em wide, 1.15em tall). */
+#map { --spr: .6em; }
+#map .spr { position: relative; color: transparent !important; text-shadow: none !important; }
+#map .spr::before { content: ''; position: absolute; left: 50%; top: 50%; width: var(--spr); height: var(--spr); transform: translate(-50%, -50%); background: var(--sheet) var(--bx) var(--by) / var(--sheet-size) no-repeat; image-rendering: pixelated; pointer-events: none; }
+#map .spr.hitf::before, #map .spr.phurt::before { filter: brightness(2.5) saturate(0); }
+#map .spr.frozen::before { filter: hue-rotate(180deg) saturate(.6) brightness(1.2); }
+#map .spr.pinv::before { opacity: .4; }
 #map, .ascii, pre { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
 #fx { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
 .focus-hint { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 4; font-size: .72rem; background: rgba(11,8,5,.9); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; color: var(--amber); white-space: nowrap; }
@@ -446,7 +454,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
     <button class="mini" id="backbtn">← Back <span class="k">Esc</span></button><span class="sp"></span><button class="mini" id="chalbtn">Challenges <span class="k">C</span></button><button class="mini" id="histbtn">Run history <span class="k">H</span></button><button class="mini" id="lbbtn" hidden>Leaderboards <span class="k">L</span></button><button class="mini" id="tmus"></button><button class="mini" id="tsnd"></button>
   </div>
   <div class="logo-wrap">
-    <span class="ver" id="ver" aria-label="Version">v73</span>
+    <span class="ver" id="ver" aria-label="Version">v74</span>
     <pre id="logo" aria-label="Amber Depths"></pre>
     <p class="tag"><span class="torch" id="t1">ψ</span> descend · loot · slay the wyrm <span class="torch" id="t2">ψ</span></p>
     <p class="tag" id="holiday" hidden></p>
@@ -853,6 +861,20 @@ const MASTERY = [['short', 'Bronze', 'Slay the Wyrm on Short'], ['standard', 'Si
 const isLocked = id => !!CLASSES[id].unlock && !PROF.done[CLASSES[id].unlock];
 const CRTS = { amber: { name: 'Amber', unlock: null }, heart: { name: 'Heartlight', unlock: 's_heart' }, green: { name: 'Green', unlock: 'c_green' }, ice: { name: 'Ice', unlock: 'c_ice' }, red: { name: 'Red alarm', unlock: 'c_red' }, white: { name: 'White', unlock: 'c_white' } };
 const crtOk = id => CRTS[id] && (!CRTS[id].unlock || PROF.done[CRTS[id].unlock]);
+// Sprites (pictures on the map). The sheet is art/sprites.png: 16x16 squares, read left to right, top to bottom
+// (square 0 is top-left). src/build.mjs fills in SPRITE_SHEET (a data: URL) and its size; here, and in the claude.ai
+// artifact, it stays empty and the map is all letters. SPRITES says which square to draw for what: a monster's name
+// (e.g. 'Goblin'), 'player' (or 'player:warrior' for one class), or the map letter (e.g. '>' for stairs, '#' walls).
+// Anything not listed keeps its letter. Turn them off with ?ascii (localhost and test.* only).
+const SPRITE_SHEET = '', SPRITE_COLS = 0, SPRITE_ROWS = 0;
+const SPRITES = {};
+const SPR_ON = !!SPRITE_SHEET && !(/^(localhost|127\.0\.0\.1|test\.)/.test(location.hostname) && /[?&]ascii/.test(location.search));
+function sprIdx(k, ch) { if (!SPR_ON) return -1; const i = k != null && SPRITES[k] != null ? SPRITES[k] : SPRITES[ch]; return i == null || i >= SPRITE_COLS * SPRITE_ROWS ? -1 : i; }
+function sprSpan(i, cls, ch) {
+  const c = i % SPRITE_COLS, r = (i / SPRITE_COLS) | 0;
+  const bx = SPRITE_COLS > 1 ? c / (SPRITE_COLS - 1) * 100 : 0, by = SPRITE_ROWS > 1 ? r / (SPRITE_ROWS - 1) * 100 : 0;
+  return `<span class="${cls} spr" style="--bx:${bx}%;--by:${by}%">${esc(ch)}</span>`;
+}
 // Text style: swaps the UI font. The map always stays on JetBrains Mono (it needs box-drawing glyphs).
 const FONTS = { pixel: { name: 'Pixel' }, clean: { name: 'Clean' }, readable: { name: 'Readable' } };
 // Controls: the d-pad, a bigger d-pad, or tapping the map (top/bottom/left/right moves, the middle waits).
@@ -3738,7 +3760,7 @@ function render() {
       if (!S.seen[y][x]) { out += ' '; continue; }
       const dist = Math.hypot(x - S.px, (y - S.py) * 1.3);
       const lv = dist < 2.5 ? 0 : dist < 4.5 ? 1 : dist < 6.5 ? 2 : 3;
-      let ch, cls;
+      let ch, cls, sk = null;
       const tile = S.map[y][x];
       if (tile === '#') {
         if (S.secret.has(k)) { ch = '▒'; cls = v ? 'crack' : 'f'; }
@@ -3757,15 +3779,17 @@ function render() {
         const it = itemAt(x, y); if (it) { ch = it.it.ch; cls = itemCls(it.it); }
         if (shopAt(x, y)) { ch = '&'; cls = 'shopk'; }
         if (catAt(x, y)) { ch = 'f'; cls = 'cat'; }
-        const m = monAt(x, y); if (m) { ch = m.ch; cls = now - m.flash < 170 ? 'hitf' : m.ally ? 'ally' : m.frozen > 0 ? 'frozen' : m.burn > 0 ? 'mburn' : m.poison > 0 ? 'mpois' : m.heart ? 'heart' : m.boss ? 'boss' : m.elite ? 'elite' : 'm'; }
-        if (x === S.px && y === S.py) { ch = '@'; cls = now - S.hurtAt < 170 ? 'phurt' : S.invis ? 'pinv' : S.status.burn ? 'pburn' : S.status.poison ? 'ppois' : S.status.slow ? 'pslow' : 'p'; }
+        const m = monAt(x, y); if (m) { ch = m.ch; sk = m.name.replace('bribed ', ''); cls = now - m.flash < 170 ? 'hitf' : m.ally ? 'ally' : m.frozen > 0 ? 'frozen' : m.burn > 0 ? 'mburn' : m.poison > 0 ? 'mpois' : m.heart ? 'heart' : m.boss ? 'boss' : m.elite ? 'elite' : 'm'; }
+        if (x === S.px && y === S.py) { ch = '@'; sk = SPRITES['player:' + S.cls] != null ? 'player:' + S.cls : 'player'; cls = now - S.hurtAt < 170 ? 'phurt' : S.invis ? 'pinv' : S.status.burn ? 'pburn' : S.status.poison ? 'ppois' : S.status.slow ? 'pslow' : 'p'; }
       }
-      out += `<span class="${cls}">${esc(ch)}</span>`;
+      const si = sprIdx(sk, ch);
+      out += si >= 0 ? sprSpan(si, cls, ch) : `<span class="${cls}">${esc(ch)}</span>`;
     }
     if (y < H - 1) out += '\n';
   }
   $('map').innerHTML = out;
   $('map').className = 'th-' + S.theme;
+  if (SPR_ON && !$('map').style.getPropertyValue('--sheet')) { $('map').style.setProperty('--sheet', `url("${SPRITE_SHEET}")`); $('map').style.setProperty('--sheet-size', `${SPRITE_COLS * 100}% ${SPRITE_ROWS * 100}%`); }
 }
 
 function update() {

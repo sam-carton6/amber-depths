@@ -76,6 +76,10 @@ The phone picks up a new version the next time the app opens online, because the
   - Challenges are in the `CH` table. Count-based ones have a `prog()`; event-based ones call `complete(id)`.
   - `creditWyrm()` handles everything that happens when the Wyrm dies.
   - `finishRun()` writes run history and the daily result.
+- **Sprites:** `SPRITES` (which square of the sheet to draw for a monster name, `player`, `player:<class>` or a map
+  letter), `sprIdx()` / `sprSpan()`, used at the end of `render()`. A sprite cell keeps its letter (invisible) so the
+  grid and tap-to-move stay lined up; CSS `#map .spr::before` draws the picture, size `--spr` (.6em = one cell wide).
+  The sheet is `art/sprites.png`; `src/build.mjs` inlines it as a data: URL. No sheet (or the artifact) = all letters.
 - **Sound and music:** the `SND` module, which generates WebAudio in code. It has three music tracks (title, dungeon, boss) and named sound effects.
 - **Other localStorage keys:**
   - `amber-depths-save` (current run)

@@ -8,6 +8,7 @@ under *Ideas (later)*; ask before building one.
 **Live on `main`:** v70 (merged 7 Nov 2026, commit `9e0926e`; v69 brought: new title screen and Settings sheet, How to play in
 the Guide, the daily sets your run aside, cloud sync, 8 leaderboards (cleared 7 Nov); v70 fixed an item under a merchant). Details in DONE.md.
 **On `staging`, not live yet:** v71: 11 easter eggs + class birthdays; v72: step over seen traps; v73: Brood Mother/spider wake-up bug fixed (test with `?eggs` and `?date=MM-DD` on test.amberdepths.com).
+**Art (8 Nov 2026):** sprite plumbing in (v74, no visible change); waiting for Sam's first 5 sprites. See *Art* below.
 **Next up:** Sam's Hard Endless run with Backup codes before boss floors.
 **Bot chat (7 Nov 2026):** the deep bot ([bot/](bot/README.md)) v1 is in: Warrior Hard Endless averages floor 53
 (old bot: 16-23). Next: try a "dive" mode for deep floors, then other classes. Results: [bot/RESULTS.md](bot/RESULTS.md).
@@ -42,6 +43,18 @@ have, remove deploy.yml (and optionally make the repo private).
   30-90% HP, never died; it only Bites when the ward is under half. Deep floors (bot, Hard Endless, 7 Nov 2026, 7 games):
   Vampire dies on floors 8-19 (mostly 13-19), Warrior 16-23, Rogue 12-13, Berserker 16-27: in line, no change needed yet. `__T.VAMP` is exposed in
   the test page to try numbers without rebuilding.
+
+## Art (sprites)
+
+- **Plumbing ready (8 Nov 2026, v74):** Sam is drawing the first 5 sprites (16x16, PicSquare). When they arrive: save
+  the PNG as `art/sprites.png`, fill the table in [art/README.md](art/README.md), add each square to `SPRITES` in the
+  source, rebuild, look at it on test.amberdepths.com on the iPhone. `?ascii` turns sprites off there for comparing.
+- **Size question to settle with the real art:** a map cell is only ~7 pt wide on an iPhone (40 columns across the
+  screen; ~22 real screen pixels on a 3x iPhone), so a 16x16 sprite is drawn about the width of one letter. Bigger
+  means either letting it overlap its neighbours (`--spr` in CSS) or square cells with a map that scrolls with the
+  player (a real layout change; parked until Sam has seen the first sprites in the game).
+- Later, if wanted: a Settings choice Letters / Pictures; tinting sprites for hurt, poisoned, burning (only hit-flash,
+  frozen and invisible have a look so far); walls and floors as tiles.
 
 ## Ideas (later)
 

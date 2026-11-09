@@ -7,6 +7,11 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-08 — v74: sprite sheet support, no art yet (staging)
+- `art/sprites.png` (16x16 squares, any number of rows/columns) is inlined by the build; `SPRITES` in the source maps
+  monster names / `player` / map letters to squares. Tested with a throwaway sheet: draws on the map, bot played 400
+  turns with no issues; with no sheet the game is unchanged. Details in src/HANDOFF.md (Sprites) and TODO.md (Art).
+
 ### 2026-11-07 — v73: poisonous monsters no longer poison themselves (staging)
 - Sam: the Brood Mother came for him as soon as floor 30 started. Cause: a monster's poison bite and "this monster is
   poisoned" shared one field (`m.poison`), so cave spiders, ghouls and the Brood Mother spawned poisoned, took a tick on

@@ -16,6 +16,22 @@ const swap = (from, to) => {
   src = src.replace(from, () => to);
 };
 
+// Sprites: art/sprites.png (16x16 squares) goes into the page as a data: URL, so there's no extra file to cache.
+// No sheet yet, or a sheet that isn't whole 16x16 squares, means the game stays all letters (with a warning).
+const sheetPath = path.join(root, 'art/sprites.png');
+if (fs.existsSync(sheetPath)) {
+  const png = fs.readFileSync(sheetPath);
+  const isPng = png.length > 24 && png.toString('latin1', 1, 4) === 'PNG';
+  const w = isPng ? png.readUInt32BE(16) : 0, h = isPng ? png.readUInt32BE(20) : 0;
+  if (!isPng) console.warn('art/sprites.png is not a PNG file; sprites left out');
+  else if (w % 16 || h % 16) console.warn(`art/sprites.png is ${w}x${h}, not whole 16x16 squares; sprites left out`);
+  else {
+    swap("const SPRITE_SHEET = '', SPRITE_COLS = 0, SPRITE_ROWS = 0;",
+      `const SPRITE_SHEET = 'data:image/png;base64,${png.toString('base64')}', SPRITE_COLS = ${w / 16}, SPRITE_ROWS = ${h / 16};`);
+    console.log(`sprites: ${w / 16} x ${h / 16} squares`);
+  }
+}
+
 // The artifact-only head lines go; local fonts and phone-app tweaks go at the top of the stylesheet.
 src = src.split('\n').filter(l => !l.includes('claude:viewport-fit-sides') && !l.includes('fonts.googleapis.com')).join('\n');
 swap('<style>\n', `<style>
@@ -37,7 +53,7 @@ if (test) swap("const reduce = matchMedia('(prefers-reduced-motion: reduce)').ma
 if (test) swap("try { muted = localStorage.getItem('amber-depths-mute') === '1'; } catch (e) {}", 'muted = true;');
 // Torch flicker redraws on resize; take its randomness from the clock so a redraw can't change a seeded run.
 if (test) swap("cls = v ? 'tc' + rnd(0, 2) : 'tcd';", "cls = v ? 'tc' + ((performance.now() / 110 | 0) % 3) : 'tcd';");
-if (test) swap("showScreen('title');\n(document.fonts", `window.__T = { get S() { return S; }, sel, PROF, RELICS, CLASSES, W, H, PACK,
+if (test) swap("showScreen('title');\n(document.fonts", `window.__T = { get S() { return S; }, sel, PROF, RELICS, CLASSES, W, H, PACK, SPRITES, render,
   newGame, monAt, shopAt, stats, buy, closeShop, descend, saveGame, loadGame, act, useItem, gearScore, ability, free, clear, itemAt, VAMP,
   sellJunk, takeBoon, BOONS, healAmt, canAdd, EGGS, catAt, BDAY };
 showScreen('title');
