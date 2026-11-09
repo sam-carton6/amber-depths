@@ -3,6 +3,10 @@
 Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs doing. Newest first.
 
 <!-- Format:
+### 2026-11-09 — v80 live
+- Merged `staging` → `main` at `adb9bc6`: easter eggs and class birthdays (v71), step over seen traps (v72), Brood
+  Mother/spider wake-up fix (v73), merchant temper/reinforce/bigger pack (v78), sprites hidden on live (v80).
+
 ### 2026-11-09 — v80: sprites hidden on the live game (staging)
 - `SPR_HOST` in the source: sprites show only on localhost and test.* until Sam says they're ready (then drop the
   check). Checked: localhost 35 sprite cells, `?ascii` 0, another address ([::1], like live) 0.

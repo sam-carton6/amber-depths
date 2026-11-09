@@ -5,11 +5,9 @@ under *Ideas (later)*; ask before building one.
 
 ## Where things stand (keep this current, a few lines)
 
-**Live on `main`:** v70 (merged 7 Nov 2026, commit `9e0926e`; v69 brought: new title screen and Settings sheet, How to play in
-the Guide, the daily sets your run aside, cloud sync, 8 leaderboards (cleared 7 Nov); v70 fixed an item under a merchant). Details in DONE.md.
-**Also live (9 Nov 2026, commit `980b471`, still v70):** the Google listing on its own: new title and description,
-link previews, robots.txt, sitemap. Sam verified amberdepths.com in Google Search Console and submits the sitemap there.
-**On `staging`, not live yet:** v71: 11 easter eggs + class birthdays; v72: step over seen traps; v73: Brood Mother/spider wake-up bug fixed; v78: gold sinks (temper/reinforce/bigger pack) (test with `?eggs` and `?date=MM-DD` on test.amberdepths.com).
+**Live on `main`:** v80 (merged 9 Nov 2026, commit `adb9bc6`): easter eggs + class birthdays, step over seen traps,
+Brood Mother/spider fix, merchant gold sinks; sprites are in the code but hidden on live (`SPR_HOST`). Details in DONE.md.
+**On `staging`, not live yet:** nothing.
 **Art (8 Nov 2026):** Sam's first 5 sprites are in (v76, staging), waiting for him to try them on the iPhone. See *Art* below.
 **Next up:** Sam's Hard Endless run with Backup codes before boss floors.
 **Bot chat (7 Nov 2026):** the deep bot ([bot/](bot/README.md)) v1 is in: Warrior Hard Endless averages floor 53
@@ -120,7 +118,4 @@ have, remove deploy.yml (and optionally make the repo private).
 
 ## What's new at the next merge
 
-- Easter eggs. Some are rare and some need a keyboard. Each class now has a birthday (it's in the Guide).
-- Traps you've already seen (or that got you once) no longer go off: you step over them.
-- Merchants now temper your weapon (+1 attack), reinforce your armor (+1 defence) and sell a bigger pack, as often as you can afford: the price goes up each time. Something to spend all that gold on.
-- Fixed: cave spiders, ghouls and the Brood Mother woke up and hunted you from the start of a floor (and lost their poison bite after a few turns).
+(Nothing yet.)
