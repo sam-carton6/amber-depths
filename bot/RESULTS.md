@@ -2,6 +2,19 @@
 
 One block per bot version. Same seeds (1-20) each time, so the numbers compare fairly.
 
+## v2: Sam's first tweaks (9 Nov 2026), Warrior, Hard Endless, game v81
+Even/odd first-hit timing, rest to full with Regeneration, full heal only when it's better value than a potion,
+merchant visited after exploring, reinforce with spare gold, walk around cats. Same game for both rows:
+| | games | average floor | range | potions on floor 40 | gold left |
+|---|---|---|---|---|---|
+| v1 rules (+ the cat fix) | 13 (stopped) | 53.6 | 49-58 | 72 | 58k |
+| v2 rules | 20 | 53.8 | 50-58 | 73 | 19k |
+- **No real change** (seeds 1-13: v1 53.6, v2 53.1). The tactics aren't what stops it: monsters gain 5% HP a floor,
+  potions run out around floor 50-55 either way. Reinforce bought ~5 defence, too late to matter (after floor ~40).
+- Two v2 games died on floor 50 to the Endless Wyrm.
+- Next (v3, not run yet): Sam's merchant order, two merchant visits a floor, gear swaps when the pack is full,
+  Mapping only from floor 20, hidden rooms first.
+
 ## v1: rules (7 Nov 2026), Warrior, Hard Endless, seeds 1-20
 - **Deepest floor: average 53.3** (worst 48, middle 54, best 57). All 20 died; none got stuck or peeked.
 - About 10,300 turns and level 88 at the end; ~45 s a game in the browser.
