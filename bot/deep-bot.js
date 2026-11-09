@@ -120,14 +120,18 @@ window.DeepBotKnobs = {
     // How many open tiles touch (x, y) straight-on: 2 or fewer means a corridor, where only 1-2 enemies can reach you.
     const openness = (x, y) => DIRS.filter(([dx, dy]) => S.map[y + dy] && S.map[y + dy][x + dx] !== undefined && S.map[y + dy][x + dx] !== '#').length;
 
+    // For the turn-by-turn viewer (run.mjs --text): the screen after each move, from slowFrom to stopAfter.
+    const frames = [];
+    const frame = what => { if (o.frames && S.depth >= (o.slowFrom || 0)) frames.push({ t: S.turn, f: S.depth, hp: S.hp, max: T.stats().max, what, map: mapText(T.S), log: T.S.log.slice(0, 3).map(l => l.t) }); };
     async function act(dx, dy, what) {
       log(what);
       const x = S.px + dx, y = S.py + dy, t0 = S.turn;
       await T.act(dx, dy);
       // Walked into the unknown and nothing happened: it's a wall. Remember it.
       if ((dx || dy) && T.S.px === S.px && T.S.py === S.py && T.S.turn === t0 && S.map[y] && S.map[y][x] === '?') bumped.add(x + ',' + y);
+      frame(what);
     }
-    async function use(i, what) { log(what); await T.useItem(i); }
+    async function use(i, what) { log(what); await T.useItem(i); frame(what); }
 
     T.sel.relic = o.relic || null;
     T.sel.alt = { [o.cls]: !!o.alt };
@@ -250,8 +254,10 @@ window.DeepBotKnobs = {
           const better = path((x, y) => { const e = itemAt(x, y); return e && S.seen[y][x] && e.it.type === 'gear' && e.it.mod !== 'cursed' && !dropped.has(e.it) && T.gearScore(e.it) > T.gearScore(S[e.it.kind]); });
           const gi = S.pack.map((it, i) => [it, i]).filter(([it]) => it.type === 'gear').sort((a, b) => T.gearScore(a[0]) - T.gearScore(b[0]))[0];
           if (better && better.steps <= KNOBS.itemDetour && gi) {
-            if (better.steps === 1 && !itemAt(S.px, S.py)) { dropped.add(gi[0]); log('drop ' + gi[0].name + ' to make room'); T.dropItem(gi[1]); continue; }
-            mv = better; why = 'get better gear';
+            // Drop the worst piece wherever you stand (dropping needs an empty tile: if something lies here, step to
+            // the nearest empty tile first), then the pack has room and rule 13 picks the better gear up.
+            if (!itemAt(S.px, S.py)) { dropped.add(gi[0]); log('drop ' + gi[0].name + ' to make room'); T.dropItem(gi[1]); continue; }
+            mv = path((x, y) => free(x, y) && !itemAt(x, y)); why = 'find an empty tile to drop gear on';
           }
         }
         // RULE 13: pick up useful things nearby.
@@ -306,7 +312,7 @@ window.DeepBotKnobs = {
     S = T.S;
     snapshotFloor();
     const death = S.dead || stuck || stall > 40 ? { by: (S.log.find(l => l.cls === 'bad') || {}).t, map: mapText(S), last: trail.slice(-25) } : null;
-    return { seed: o.seed, cls: o.cls, mode: o.mode, diff: o.diff, depth: S.depth, dead: S.dead, won: S.won, turns: S.turn, lv: S.lv, kills: S.kills, peeks, rest: restAll, stalled: stall > 40, stuck, floors, death };
+    return { seed: o.seed, cls: o.cls, mode: o.mode, diff: o.diff, depth: S.depth, dead: S.dead, won: S.won, turns: S.turn, lv: S.lv, kills: S.kills, peeks, rest: restAll, stalled: stall > 40, stuck, floors, death, ...(o.frames ? { frames } : {}) };
   }
 
   // The map as text: what the player had seen, with monsters in sight and @ for the player.

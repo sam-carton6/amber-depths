@@ -4,8 +4,8 @@
 //   node bot/run.mjs --watch 11                                   (watch seed 11 play in a visible window)
 // Options: --cls (class id), --seeds (1-20 or 1,5,9), --diff (easy|normal|hard|nightmare), --mode (short|standard|
 // endless), --label (a name for this batch), --jobs (games at once), --speed (ms per turn when watching), --no-open.
-// Watching: --from F skips ahead to floor F, --to F stops after floor F, --record saves a video (bot/runs/videos/)
-// instead of opening a window, to look at later or send to a phone.
+// Watching: --from F skips ahead to floor F, --to F stops after floor F. --text saves a turn-by-turn page instead of
+// opening a window (bot/runs/replays/, small, works on a phone); --record saves a video (bot/runs/videos/, big).
 // Each batch goes in bot/runs/<date>-<label>/ (not in git): one JSON file per game, summary.json and report.html.
 import { chromium } from 'playwright';
 import http from 'node:http';
@@ -52,15 +52,21 @@ async function openGame(browser, viewport) {
 
 if (watchSeed) {
   // --- Watch one seed in a visible window ---
-  const record = args.includes('--record'), from = +opt('from', 0) || 0, to = +opt('to', 0) || 0;
-  const browser = await chromium.launch({ headless: record });
+  const record = args.includes('--record'), text = args.includes('--text'), from = +opt('from', 0) || 0, to = +opt('to', 0) || 0;
+  const browser = await chromium.launch({ headless: record || text });
   const vids = path.join(BOT, 'runs', 'videos'), size = { width: 1000, height: 760 };
   const ctx = await browser.newContext({ viewport: size, ...(record ? { recordVideo: { dir: vids, size } } : {}) });
   const page = await ctx.newPage();
   await page.goto(URL_); await page.waitForFunction(() => window.__T);
   await page.addScriptTag({ path: path.join(BOT, 'deep-bot.js') });
-  console.log(`${record ? 'Recording' : 'Watching'} seed ${watchSeed} (${game.cls}, ${game.diff} ${game.mode})${from ? ', from floor ' + from : ''}${to ? ' to ' + to : ''}.${record ? '' : ' Close the window to stop.'}`);
-  const r = await page.evaluate(o => DeepBot.play(o), { ...game, seed: +watchSeed, delay: +opt('speed', 120), slowFrom: from, stopAfter: to }).catch(() => null);
+  console.log(`${record ? 'Recording' : text ? 'Replaying' : 'Watching'} seed ${watchSeed} (${game.cls}, ${game.diff} ${game.mode})${from ? ', from floor ' + from : ''}${to ? ' to ' + to : ''}.${record || text ? '' : ' Close the window to stop.'}`);
+  const r = await page.evaluate(o => DeepBot.play(o), { ...game, seed: +watchSeed, delay: text ? 0 : +opt('speed', 120), frames: text, slowFrom: from, stopAfter: to }).catch(() => null);
+  if (r && text) {
+    const dir = path.join(BOT, 'runs', 'replays'); fs.mkdirSync(dir, { recursive: true });
+    const out = path.join(dir, `seed-${watchSeed}${from ? '-floor-' + from : ''}.html`);
+    fs.writeFileSync(out, replayPage(`Seed ${watchSeed} · ${game.cls}, ${game.diff} ${game.mode}${from ? ' · floor ' + from + (to && to !== from ? '-' + to : '') : ''}`, r.frames));
+    console.log(`${r.frames.length} turns saved: ${path.relative(ROOT, out)}`);
+  }
   if (r) console.log(`Seed ${r.seed}: ${to && r.depth > to ? 'finished floor ' + to : 'reached floor ' + r.depth + (r.death ? ', ' + r.death.by : '')}`);
   await page.waitForTimeout(1500); // a moment on the last screen
   const video = record && page.video();
@@ -155,4 +161,40 @@ function summarise(rs) {
   for (const r of ok) if (r.death) { const k = (r.death.by || '?').replace(/^(An? |The )/, '').replace(/('s|’s| hits| slam| breath| bites| bolt).*$/, '').replace(/^.*?(poison|flames).*$/, 'the $1').trim(); killers[k] = (killers[k] || 0) + 1; }
   return { games: rs.length, errors: rs.length - ok.length, avg: +(depths.reduce((a, b) => a + b, 0) / (depths.length || 1)).toFixed(1), min: depths[0], median: q(depths, .5), max: depths[depths.length - 1],
     turns: Math.round(ok.reduce((a, r) => a + r.turns, 0) / (ok.length || 1)), medFloorTurns: medTurns, killers, floors, flags };
+}
+
+// A self-contained page to step through a game turn by turn (buttons, slider, arrow keys, play). Works on a phone.
+function replayPage(title, frames) {
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bot replay</title><style>
+:root { color-scheme: dark; --bg: #120d08; --panel: #1d150c; --amber: #ffb347; --dim: #a8834f; --line: #3b2c19; }
+body { margin: 0; background: var(--bg); color: var(--amber); font: 15px/1.4 system-ui, sans-serif; }
+main { max-width: 760px; margin: 0 auto; padding: 14px 12px 40px; }
+h1 { font-size: 1.05rem; margin: 0 0 8px; }
+.bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+button { background: var(--panel); color: var(--amber); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; font: inherit; min-width: 44px; }
+input[type=range] { flex: 1; min-width: 160px; accent-color: var(--amber); }
+.info { color: var(--dim); font-size: .9rem; }
+.what { font-weight: 600; margin: 6px 0; min-height: 1.4em; }
+pre { background: #0b0805; border: 1px solid var(--line); border-radius: 8px; padding: 8px; margin: 0; overflow-x: auto;
+  font: 13px/1.12 ui-monospace, Consolas, "Courier New", monospace; }
+pre b { color: #fff3d6; } .log { color: var(--dim); font-size: .85rem; margin-top: 6px; }
+</style></head><body><main>
+<h1>${title}</h1>
+<div class="bar"><button id="prev" aria-label="Previous turn">◀</button><button id="play">Play</button><button id="next" aria-label="Next turn">▶</button>
+<input id="slide" type="range" min="0" max="${frames.length - 1}" value="0" aria-label="Turn"></div>
+<div class="info" id="info"></div><div class="what" id="what"></div><pre id="map"></pre><div class="log" id="log"></div>
+<p class="info">@ = the bot. Letters are monsters in sight. Arrow keys or the buttons step one turn.</p>
+</main><script>
+const F = ${JSON.stringify(frames)}, $ = id => document.getElementById(id);
+let i = 0, timer = null;
+const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+function show(n) { i = Math.max(0, Math.min(F.length - 1, n)); const f = F[i]; $('slide').value = i;
+  $('info').textContent = 'Turn ' + f.t + ' · floor ' + f.f + ' · HP ' + f.hp + '/' + f.max + ' · step ' + (i + 1) + ' of ' + F.length;
+  $('what').textContent = f.what; $('map').innerHTML = esc(f.map).replace('@', '<b>@</b>'); $('log').innerHTML = f.log.map(esc).join('<br>'); }
+$('prev').onclick = () => show(i - 1); $('next').onclick = () => show(i + 1); $('slide').oninput = e => show(+e.target.value);
+$('play').onclick = () => { if (timer) { clearInterval(timer); timer = null; $('play').textContent = 'Play'; } else { timer = setInterval(() => { if (i >= F.length - 1) $('play').click(); else show(i + 1); }, 150); $('play').textContent = 'Pause'; } };
+addEventListener('keydown', e => { if (e.key === 'ArrowLeft') show(i - 1); if (e.key === 'ArrowRight') show(i + 1); });
+show(0);
+</script></body></html>`;
 }
