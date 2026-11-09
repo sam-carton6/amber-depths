@@ -80,6 +80,17 @@ const head = `<!doctype html>
 <meta name="description" content="Free retro ASCII roguelike for your browser and phone. Pick from 12 classes, dive the amber dungeon and slay the Wyrm, or go Endless.">
 <!-- The test copy and the old GitHub Pages address serve this same page; this tells search engines the real one. -->
 <link rel="canonical" href="https://amberdepths.com/">
+<!-- Link previews (Messages, Discord, WhatsApp...): the picture and blurb shown when someone shares the link. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Amber Depths">
+<meta property="og:url" content="https://amberdepths.com/">
+<meta property="og:title" content="Amber Depths: a retro ASCII roguelike">
+<meta property="og:description" content="Free retro ASCII roguelike for your browser and phone. Pick from 12 classes, dive the amber dungeon and slay the Wyrm, or go Endless.">
+<meta property="og:image" content="https://amberdepths.com/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:alt" content="A glowing amber @ between two torches">
+<meta name="twitter:card" content="summary">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
