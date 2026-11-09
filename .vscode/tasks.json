@@ -17,6 +17,13 @@
       "problemMatcher": []
     },
     {
+      "label": "Bot: all classes",
+      "type": "shell",
+      "command": "node all.mjs --diff ${input:diff} --seeds ${input:seeds} --label ${input:label}",
+      "options": { "cwd": "${workspaceFolder}/bot" },
+      "problemMatcher": []
+    },
+    {
       "label": "Bot: watch a seed",
       "type": "shell",
       "command": "node run.mjs --watch ${input:seed} --cls ${input:cls} --diff ${input:diff} --speed ${input:speed}",
@@ -26,8 +33,7 @@
     {
       "label": "Bot: open last results",
       "type": "shell",
-      "windows": { "command": "start '' runs/latest.html" },
-      "command": "open runs/latest.html",
+      "command": "node run.mjs --open-last",
       "options": { "cwd": "${workspaceFolder}/bot" },
       "problemMatcher": []
     }

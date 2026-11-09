@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep bot: classes compared</title>
+<!-- Template for bot/all.mjs: it swaps the DATA line below for the classes' numbers and saves compare.html. -->
+<style>
+:root {
+  color-scheme: light;
+  --page: #f4f3ef; --surface-1: #fcfcfb; --line: #e3e1da; --grid: #ecebe6;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #77756f;
+  --series-1: #2a78d6; --series-2: #eb6834;
+  --seq-0: #fcfcfb; --seq-1: #cde2fb; --seq-2: #9ec5f4; --seq-3: #6da7ec; --seq-4: #3987e5; --seq-5: #256abf; --seq-6: #184f95; --seq-7: #0d366b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #121211; --surface-1: #1a1a19; --line: #2e2d2b; --grid: #262624;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8d86;
+    --series-1: #3987e5; --series-2: #d95926;
+    --seq-0: #1a1a19; --seq-1: #0d366b; --seq-2: #104281; --seq-3: #184f95; --seq-4: #1c5cab; --seq-5: #2a78d6; --seq-6: #5598e7; --seq-7: #9ec5f4;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #121211; --surface-1: #1a1a19; --line: #2e2d2b; --grid: #262624;
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8d86;
+  --series-1: #3987e5; --series-2: #d95926;
+  --seq-0: #1a1a19; --seq-1: #0d366b; --seq-2: #104281; --seq-3: #184f95; --seq-4: #1c5cab; --seq-5: #2a78d6; --seq-6: #5598e7; --seq-7: #9ec5f4;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--text-primary); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 60px; }
+h1 { font-size: 1.6rem; margin: 0 0 2px; }
+h2 { font-size: 1.05rem; margin: 0 0 2px; }
+.sub, .note { color: var(--text-secondary); margin: 0; }
+.note { font-size: .82rem; color: var(--text-muted); }
+.card { background: var(--surface-1); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-top: 14px; min-width: 0; }
+.card header { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.grid3 .card { margin-top: 0; }
+svg { display: block; width: 100%; height: auto; overflow: visible; }
+svg text { fill: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+svg text.row { fill: var(--text-secondary); font-size: 12px; }
+svg text.val { fill: var(--text-primary); font-size: 12px; font-weight: 600; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: .82rem; color: var(--text-secondary); }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; vertical-align: middle; margin-right: 6px; }
+.legend i.dot { background: var(--series-1); }
+.legend i.ring { border: 2px solid var(--series-2); }
+.legend i.tick { width: 3px; height: 13px; border-radius: 1px; background: var(--text-primary); }
+.legend i.scale { width: 70px; height: 10px; border-radius: 2px; background: linear-gradient(90deg, var(--seq-1), var(--seq-4), var(--seq-7)); }
+.tip { position: fixed; pointer-events: none; z-index: 5; background: var(--surface-1); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; font-size: .8rem; box-shadow: 0 4px 16px rgba(0,0,0,.18); max-width: 280px; }
+.tip b { color: var(--text-primary); } .tip div { color: var(--text-secondary); }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .85rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--text-secondary); font-weight: 600; }
+td.num, th.num { text-align: right; }
+a { color: var(--series-1); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Classes compared</h1>
+  <p class="sub" id="sub"></p>
+
+  <div class="card">
+    <header><h2>Floor reached, by class</h2><span class="note">one dot per game; hover for details</span></header>
+    <div class="legend"><span><i class="dot"></i>a game</span><span><i class="ring"></i>stuck (a bot problem, not a death)</span><span><i class="tick"></i>average</span></div>
+    <div id="strip"></div>
+  </div>
+
+  <div class="card">
+    <header><h2>What killed each class</h2><span class="note">number of deaths</span></header>
+    <div class="legend"><span><i class="scale"></i>fewer → more</span></div>
+    <div id="heat"></div>
+  </div>
+
+  <h2 style="margin-top:22px">The character on arriving at floor 30</h2>
+  <p class="note">The middle game of each class that got there.</p>
+  <div class="grid3" style="margin-top:8px">
+    <div class="card"><header><h2>Level</h2></header><div id="b-lv"></div></div>
+    <div class="card"><header><h2>Max HP</h2></header><div id="b-max"></div></div>
+    <div class="card"><header><h2>Attack</h2></header><div id="b-atk"></div></div>
+  </div>
+
+  <div class="card tablewrap">
+    <header><h2>Every class</h2><span class="note">open a class's own page for its charts and every game</span></header>
+    <table id="tbl"></table>
+  </div>
+</main>
+<div class="tip" id="tip" hidden></div>
+<script>
+const D = /*DATA*/null;
+const $ = id => document.getElementById(id), NS = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const niceMax = v => { if (v <= 0) return 1; const p = 10 ** Math.floor(Math.log10(v)), n = v / p; return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * p; };
+const median = a => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+const tip = $('tip');
+const showTip = (ev, html) => { tip.innerHTML = html; tip.hidden = false; const r = tip.getBoundingClientRect(); let x = ev.clientX + 14, y = ev.clientY + 14; if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 14; if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 14; tip.style.left = x + 'px'; tip.style.top = y + 'px'; };
+const hideTip = () => { tip.hidden = true; };
+const hover = (node, html) => { node.addEventListener('mousemove', ev => showTip(ev, html)); node.addEventListener('mouseleave', hideTip); };
+// Dark or light text, whichever reads on a cell's fill.
+const inkOn = hex => { const n = parseInt(hex.slice(1), 16), l = (0.299 * (n >> 16) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) / 255; return l > .55 ? '#0b0b0b' : '#ffffff'; };
+const killer = by => (by || '').replace(/^(An? |The )/, '').replace(/('s|’s| hits| slam| breath| bites| bolt).*$/, '').replace(/^.*?(poison|flames).*$/, 'the $1').trim() || '?';
+
+$('sub').textContent = `${D.label} · ${D.diff} ${D.mode}, seeds ${D.seeds} · ${D.stamp.replace(/-(\d\d)-(\d\d)$/, ' $1:$2')}`;
+const rows = [...D.rows].sort((a, b) => b.summary.avg - a.summary.avg);
+
+// --- 1. Strip plot: every game as a dot on its class's row, the average as a tick ---
+{
+  const W = 900, rowH = 30, m = { l: 110, r: 56, t: 6, b: 26 }, H = m.t + rows.length * rowH + m.b, iw = W - m.l - m.r;
+  const all = rows.flatMap(r => r.games.map(g => g.depth));
+  const lo = Math.max(0, Math.floor((Math.min(...all) - 2) / 5) * 5), hi = Math.ceil((Math.max(...all) + 2) / 5) * 5;
+  const X = v => m.l + iw * (v - lo) / (hi - lo);
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Floor reached by class' }, $('strip'));
+  for (let v = lo; v <= hi; v += (hi - lo > 40 ? 10 : 5)) { el('line', { x1: X(v), x2: X(v), y1: m.t, y2: H - m.b, stroke: css('--grid') }, svg); el('text', { x: X(v), y: H - 8, 'text-anchor': 'middle' }, svg).textContent = 'F' + v; }
+  rows.forEach((r, i) => {
+    const cy = m.t + i * rowH + rowH / 2;
+    el('text', { x: m.l - 10, y: cy + 4, 'text-anchor': 'end', class: 'row' }, svg).textContent = r.name;
+    // games at the same floor stack slightly up and down so none hide
+    const at = {};
+    for (const g of r.games) {
+      const k = at[g.depth] = (at[g.depth] || 0) + 1, off = ((k % 2 ? 1 : -1) * Math.floor(k / 2)) * 4;
+      const c = g.stuck ? el('circle', { cx: X(g.depth), cy: cy + off, r: 4, fill: 'none', stroke: css('--series-2'), 'stroke-width': 2 }, svg)
+        : el('circle', { cx: X(g.depth), cy: cy + off, r: 4, fill: css('--series-1'), stroke: css('--surface-1'), 'stroke-width': 1.5 }, svg);
+      hover(c, `<b>${r.name}, seed ${g.seed}</b><div>Floor ${g.depth}, level ${g.lv}</div><div>${g.error ? 'Error: ' + g.error : g.stuck ? 'Stuck (a bot problem)' : g.by ? g.by : 'Still alive'}</div>`);
+    }
+    const ax = X(r.summary.avg);
+    el('line', { x1: ax, x2: ax, y1: cy - 10, y2: cy + 10, stroke: css('--text-primary'), 'stroke-width': 3, 'stroke-linecap': 'round' }, svg);
+    el('text', { x: W - m.r + 8, y: cy + 4, class: 'val' }, svg).textContent = r.summary.avg;
+    const band = el('rect', { x: 0, y: cy - rowH / 2, width: m.l, height: rowH, fill: 'transparent' }, svg);
+    hover(band, `<b>${r.name}</b><div>Average floor ${r.summary.avg} (worst ${r.summary.min}, middle ${r.summary.median}, best ${r.summary.max})</div>`);
+  });
+}
+
+// --- 2. Heatmap: class x killer ---
+{
+  const totals = {};
+  const counts = rows.map(r => { const c = {}; for (const g of r.games) if (g.by && !g.stuck) { const k = killer(g.by); c[k] = (c[k] || 0) + 1; totals[k] = (totals[k] || 0) + 1; } return c; });
+  const cols = Object.keys(totals).sort((a, b) => totals[b] - totals[a]).slice(0, 10);
+  const W = 900, m = { l: 110, r: 8, t: 34, b: 6 }, rowH = 26, cw = (W - m.l - m.r) / Math.max(1, cols.length), H = m.t + rows.length * rowH + m.b;
+  const max = Math.max(1, ...counts.flatMap(c => cols.map(k => c[k] || 0)));
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'What killed each class' }, $('heat'));
+  cols.forEach((k, j) => el('text', { x: m.l + j * cw + cw / 2, y: m.t - 10, 'text-anchor': 'middle', class: 'row' }, svg).textContent = k);
+  rows.forEach((r, i) => {
+    const y = m.t + i * rowH;
+    el('text', { x: m.l - 10, y: y + rowH / 2 + 4, 'text-anchor': 'end', class: 'row' }, svg).textContent = r.name;
+    cols.forEach((k, j) => {
+      const n = counts[i][k] || 0, step = n ? Math.max(1, Math.round(7 * n / max)) : 0;
+      const cell = el('rect', { x: m.l + j * cw + 1, y: y + 1, width: cw - 2, height: rowH - 2, rx: 3, fill: css('--seq-' + step) }, svg);
+      if (n) el('text', { x: m.l + j * cw + cw / 2, y: y + rowH / 2 + 4, 'text-anchor': 'middle', style: `fill:${inkOn(css('--seq-' + step))};font-size:12px;font-weight:600` }, svg).textContent = n;
+      hover(cell, `<b>${r.name}</b><div>Killed by ${k}: ${n} of ${r.games.filter(g => g.by && !g.stuck).length} deaths</div>`);
+    });
+  });
+}
+
+// --- 3. Floor-30 bars (one stat per chart, one axis each) ---
+for (const [key, id] of [['lv', 'b-lv'], ['max', 'b-max'], ['atk', 'b-atk']]) {
+  const vals = rows.map(r => { const v = r.games.map(g => g.at30 && g.at30[key]).filter(v => v != null); return { name: r.name, v: median(v), n: v.length }; });
+  const W = 360, m = { l: 92, r: 40, t: 4, b: 6 }, rowH = 22, H = m.t + vals.length * rowH + m.b, iw = W - m.l - m.r;
+  const max = niceMax(Math.max(1, ...vals.map(x => x.v || 0)));
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': key + ' at floor 30' }, $(id));
+  vals.forEach((x, i) => {
+    const y = m.t + i * rowH, bh = 12, w = x.v ? iw * x.v / max : 0, by = y + (rowH - bh) / 2;
+    el('text', { x: m.l - 8, y: by + bh - 2, 'text-anchor': 'end', class: 'row' }, svg).textContent = x.name;
+    if (w) { const r = Math.min(4, w / 2); el('path', { d: `M${m.l},${by}H${m.l + w - r}Q${m.l + w},${by} ${m.l + w},${by + r}V${by + bh - r}Q${m.l + w},${by + bh} ${m.l + w - r},${by + bh}H${m.l}Z`, fill: css('--series-1') }, svg); }
+    el('text', { x: m.l + w + 6, y: by + bh - 2, class: 'val' }, svg).textContent = x.v == null ? '—' : Math.round(x.v);
+    hover(el('rect', { x: 0, y, width: W, height: rowH, fill: 'transparent' }, svg), `<b>${x.name}</b><div>${x.v == null ? 'No game reached floor 30' : `Middle game: ${Math.round(x.v)} (${x.n} of ${D.rows.find(r => r.name === x.name).games.length} games got there)`}</div>`);
+  });
+}
+
+// --- 4. Table ---
+$('tbl').innerHTML = '<thead><tr><th>Class</th><th class="num">Average</th><th class="num">Middle</th><th class="num">Worst</th><th class="num">Best</th><th class="num">Stuck</th><th class="num">Flagged</th><th>Report</th></tr></thead><tbody>' +
+  rows.map(r => `<tr><td>${r.name}</td><td class="num">${r.summary.avg}</td><td class="num">${r.summary.median}</td><td class="num">${r.summary.min}</td><td class="num">${r.summary.max}</td><td class="num">${r.games.filter(g => g.stuck).length}</td><td class="num">${r.summary.flags.length}</td>` +
+    `<td><a href="${r.dir.startsWith('./') ? r.dir : '../' + r.dir}/report.html">open</a></td></tr>`).join('') + '</tbody>';
+</script>
+</body>
+</html>

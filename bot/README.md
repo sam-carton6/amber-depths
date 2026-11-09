@@ -10,6 +10,7 @@ Nothing in `bot/` goes live; only `app/` is published.
   checked top to bottom every turn, each with a comment saying what it does.
 - [RESULTS.md](RESULTS.md): how deep each version got, so changes can be compared.
 - [run.mjs](run.mjs): the batch runner; [report-template.html](report-template.html): its results page.
+- [all.mjs](all.mjs): runs every class and builds [compare-template.html](compare-template.html), the comparison page.
 - [sam-runs.json](sam-runs.json): your own runs, drawn on the charts next to the bot.
 
 ## Running it from VS Code (on your PC, no Claude needed)
@@ -18,6 +19,9 @@ Open the Amber Depths folder in VS Code, then **Terminal → Run Task...**:
 - **Bot: run batch**: pick a class, difficulty and seeds (`1-20`, or `1,5,9`) and give the batch a name. It plays
   them about 25 at a time (20 games take a minute) and opens a results page with charts: floor reached, what killed
   it, the character floor by floor next to your own run, a fair-play "weird things" list, and every game.
+- **Bot: all classes**: plays the same seeds with every class (about 12 minutes for 20 seeds) and opens a page
+  comparing them: floor reached by class (a dot per game), what killed each class, the character on floor 30, and a
+  link to each class's own page.
 - **Bot: watch a seed**: replays one seed slowly in a visible window (same seed = same game).
   To step through one floor turn by turn instead: `node bot/run.mjs --watch 5 --from 25 --to 25 --text`.
 - **Bot: open last results**: reopens the latest results page.

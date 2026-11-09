@@ -49,6 +49,8 @@ window.DeepBotKnobs = {
     const dropped = new Set(); // gear the bot put down on purpose: don't pick it back up
     const bumped = new Set(); // unseen tiles it walked into that turned out to be walls (a player learns that too)
     let guardian = null; // where it last saw the Golem or arena boss that holds the stairs
+    const ignored = new Map(); // enemies it couldn't get any closer to: monster -> turn to try again
+    let chase = null; // { m, steps, since }: the enemy it's walking to, and its best distance so far
     let lastFoe = null; // where it last saw the enemy it was going for (so it doesn't lose interest when it steps out of view)
     let bossBest = Infinity, bossSince = 0, cutThrough = false; // arena fights: switch tactics when one goes nowhere
     const visited = new Set(); // tiles stood on this floor (to go and look around when stuck for ideas)
@@ -328,11 +330,13 @@ window.DeepBotKnobs = {
         }
         // RULE 7a: an arena boss in sight (not the Golem, whose slam you must dodge): push toward it, and only hit
         // the minions standing in the way. Fighting minions forever gets you nowhere: the boss makes more.
-        const arenaBoss = foes.find(m => m.arena && m.awake);
+        // (Out of sight in a sealed arena, e.g. for a Mole's short sight: head for where it was last seen.)
+        const arenaBoss = foes.find(m => m.arena && m.awake)
+          || (S.arena && S.stairsLocked && guardian && guardian.name !== 'Stone Golem' ? { ...guardian, arena: true, hp: bossBest, seen: false } : null);
         if (arenaBoss && dist(arenaBoss.x, arenaBoss.y, S.px, S.py) > 1) {
           // Go around its minions if that's not much longer (it raises new ones behind the line you're cutting through);
           // cut through them only when there's no real way around.
-          const atBoss = (x, y) => x === arenaBoss.x && y === arenaBoss.y;
+          const atBoss = arenaBoss.seen === false ? (x, y) => dist(x, y, arenaBoss.x, arenaBoss.y) <= 1 : (x, y) => x === arenaBoss.x && y === arenaBoss.y;
           allowMons = true; const through = path(atBoss); allowMons = false;
           if (arenaBoss.hp < bossBest) { bossBest = arenaBoss.hp; bossSince = S.turn; }
           else if (S.turn - bossSince > 150) { cutThrough = !cutThrough; bossSince = S.turn; log(cutThrough ? 'switch: cut through' : 'switch: go around'); }
@@ -382,7 +386,16 @@ window.DeepBotKnobs = {
         const bossInSight = foes.find(m => m.boss && m.awake);
         if (bossInSight) { mv = path((x, y) => x === bossInSight.x && y === bossInSight.y); why = 'go for ' + bossInSight.name; }
         if (!mv && archer) { mv = path((x, y) => x === archer.x && y === archer.y); why = 'charge archer'; }
-        if (!mv && foes.length) { mv = path((x, y) => foes.some(m => m.x === x && m.y === y)); why = 'go fight'; if (mv) { const m = foes[0]; lastFoe = { x: m.x, y: m.y, turn: S.turn }; } }
+        const reachable = foes.filter(m => !(ignored.get(m) > S.turn));
+        if (!mv && reachable.length) {
+          mv = path((x, y) => reachable.some(m => m.x === x && m.y === y)); why = 'go fight';
+          // An enemy it can't get any closer to in 20 turns (behind water, a chest, a crowd): ignore it for 50 turns.
+          const m = mv && reachable.find(m => dist(m.x, m.y, S.px + mv.dx, S.py + mv.dy) < dist(m.x, m.y, S.px, S.py)) || reachable[0];
+          if (!chase || chase.m !== m) chase = { m, steps: mv ? mv.steps : 99, since: S.turn };
+          else if (mv && mv.steps < chase.steps) { chase.steps = mv.steps; chase.since = S.turn; }
+          else if (S.turn - chase.since > 20) { ignored.set(m, S.turn + 50); chase = null; mv = null; log('give up on the ' + m.name + ' for now'); }
+        }
+        if (mv && why === 'go fight') { const m = chase ? chase.m : foes[0]; lastFoe = { x: m.x, y: m.y, turn: S.turn }; }
         // ...and if it just stepped out of view, keep going to where you last saw it for a few turns (no flip-flopping).
         if (!mv && !foes.length && lastFoe && S.turn - lastFoe.turn <= 8 && !(S.px === lastFoe.x && S.py === lastFoe.y)) { mv = path((x, y) => x === lastFoe.x && y === lastFoe.y); why = 'after the enemy I saw'; }
         if (lastFoe && S.px === lastFoe.x && S.py === lastFoe.y) lastFoe = null;

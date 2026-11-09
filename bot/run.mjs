@@ -26,6 +26,12 @@ const seeds = seedList(opt('seeds', '1-20'));
 const label = String(opt('label', '') || '').replace(/[^\w.-]+/g, '-');
 const jobs = Math.max(1, Math.min(+opt('jobs', Math.max(1, os.cpus().length - 4)), 32, seeds.length));
 
+const openFile = f => exec(process.platform === 'win32' ? `start "" "${f}"` : `open "${f}"`);
+if (args.includes('--open-last')) { // reopen the latest results (and the latest class comparison, if any)
+  for (const f of ['latest.html', 'latest-compare.html'].map(n => path.join(BOT, 'runs', n))) if (fs.existsSync(f)) openFile(f);
+  process.exit(0);
+}
+
 // --- 1. Build the test page (sound off, test hooks; see src/build.mjs) ---
 execFileSync(process.execPath, [path.join(ROOT, 'src/build.mjs'), '--test'], { cwd: ROOT, stdio: 'ignore' });
 
@@ -108,7 +114,7 @@ if (watchSeed) {
   const mins = ((Date.now() - t0) / 60000).toFixed(1);
   console.log(`\nDone in ${mins} min. Average floor ${summary.avg} (worst ${summary.min}, middle ${summary.median}, best ${summary.max}).`);
   if (summary.flags.length) console.log(`${summary.flags.length} weird thing(s) flagged: see the report.`);
-  if (opt('open', true) !== 'false' && !args.includes('--no-open')) exec(process.platform === 'win32' ? `start "" "${path.join(dir, 'report.html')}"` : `open "${path.join(dir, 'report.html')}"`);
+  if (!args.includes('--no-open')) openFile(path.join(dir, 'report.html'));
 }
 
 // What the page needs from each game (the full record stays in games/).
