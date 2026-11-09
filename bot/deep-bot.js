@@ -46,7 +46,8 @@ window.DeepBotKnobs = {
     let S, waited = 0, floorStart = 0, lastDepth = 0, lastTurn = -1, stall = 0, peeks = 0, stuck = false, patientFrom = 0, backedAt = -99, restTurns = 0, rested = 0, lastGap = 99, shopVisits = 0;
     const dropped = new Set(); // gear the bot put down on purpose: don't pick it back up
     const log = what => { trail.push(`t${S.turn} f${S.depth} hp${S.hp}/${T.stats().max}: ${what}`); if (trail.length > 60) trail.shift(); };
-    const potions = () => S.pack.filter(i => i.type === 'potion').reduce((a, i) => a + (i.n || 1), 0);
+    const heal = i => i.type === 'potion' && !i.kind; // healing potions (Strength, Haste and Antidote have a kind)
+    const potions = () => S.pack.filter(heal).reduce((a, i) => a + (i.n || 1), 0);
     const packIdx = (type, kind) => S.pack.findIndex(i => i.type === type && (!kind || i.kind === kind));
     const snapshotFloor = () => { const st = T.stats(); floors.push({ floor: S.depth, turn: S.turn, hp: S.hp, max: st.max, lv: S.lv, atk: st.atk, def: st.def, potions: potions(), gold: S.gold, kills: S.kills, boons: (S.boons || []).join(' ') }); };
 
@@ -117,7 +118,7 @@ window.DeepBotKnobs = {
         const adj = foes.filter(m => dist(m.x, m.y, S.px, S.py) === 1);
         const touching = foes.filter(m => Math.max(Math.abs(m.x - S.px), Math.abs(m.y - S.py)) === 1); // diagonals too (Cleave reaches them)
         const awake = foes.filter(m => m.awake);
-        const pot = packIdx('potion');
+        const pot = S.pack.findIndex(heal);
 
         // RULE 1: standing where a telegraphed attack will land? Step out.
         if (S.danger.has(here)) {
@@ -129,6 +130,12 @@ window.DeepBotKnobs = {
         if (adj.length && S.hp < st.max * KNOBS.teleportAt && pot < 0 && packIdx('scroll', 'teleport') >= 0) { await use(packIdx('scroll', 'teleport'), 'teleport away'); continue; }
         // RULE 3: poisoned or burning and low: drink (it cures them).
         if ((S.status.poison > 1 || S.status.burn > 1) && S.hp < st.max * .5 && pot >= 0) { await use(pot, 'drink (cure)'); continue; }
+        // RULE 3b: the special potions. Antidote when poisoned, burning or slowed for a while; Strength (double damage,
+        // 10 turns) next to a boss or 3+ enemies; Haste (two moves for one, 16 turns) when a boss is awake.
+        const odd = k => S.pack.findIndex(i => i.type === 'potion' && i.kind === k);
+        if (odd('cure') >= 0 && (S.status.poison > 2 || S.status.burn > 2 || S.status.slow > 1)) { await use(odd('cure'), 'antidote'); continue; }
+        if (odd('str') >= 0 && !S.str && (adj.some(m => m.boss) || touching.length >= 3)) { await use(odd('str'), 'strength potion'); continue; }
+        if (odd('haste') >= 0 && !S.haste && foes.some(m => m.boss && m.awake)) { await use(odd('haste'), 'haste potion'); continue; }
         // RULE 4: wear better gear (free when no enemy is in sight).
         const up = S.pack.findIndex(it => it.type === 'gear' && it.mod !== 'cursed' && T.gearScore(it) > T.gearScore(S[it.kind]));
         if (up >= 0 && !adj.length) { await use(up, 'equip ' + S.pack[up].name); continue; }
@@ -234,9 +241,9 @@ window.DeepBotKnobs = {
         // Buys the first thing in stock that passes test; says whether it worked (a full pack refuses).
         const buyFirst = (test, what, keep = 0) => { const i = S.shop.stock.findIndex(test); if (i < 0 || S.gold - S.shop.stock[i].price < keep) return false; const g = S.gold; T.buy(i); if (S.gold === g) return false; log('buy ' + what); return true; };
         const price = test => (S.shop.stock.find(test) || {}).price;
-        const potPrice = price(s => s.it && s.it.type === 'potion') || 14 + 4 * S.depth, healPrice = price(s => s.svc === 'heal') || 0;
+        const potPrice = price(s => s.it && heal(s.it)) || 14 + 4 * S.depth, healPrice = price(s => s.svc === 'heal') || 0;
         buyFirst(s => s.svc === 'sharpen', 'sharpen');
-        while (buyFirst(s => s.it && s.it.type === 'potion', 'potion'));
+        while (buyFirst(s => s.it && heal(s.it), 'potion'));
         buyFirst(s => s.it && s.it.type === 'scroll' && s.it.kind === 'teleport', 'teleport scroll');
         while (buyFirst(s => s.it && s.it.type === 'gear' && s.it.mod !== 'cursed' && T.gearScore(s.it) >= T.gearScore(S[s.it.kind]) + KNOBS.gearBuyBy && !S.pack.some(p => p.kind === s.it.kind && T.gearScore(p) >= T.gearScore(s.it)), 'gear')); // worn right after (rule 4)
         buyFirst(s => s.it && s.it.type === 'scroll', 'scroll');
