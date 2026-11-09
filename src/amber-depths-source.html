@@ -847,10 +847,12 @@ const crtOk = id => CRTS[id] && (!CRTS[id].unlock || PROF.done[CRTS[id].unlock])
 // puts them into the page and lists their names in SPRITE_IDS. Here, and in the claude.ai artifact, the list stays
 // empty and the map is all letters. SPRITES says which picture to draw for what: a monster's name ('rat'), 'player'
 // (or 'player:warrior' for one class), or a map letter ('.' floor, '#' wall, '!' potion, '>' stairs).
-// Anything not listed keeps its letter. Turn them off with ?ascii (localhost and test.* only).
+// Anything not listed keeps its letter. Sprites show only on localhost and test.* (not on the live game until Sam
+// says they're ready: then drop the SPR_HOST check); ?ascii turns them off there to compare.
 const SPRITE_IDS = [];
 const SPRITES = { '.': 'floor', '#': 'wall', player: 'knight', rat: 'rat', '!': 'potion' };
-const SPR_ON = SPRITE_IDS.length > 0 && !(/^(localhost|127\.0\.0\.1|test\.)/.test(location.hostname) && /[?&]ascii/.test(location.search));
+const SPR_HOST = /^(localhost|127\.0\.0\.1|test\.)/.test(location.hostname);
+const SPR_ON = SPRITE_IDS.length > 0 && SPR_HOST && !/[?&]ascii/.test(location.search);
 function sprId(k, ch) { if (!SPR_ON) return null; const id = k != null && SPRITES[k] != null ? SPRITES[k] : SPRITES[ch]; return id != null && SPRITE_IDS.includes(id) ? id : null; }
 // One map cell. tch/tl: the floor or wall letter under it and its light level (0-3, or 'f' remembered).
 function cellSpan(x, cls, ch, sk, tch, tl) {

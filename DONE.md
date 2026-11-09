@@ -3,6 +3,10 @@
 Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs doing. Newest first.
 
 <!-- Format:
+### 2026-11-09 — v80: sprites hidden on the live game (staging)
+- `SPR_HOST` in the source: sprites show only on localhost and test.* until Sam says they're ready (then drop the
+  check). Checked: localhost 35 sprite cells, `?ascii` 0, another address ([::1], like live) 0.
+
 ### YYYY-MM-DD — what was done (commit abc1234)
 - One or two lines on how it works or anything a future chat should know.
 -->

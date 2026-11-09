@@ -52,7 +52,7 @@ have, remove deploy.yml (and optionally make the repo private).
 ## Art (sprites)
 
 - **First 5 sprites in (8 Nov 2026, v76, staging):** floor, wall, knight (player, all classes), rat, potion. Sam to
-  look at them on test.amberdepths.com on the iPhone (`?ascii` turns them off there to compare). PicSquare can't
+  look at them on test.amberdepths.com on the iPhone (`?ascii` turns them off there to compare). Sprites are hidden on the live game (`SPR_HOST` in the source) until Sam says they're ready. PicSquare can't
   export a sheet, so each sprite is its own file in `art/sprites/` (see [art/README.md](art/README.md)).
 - **Size question to settle with Sam:** a map cell is ~7 pt wide on an iPhone (40 columns across), so the knight and
   rat are drawn 1.15em (a row's height) and overlap the cells beside them; floor and wall tiles fill their cell and

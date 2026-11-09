@@ -475,7 +475,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
     <button class="mini" id="backbtn">← Back <span class="k">Esc</span></button><span class="sp"></span><button class="mini" id="chalbtn">Challenges <span class="k">C</span></button><button class="mini" id="histbtn">Run history <span class="k">H</span></button><button class="mini" id="lbbtn" hidden>Leaderboards <span class="k">L</span></button><button class="mini" id="tmus"></button><button class="mini" id="tsnd"></button>
   </div>
   <div class="logo-wrap">
-    <span class="ver" id="ver" aria-label="Version">v79</span>
+    <span class="ver" id="ver" aria-label="Version">v80</span>
     <pre id="logo" aria-label="Amber Depths"></pre>
     <p class="tag"><span class="torch" id="t1">ψ</span> descend · loot · slay the wyrm <span class="torch" id="t2">ψ</span></p>
     <p class="tag" id="holiday" hidden></p>
@@ -886,10 +886,12 @@ const crtOk = id => CRTS[id] && (!CRTS[id].unlock || PROF.done[CRTS[id].unlock])
 // puts them into the page and lists their names in SPRITE_IDS. Here, and in the claude.ai artifact, the list stays
 // empty and the map is all letters. SPRITES says which picture to draw for what: a monster's name ('rat'), 'player'
 // (or 'player:warrior' for one class), or a map letter ('.' floor, '#' wall, '!' potion, '>' stairs).
-// Anything not listed keeps its letter. Turn them off with ?ascii (localhost and test.* only).
+// Anything not listed keeps its letter. Sprites show only on localhost and test.* (not on the live game until Sam
+// says they're ready: then drop the SPR_HOST check); ?ascii turns them off there to compare.
 const SPRITE_IDS = ["floor","knight","potion","rat","wall"];
 const SPRITES = { '.': 'floor', '#': 'wall', player: 'knight', rat: 'rat', '!': 'potion' };
-const SPR_ON = SPRITE_IDS.length > 0 && !(/^(localhost|127\.0\.0\.1|test\.)/.test(location.hostname) && /[?&]ascii/.test(location.search));
+const SPR_HOST = /^(localhost|127\.0\.0\.1|test\.)/.test(location.hostname);
+const SPR_ON = SPRITE_IDS.length > 0 && SPR_HOST && !/[?&]ascii/.test(location.search);
 function sprId(k, ch) { if (!SPR_ON) return null; const id = k != null && SPRITES[k] != null ? SPRITES[k] : SPRITES[ch]; return id != null && SPRITE_IDS.includes(id) ? id : null; }
 // One map cell. tch/tl: the floor or wall letter under it and its light level (0-3, or 'f' remembered).
 function cellSpan(x, cls, ch, sk, tch, tl) {
