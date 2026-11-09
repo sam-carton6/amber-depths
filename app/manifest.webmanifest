@@ -1,7 +1,7 @@
 {
   "name": "Amber Depths",
   "short_name": "Amber Depths",
-  "description": "An amber-CRT ASCII roguelike. Descend, loot, slay the Wyrm.",
+  "description": "Free retro ASCII roguelike for your browser and phone. Pick from 12 classes, dive the amber dungeon and slay the Wyrm, or go Endless.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
