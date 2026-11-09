@@ -63,7 +63,7 @@ if (test) swap("try { muted = localStorage.getItem('amber-depths-mute') === '1';
 if (test) swap("cls = v ? 'tc' + rnd(0, 2) : 'tcd';", "cls = v ? 'tc' + ((performance.now() / 110 | 0) % 3) : 'tcd';");
 if (test) swap("showScreen('title');\n(document.fonts", `window.__T = { get S() { return S; }, sel, PROF, RELICS, CLASSES, W, H, PACK, SPRITES, render,
   newGame, monAt, shopAt, stats, buy, closeShop, descend, saveGame, loadGame, act, useItem, gearScore, ability, free, clear, itemAt, VAMP,
-  sellJunk, takeBoon, BOONS, healAmt, canAdd, EGGS, catAt, BDAY, dropItem };
+  sellJunk, takeBoon, BOONS, healAmt, canAdd, EGGS, catAt, BDAY, dropItem, TREMOR, DIG_LEN, UNDEAD, wardMax };
 showScreen('title');
 (document.fonts`);
 

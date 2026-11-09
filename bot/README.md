@@ -5,6 +5,7 @@ project: the plan is rules first, then look-ahead search, then maybe reinforceme
 Nothing in `bot/` goes live; only `app/` is published.
 
 ## Where things are
+- [RULES.md](RULES.md): every rule in plain English (what Sam approves).
 - [deep-bot.js](deep-bot.js): the bot. `KNOBS` at the top holds the numbers to tweak; the rules below it are
   checked top to bottom every turn, each with a comment saying what it does.
 - [RESULTS.md](RESULTS.md): how deep each version got, so changes can be compared.
