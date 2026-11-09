@@ -64,7 +64,7 @@ window.__runGame = async (cls, mode, diff, maxTurns, relic, asc, alt) => {
     S = T.S;
     if (!S || S.dead || S.won) break;
     if (!document.getElementById('shop').hidden) {
-      const pi = S.shop.stock.findIndex(x => x.it && x.it.type === 'potion');
+      const pi = S.shop.stock.findIndex(x => x.it && x.it.type === 'potion' && !x.it.kind);
       if (pi >= 0 && S.gold >= S.shop.stock[pi].price) T.buy(pi);
       const wi = S.shop.stock.findIndex(x => x.svc === 'sharpen');
       if (wi >= 0 && S.gold >= S.shop.stock[wi].price) T.buy(wi);
@@ -90,7 +90,7 @@ window.__runGame = async (cls, mode, diff, maxTurns, relic, asc, alt) => {
     const st = T.stats();
     const hostiles = S.mons.filter(m => !m.ally && S.vis[m.y] && S.vis[m.y][m.x]);
     const adj = hostiles.filter(m => Math.abs(m.x - S.px) + Math.abs(m.y - S.py) === 1);
-    const pIdx = S.pack.findIndex(i => i.type === 'potion');
+    const pIdx = S.pack.findIndex(i => i.type === 'potion' && !i.kind); // healing only
     // 1. dodge telegraphed attacks
     if (S.danger.has(S.px + ',' + S.py)) {
       const out = bfs((x, y) => !S.danger.has(x + ',' + y) && T.free(x, y));
@@ -105,7 +105,7 @@ window.__runGame = async (cls, mode, diff, maxTurns, relic, asc, alt) => {
     // 4. ability
     if (S.cd === 0) {
       const use = { warrior: adj.length >= 1, rogue: adj.length >= 2 || (hostiles.some(m => m.boss) && Math.random() < .3), mage: hostiles.length > 0, necro: S.corpses.some(c => S.vis[c.y][c.x]),
-        trapper: hostiles.length > 0 && !adj.length, alch: hostiles.length > 0 && S.pack.filter(i => i.type === 'potion').reduce((a, i) => a + (i.n || 1), 0) >= 2,
+        trapper: hostiles.length > 0 && !adj.length, alch: hostiles.length > 0 && S.pack.filter(i => i.type === 'potion' && !i.kind).reduce((a, i) => a + (i.n || 1), 0) >= 2,
         ranger: hostiles.some(m => (m.x === S.px || m.y === S.py) && Math.abs(m.x - S.px) + Math.abs(m.y - S.py) <= 8 && T.clear(S.px, S.py, m.x, m.y)),
         berserker: adj.length > 0, vampire: adj.length > 0 && (S.ward || 0) < st.max * T.VAMP.ward / 2, paladin: S.hp < st.max * .7 || hostiles.some(m => ['skeleton','wraith','ghoul'].includes(m.name)), gambler: hostiles.length > 0 && S.gold > 60, mole: S.alt ? S.mons.some(m => !m.ally && Math.max(Math.abs(m.x - S.px), Math.abs(m.y - S.py)) <= 8) : Math.random() < .15 }[S.cls];
       if (use) {

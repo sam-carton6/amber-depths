@@ -7,7 +7,7 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v80 (merged 9 Nov 2026, commit `adb9bc6`): easter eggs + class birthdays, step over seen traps,
 Brood Mother/spider fix, merchant gold sinks; sprites are in the code but hidden on live (`SPR_HOST`). Details in DONE.md.
-**On `staging`, not live yet:** nothing.
+**On `staging`, not live yet:** 3 new potions (Strength, Haste, Antidote) and the Scavenger upgrade (9 Nov 2026).
 **Art (8 Nov 2026):** Sam's first 5 sprites are in (v76, staging), waiting for him to try them on the iPhone. See *Art* below.
 **Next up:** Sam's Hard Endless run with Backup codes before boss floors.
 **Bot chat (7 Nov 2026):** the deep bot ([bot/](bot/README.md)) v1 is in: Warrior Hard Endless averages floor 53
@@ -118,4 +118,6 @@ have, remove deploy.yml (and optionally make the repo private).
 
 ## What's new at the next merge
 
-(Nothing yet.)
+- Three new potions: Strength (double damage for 10 turns), Haste (two moves for every monster move) and Antidote
+  (cures poison, burning and slowness, and keeps them off for a while). Drink them from your pack; P still drinks healing.
+- New upgrade: Scavenger. Gear you find or buy is +1 better and more often has a bonus.

@@ -3,6 +3,20 @@
 Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs doing. Newest first.
 
 <!-- Format:
+### YYYY-MM-DD — what was done (commit abc1234)
+- One or two lines on how it works or anything a future chat should know.
+-->
+
+### 2026-11-09 — 3 new potions and the Scavenger upgrade (staging)
+- `POTIONS` (str, haste, cure): a potion with a `kind`; no kind = healing, so old saves are untouched. `isHeal` picks
+  healing for P, the HUD count, the Alchemist's Brew and the bots. Timers `S.str` (10), `S.haste` (16 of your turns:
+  `endTurn` skips every other `monstersTurn`), `S.cure` (30: `applyStatus` refuses poison, burn, slow; haste refuses slow).
+- Where they come from: 1 potion drop in 5 from monsters is a rarer one (so fewer healing potions deep down), 35% of
+  floors have one lying around, every merchant sells one. Strength doubles `attack()` damage (melee and Whirlwind).
+- Scavenger (`BOONS.scav`): +1 plus on every new piece of gear and +15% bonus chance per pick.
+- Checked: each potion's effect (Strength 2x hits, Haste 4 monster moves in 8 turns, Antidote cures and blocks), stacking,
+  save/reload, shop and floor drops, Scavenger (+2 plus and 45% bonus rate at 2 picks); 5 bot games clean.
+
 ### 2026-11-09 — v80 live
 - Merged `staging` → `main` at `adb9bc6`: easter eggs and class birthdays (v71), step over seen traps (v72), Brood
   Mother/spider wake-up fix (v73), merchant temper/reinforce/bigger pack (v78), sprites hidden on live (v80).
@@ -10,10 +24,6 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 ### 2026-11-09 — v80: sprites hidden on the live game (staging)
 - `SPR_HOST` in the source: sprites show only on localhost and test.* until Sam says they're ready (then drop the
   check). Checked: localhost 35 sprite cells, `?ascii` 0, another address ([::1], like live) 0.
-
-### YYYY-MM-DD — what was done (commit abc1234)
-- One or two lines on how it works or anything a future chat should know.
--->
 
 ### 2026-11-08 — v76: Sam's first 5 sprites in the game (staging)
 - floor, wall, knight (player), rat, potion; one PNG per sprite in `art/sprites/` (PicSquare can't export a sheet), so
