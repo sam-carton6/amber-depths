@@ -11,6 +11,7 @@ Nothing in `bot/` goes live; only `app/` is published.
 - [RESULTS.md](RESULTS.md): how deep each version got, so changes can be compared.
 - [run.mjs](run.mjs): the batch runner; [report-template.html](report-template.html): its results page.
 - [all.mjs](all.mjs): runs every class and builds [compare-template.html](compare-template.html), the comparison page.
+- [doe.mjs](doe.mjs): the upgrade experiment (every class x 6 upgrade orders) and its page, [doe-template.html](doe-template.html).
 - [sam-runs.json](sam-runs.json): your own runs, drawn on the charts next to the bot.
 
 ## Running it from VS Code (on your PC, no Claude needed)
@@ -22,6 +23,10 @@ Open the Amber Depths folder in VS Code, then **Terminal → Run Task...**:
 - **Bot: all classes**: plays the same seeds with every class (about 12 minutes for 20 seeds) and opens a page
   comparing them: floor reached by class (a dot per game), what killed each class, the character on floor 30, and a
   link to each class's own page.
+- **Bot: upgrade DOE**: plays every class with each of 6 upgrade-pick orders on the same seeds (1,440 games for
+  seeds 1-20, about 45 minutes) and opens a page: a class x strategy grid of floors gained over the "defensive"
+  order, with error bars, and each class's winner. Stopped halfway? `node bot/doe.mjs --resume` carries on.
+  The strategies are at the top of [doe.mjs](doe.mjs).
 - **Bot: watch a seed**: replays one seed slowly in a visible window (same seed = same game).
   To step through one floor turn by turn instead: `node bot/run.mjs --watch 5 --from 25 --to 25 --text`.
 - **Bot: open last results**: reopens the latest results page.

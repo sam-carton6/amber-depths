@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upgrade DOE</title>
+<!-- Template for bot/doe.mjs: it swaps the DATA line below for the results and saves doe.html. -->
+<style>
+:root {
+  color-scheme: light;
+  --page: #f4f3ef; --surface-1: #fcfcfb; --line: #e3e1da; --grid: #ecebe6;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #77756f;
+  --better: #2a78d6; --worse: #e34948; --mid: #f0efec;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #121211; --surface-1: #1a1a19; --line: #2e2d2b; --grid: #262624;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8d86;
+    --better: #3987e5; --worse: #e66767; --mid: #383835;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #121211; --surface-1: #1a1a19; --line: #2e2d2b; --grid: #262624;
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8d86;
+  --better: #3987e5; --worse: #e66767; --mid: #383835;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--text-primary); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 60px; }
+h1 { font-size: 1.6rem; margin: 0 0 2px; }
+h2 { font-size: 1.05rem; margin: 0 0 2px; }
+.sub, .note { color: var(--text-secondary); margin: 0; }
+.note { font-size: .82rem; color: var(--text-muted); }
+.card { background: var(--surface-1); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-top: 14px; min-width: 0; }
+.card header { margin-bottom: 10px; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: separate; border-spacing: 2px; width: 100%; font-size: .85rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 6px 8px; white-space: nowrap; }
+th { color: var(--text-secondary); font-weight: 600; }
+td.num, th.num { text-align: right; }
+.plain td, .plain th { border-bottom: 1px solid var(--line); }
+.plain { border-spacing: 0; }
+td.cell { text-align: center; border-radius: 4px; min-width: 104px; cursor: default; }
+td.cell .v { font-weight: 600; }
+td.cell .e { color: var(--text-secondary); font-size: .78rem; }
+td.cell.win { outline: 2px solid var(--text-primary); outline-offset: -2px; }
+td.cell svg { display: block; margin: 3px auto 0; }
+td.base { text-align: center; background: var(--mid); border-radius: 4px; }
+.star { font-weight: 700; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; font-size: .82rem; color: var(--text-secondary); margin-top: 10px; }
+.legend i { display: inline-block; vertical-align: middle; margin-right: 6px; }
+.legend i.scale { width: 120px; height: 10px; border-radius: 2px; background: linear-gradient(90deg, var(--worse), var(--mid), var(--better)); }
+.legend i.box { width: 14px; height: 14px; border-radius: 3px; outline: 2px solid var(--text-primary); outline-offset: -2px; }
+svg.forest { display: block; width: 100%; height: auto; overflow: visible; }
+svg text { fill: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+svg text.row { fill: var(--text-secondary); font-size: 12px; }
+svg text.val { fill: var(--text-primary); font-size: 12px; font-weight: 600; }
+.tip { position: fixed; pointer-events: none; z-index: 5; background: var(--surface-1); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; font-size: .8rem; box-shadow: 0 4px 16px rgba(0,0,0,.18); max-width: 300px; }
+.tip b { color: var(--text-primary); } .tip div { color: var(--text-secondary); }
+ol.orders { margin: 6px 0 0; padding-left: 0; list-style: none; font-size: .85rem; }
+ol.orders li { padding: 4px 0; border-bottom: 1px solid var(--line); }
+ol.orders b { display: inline-block; min-width: 150px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Upgrade DOE</h1>
+<p class="sub" id="sub"></p>
+
+<section class="card">
+  <header><h2>Floors gained over today's "defensive" order</h2>
+  <p class="note">Each cell: the average difference in deepest floor, game by game on the same seed (+ = deeper). The bar under it is that
+  number with its ± 2 standard errors: if the bar crosses the middle line, the difference could be luck. The defensive column shows its
+  own average floor. Outlined = that class's winner. Hover a cell for details.</p></header>
+  <div class="tablewrap"><table id="grid"></table></div>
+  <div class="legend"><span><i class="scale"></i>worse ← same → better</span><span><i class="box"></i>winner for that class</span></div>
+</section>
+
+<section class="card">
+  <header><h2>Each strategy over all classes</h2>
+  <p class="note">Every seed of every class counts once. Dot = average floors gained over defensive; line = ± 2 standard errors.</p></header>
+  <svg class="forest" id="forest" role="img" aria-label="Average floors gained by each strategy over all classes"></svg>
+</section>
+
+<section class="card">
+  <header><h2>Each class's winner</h2>
+  <p class="note">"Clear" means the gain minus 2 standard errors is still above 0. Upgrades: what the winner had taken by the end, on average per game.</p></header>
+  <div class="tablewrap"><table class="plain" id="winners"></table></div>
+</section>
+
+<section class="card">
+  <header><h2>The strategies</h2>
+  <p class="note">Upgrade picks, best first. "regen:1" = take Regeneration at most once. Scavenger isn't listed, so it's always picked last.</p></header>
+  <ol class="orders" id="orders"></ol>
+</section>
+</main>
+<div class="tip" id="tip" hidden></div>
+<script>
+const D = /*DATA*/null;
+const $ = id => document.getElementById(id), esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const ST = Object.keys(D.strategies), OTHER = ST.filter(s => s !== 'defensive'), name = s => D.strategies[s].name;
+const sign = x => (x > 0 ? '+' : x < 0 ? '−' : '±') + Math.abs(x).toFixed(1);
+const pm = c => c.se == null ? '' : '± ' + (2 * c.se).toFixed(1);
+$('sub').textContent = `${D.game.diff} ${D.game.mode}, seeds ${D.seeds} · ${D.games} games, ${D.stuck} stuck or crashed (left out with their partner game) · ${D.stamp}`;
+
+// Colour: blue for better, red for worse, grey for no change; full strength at the biggest difference on the page.
+const all = D.rows.flatMap(r => OTHER.map(s => r.cells[s]).filter(c => c.diff != null));
+const span = Math.max(1, ...all.map(c => Math.abs(c.diff)));
+const ext = Math.max(1, ...all.map(c => Math.abs(c.diff) + 2 * (c.se || 0)));
+const fill = d => `color-mix(in oklab, ${d >= 0 ? 'var(--better)' : 'var(--worse)'} ${Math.round(70 * Math.min(1, Math.abs(d) / span))}%, var(--mid))`;
+const whisker = c => { // a tiny dot and ± 2 SE line on a shared scale, with the zero line in the middle
+  const W = 84, x = v => W / 2 + v / ext * (W / 2 - 4), lo = x(c.diff - 2 * (c.se || 0)), hi = x(c.diff + 2 * (c.se || 0));
+  return `<svg width="${W}" height="10" aria-hidden="true"><line x1="${W / 2}" x2="${W / 2}" y1="0" y2="10" stroke="var(--text-muted)" stroke-width="1"/>`
+    + `<line x1="${lo}" x2="${hi}" y1="5" y2="5" stroke="var(--text-primary)" stroke-width="2" stroke-linecap="round"/><circle cx="${x(c.diff)}" cy="5" r="3.5" fill="var(--text-primary)"/></svg>`;
+};
+
+// The grid
+$('grid').innerHTML = `<thead><tr><th>Class</th><th class="num">${esc(name('defensive'))}<br><span class="note">avg floor</span></th>${OTHER.map(s => `<th style="text-align:center">${esc(name(s))}</th>`).join('')}</tr></thead><tbody>`
+  + D.rows.map((r, i) => `<tr><th>${esc(r.name)}</th><td class="base ${r.winner === 'defensive' ? 'cell win' : ''}" data-r="${i}" data-s="defensive"><span class="v">${r.cells.defensive.avg ?? '–'}</span></td>`
+    + OTHER.map(s => { const c = r.cells[s]; if (c.diff == null || !c.n) return `<td class="cell" style="background:var(--mid)">–</td>`;
+      return `<td class="cell ${r.winner === s ? 'win' : ''}" style="background:${fill(c.diff)}" data-r="${i}" data-s="${s}"><span class="v">${sign(c.diff)}</span> <span class="e">${pm(c)}</span>${whisker(c)}</td>`; }).join('') + '</tr>').join('') + '</tbody>';
+
+// Hover details
+const tip = $('tip');
+$('grid').addEventListener('mousemove', e => {
+  const td = e.target.closest('td[data-r]'); if (!td) { tip.hidden = true; return; }
+  const r = D.rows[+td.dataset.r], s = td.dataset.s, c = r.cells[s];
+  tip.innerHTML = `<b>${esc(r.name)} · ${esc(name(s))}</b>`
+    + `<div>Average floor ${c.avg ?? '–'} (${c.played} games, ${c.stuck} stuck)</div>`
+    + (s === 'defensive' ? '' : `<div>vs defensive: <b>${sign(c.diff)}</b> ${pm(c)} floors over ${c.n} paired seeds</div>`)
+    + `<div>Upgrades by the end (per game): ${c.boons.slice(0, 6).map(([b, k]) => `${esc(b)} ${k}`).join(', ') || 'none'}</div>`;
+  tip.hidden = false;
+  const x = Math.min(e.clientX + 14, innerWidth - tip.offsetWidth - 8), y = e.clientY + 16 + tip.offsetHeight > innerHeight ? e.clientY - tip.offsetHeight - 10 : e.clientY + 16;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+});
+$('grid').addEventListener('mouseleave', () => tip.hidden = true);
+
+// Each strategy over all classes (dot and whisker)
+(() => {
+  const rows = OTHER.map(s => ({ s, ...D.overall[s] })).filter(o => o.n), W = 640, L = 150, R = 70, rowH = 30, H = rows.length * rowH + 30;
+  const m = Math.max(1, ...rows.map(o => Math.abs(o.diff) + 2 * (o.se || 0))) * 1.1, x = v => L + (v + m) / (2 * m) * (W - L - R);
+  const step = m > 6 ? 2 : m > 3 ? 1 : .5, ticks = []; for (let v = -Math.floor(m / step) * step; v <= m; v += step) ticks.push(+v.toFixed(1));
+  let g = ticks.map(v => `<line x1="${x(v)}" x2="${x(v)}" y1="0" y2="${H - 22}" stroke="${v === 0 ? 'var(--text-muted)' : 'var(--grid)'}" stroke-width="1"/><text x="${x(v)}" y="${H - 6}" text-anchor="middle">${v > 0 ? '+' : ''}${v}</text>`).join('');
+  rows.forEach((o, i) => { const y = i * rowH + 15, col = o.diff >= 0 ? 'var(--better)' : 'var(--worse)';
+    g += `<text class="row" x="0" y="${y + 4}">${esc(name(o.s))}</text>`
+      + `<line x1="${x(o.diff - 2 * o.se)}" x2="${x(o.diff + 2 * o.se)}" y1="${y}" y2="${y}" stroke="${col}" stroke-width="2" stroke-linecap="round"/>`
+      + `<circle cx="${x(o.diff)}" cy="${y}" r="5" fill="${col}" stroke="var(--surface-1)" stroke-width="2"><title>${esc(name(o.s))}: ${sign(o.diff)} ± ${(2 * o.se).toFixed(1)} floors over ${o.n} paired games</title></circle>`
+      + `<text class="val" x="${W - R + 8}" y="${y + 4}">${sign(o.diff)}</text>`; });
+  $('forest').setAttribute('viewBox', `0 0 ${W} ${H}`); $('forest').innerHTML = g;
+})();
+
+// Winners
+$('winners').innerHTML = `<thead><tr><th>Class</th><th class="num">Defensive</th><th>Winner</th><th class="num">Its floor</th><th class="num">Gain</th><th>Sure?</th><th>Upgrades it ended with</th></tr></thead><tbody>`
+  + D.rows.map(r => { const c = r.cells[r.winner];
+    return `<tr><td>${esc(r.name)}</td><td class="num">${r.cells.defensive.avg ?? '–'}</td><td class="star">${esc(name(r.winner))}</td><td class="num">${c.avg ?? '–'}</td>`
+      + `<td class="num">${r.winner === 'defensive' ? '–' : sign(c.diff) + ' ' + pm(c)}</td><td>${r.winner === 'defensive' ? 'keeps today\'s' : r.clear ? 'clear' : 'could be luck'}</td>`
+      + `<td>${c.boons.slice(0, 5).map(([b, k]) => `${esc(b)} ${k}`).join(', ')}</td></tr>`; }).join('') + '</tbody>';
+
+$('orders').innerHTML = ST.map(s => `<li><b>${esc(name(s))}</b>${D.strategies[s].order.map(esc).join(' → ')}</li>`).join('');
+</script>
+</body>
+</html>

@@ -24,6 +24,13 @@
       "problemMatcher": []
     },
     {
+      "label": "Bot: upgrade DOE",
+      "type": "shell",
+      "command": "node doe.mjs --diff ${input:diff} --seeds ${input:seeds}",
+      "options": { "cwd": "${workspaceFolder}/bot" },
+      "problemMatcher": []
+    },
+    {
       "label": "Bot: watch a seed",
       "type": "shell",
       "command": "node run.mjs --watch ${input:seed} --cls ${input:cls} --diff ${input:diff} --speed ${input:speed}",
