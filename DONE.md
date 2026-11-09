@@ -17,6 +17,13 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
   monster names / `player` / map letters to squares. Tested with a throwaway sheet: draws on the map, bot played 400
   turns with no issues; with no sheet the game is unchanged. Details in src/HANDOFF.md (Sprites) and TODO.md (Art).
 
+### 2026-11-09 — v78: gold sinks at merchants (staging)
+- Sam's Hard Endless run ended floor 49 with 71k unspent gold. Every shop now also offers three services that never
+  sell out: Temper your weapon (+1 attack) and Reinforce your armor (+1 defence) share one price that doubles each
+  buy (500, 1000, 2000...; `SMITH_BASE`, counted in `S.smith`), and A bigger pack (+2 slots, up to +6; 1000, 3000,
+  9000; `S.packX`, added in `packMax()`). Gambler and birthday discounts apply (`dynPrice`). On Sam's floor-49 save:
+  63.5k buys +4 attack +3 defence. Guide's How to play line updated.
+
 ### 2026-11-07 — v73: poisonous monsters no longer poison themselves (staging)
 - Sam: the Brood Mother came for him as soon as floor 30 started. Cause: a monster's poison bite and "this monster is
   poisoned" shared one field (`m.poison`), so cave spiders, ghouls and the Brood Mother spawned poisoned, took a tick on

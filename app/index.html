@@ -464,7 +464,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
     <button class="mini" id="backbtn">← Back <span class="k">Esc</span></button><span class="sp"></span><button class="mini" id="chalbtn">Challenges <span class="k">C</span></button><button class="mini" id="histbtn">Run history <span class="k">H</span></button><button class="mini" id="lbbtn" hidden>Leaderboards <span class="k">L</span></button><button class="mini" id="tmus"></button><button class="mini" id="tsnd"></button>
   </div>
   <div class="logo-wrap">
-    <span class="ver" id="ver" aria-label="Version">v76</span>
+    <span class="ver" id="ver" aria-label="Version">v78</span>
     <pre id="logo" aria-label="Amber Depths"></pre>
     <p class="tag"><span class="torch" id="t1">ψ</span> descend · loot · slay the wyrm <span class="torch" id="t2">ψ</span></p>
     <p class="tag" id="holiday" hidden></p>
@@ -642,7 +642,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 4
 <template id="howtotpl">
   <li><b>Move</b> with the arrow keys, WASD, the numpad (<b>8 4 5 6</b>; <b>7</b> ability, <b>9</b> potion, <b>.</b> pack, <b>0</b> wait) or the d-pad. Walk into a monster to attack it. On a phone, <b>Settings → Controls</b> offers big arrows, or tapping the map (top, bottom, left or right part to move, middle to wait).</li>
   <li><b>Q</b> uses your class ability, <b>P</b> drinks a potion, <b>Space</b> waits a turn. <b>I</b> opens your pack: <b>1–9</b> uses or equips an item, <b>Shift + number</b> drops it. With the arrow keys: <b>Delete</b> ability, <b>End</b> wait, <b>Page Down</b> potion, <b>right Ctrl</b> pack.</li>
-  <li>Find the <b>&gt;</b> on each floor to go deeper. Merchants <b>&amp;</b> sell gear, potions and upgrades, and buy your spares. Hidden traps <b>^</b> lurk (Rogues spot them far more often). Once you've seen a trap, or it has caught you, you step over it safely. Cracked walls <b>▒</b> hide secret rooms, and chests <b>=</b> hold loot, though some bite back.</li>
+  <li>Find the <b>&gt;</b> on each floor to go deeper. Merchants <b>&amp;</b> sell gear, potions and upgrades, and buy your spares. They also temper your weapon, reinforce your armor and sell a bigger pack as often as you can pay; the price goes up each time. Hidden traps <b>^</b> lurk (Rogues spot them far more often). Once you've seen a trap, or it has caught you, you step over it safely. Cracked walls <b>▒</b> hide secret rooms, and chests <b>=</b> hold loot, though some bite back.</li>
   <li>Partway down, a <b>Stone Golem</b> guards the stairs (floors 5, 15, 25… in Endless). When it raises its fists, step out of the glowing ring. In Standard and Endless, beating it lets you pick one of 3 upgrades for the rest of the run.</li>
   <li>On the last floor the <b>Amber Wyrm</b> breathes fire in a line: when the floor glows <b>≈</b>, step out of it.</li>
   <li>In <b>Endless</b>, every 10th floor is a boss floor (Cyclops, Drake, Lich, Brood Mother or Shadow, each before any repeats), and every 50th brings back the Wyrm. Bosses give better loot and <b>2</b> upgrade picks (the Wyrm: <b>3</b> and a relic). Past floor 12, monsters get tougher every floor.</li>
@@ -718,7 +718,7 @@ const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(
 const DIRS4 = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 const DIRS8 = [...DIRS4, [1, 1], [1, -1], [-1, 1], [-1, -1]];
 const PACK = 10;
-const packMax = () => PACK + (S && S.relic === 'mule' ? 5 : 0); // Pack Mule relic: +5 slots
+const packMax = () => PACK + (S && S.relic === 'mule' ? 5 : 0) + ((S && S.packX) || 0); // Pack Mule relic: +5 slots; S.packX = slots bought from merchants
 
 const LOGO = [
 ' █████╗ ███╗   ███╗██████╗ ███████╗██████╗ ',
@@ -2492,8 +2492,19 @@ function placeShop(rooms) {
     isVamp() ? { svc: 'heal', ch: '+', name: 'A cup of something red', desc: 'Fill your blood ward', price: 8 + 3 * e } : { svc: 'heal', ch: '+', name: 'Bandages and a hot meal', desc: 'Restore all HP', price: 8 + 3 * e },
   ] };
   if (S.relic === 'coin') { const k = RNG() < .5 ? 'weapon' : 'armor', g3 = gear(k, tier + 2, pick(k === 'weapon' ? ['keen', 'vampiric'] : ['vigor', 'thorns'])); S.shop.stock.splice(5, 0, { it: g3, price: gearPrice(g3) }); }
-  if (S.cls === 'gambler') for (const st of S.shop.stock) st.price = Math.round(st.price * .75);
-  if (isBday()) { for (const st of S.shop.stock) st.price = Math.round(st.price * .9); S.shop.greet = '"Happy birthday! Ten percent off, today only."'; }
+  S.shop.stock.push( // gold sinks: never sell out, and cost more each time you buy (S.smith / S.packX count it for the run)
+    { svc: 'temper', dyn: 1, ch: ')', name: 'Temper your weapon', desc: '+1 attack for the rest of the run. Each temper or reinforce costs double.' },
+    { svc: 'reinforce', dyn: 1, ch: '[', name: 'Reinforce your armor', desc: '+1 defence for the rest of the run. Each temper or reinforce costs double.' },
+    { svc: 'packx', dyn: 1, ch: '(', name: 'A bigger pack', desc: `+${PACKX_STEP} pack slots for the rest of the run (up to +${PACKX_MAX}).` });
+  if (S.cls === 'gambler') for (const st of S.shop.stock) if (!st.dyn) st.price = Math.round(st.price * .75);
+  if (isBday()) { for (const st of S.shop.stock) if (!st.dyn) st.price = Math.round(st.price * .9); S.shop.greet = '"Happy birthday! Ten percent off, today only."'; }
+}
+// Prices of the never-sell-out services. Temper and reinforce share one doubling price: 500, 1000, 2000, 4000...
+const SMITH_BASE = 500, PACKX_BASE = 1000, PACKX_STEP = 2, PACKX_MAX = 6;
+function dynPrice(s) {
+  const n = s.svc === 'packx' ? (S.packX || 0) / PACKX_STEP : (S.smith || 0);
+  const base = s.svc === 'packx' ? PACKX_BASE * 3 ** n : SMITH_BASE * 2 ** n; // bigger pack: 1000, 3000, 9000
+  return Math.round(base * (S.cls === 'gambler' ? .75 : 1) * (isBday() ? .9 : 1));
 }
 function cmpTag(it) {
   if (it.type !== 'gear') return '';
@@ -2506,6 +2517,8 @@ function renderShop() {
   const sh = S.shop;
   $('shopgold').textContent = `${S.gold} gold`;
   $('shopgreet').textContent = sh.greet;
+  for (const s of sh.stock) if (s.dyn) s.price = dynPrice(s);
+  sh.stock = sh.stock.filter(s => !(s.svc === 'packx' && (S.packX || 0) >= PACKX_MAX));
   $('slist').innerHTML = sh.stock.length ? sh.stock.map((s, i) => {
     const nm = s.it ? itemName(s.it) : s.name, ds = s.it ? itemDesc(s.it) : s.desc;
     const cls = s.it ? itemCls(s.it) : s.svc === 'heal' ? 'ip' : 'ig';
@@ -2523,9 +2536,13 @@ function renderShop() {
 }
 function buy(i) {
   const s = S.shop && S.shop.stock[i]; if (!s) return;
+  if (s.dyn) s.price = dynPrice(s);
   if (S.gold < s.price) { SND.play('deny'); say(`You need ${s.price - S.gold} more gold for that.`, 'bad'); renderShop(); update(); return; }
   const nm = s.it ? itemName(s.it) : s.name;
   if (s.svc === 'sharpen') { S.atk++; say('The merchant hones your edge. +1 attack.', 'good'); }
+  else if (s.svc === 'temper') { S.atk++; S.smith = (S.smith || 0) + 1; say(`The merchant tempers your blade. +1 attack (${s.price} gold).`, 'good'); }
+  else if (s.svc === 'reinforce') { S.def++; S.smith = (S.smith || 0) + 1; say(`The merchant rivets on fresh plates. +1 defence (${s.price} gold).`, 'good'); }
+  else if (s.svc === 'packx') { S.packX = (S.packX || 0) + PACKX_STEP; say(`You buy a bigger pack. It holds ${packMax()} now.`, 'good'); }
   else if (s.svc === 'heal') {
     if (isVamp()) {
       if ((S.ward || 0) >= wardMax()) { SND.play('deny'); say('Your blood ward is already full.'); renderShop(); update(); return; }
@@ -2537,7 +2554,7 @@ function buy(i) {
   } else if (s.it.type === 'gear' && !S[s.it.kind]) { S[s.it.kind] = s.it; S.gearChanged = true; say(`You buy and equip the ${nm}.`, 'good'); }
   else if (!canAdd(s.it)) { SND.play('deny'); say(S.pack.some(it => it.type === 'gear') ? 'Your pack is full. Sell some gear first.' : 'Your pack is full. Come back after using something.', 'bad'); renderShop(); update(); return; }
   else { addToPack(s.it); say(`You buy the ${nm} for ${s.price} gold.`, 'gold'); }
-  S.gold -= s.price; S.shop.stock.splice(i, 1);
+  S.gold -= s.price; if (!s.dyn) S.shop.stock.splice(i, 1);
   SND.play('coin');
   renderShop(); update();
 }

@@ -7,7 +7,7 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v70 (merged 7 Nov 2026, commit `9e0926e`; v69 brought: new title screen and Settings sheet, How to play in
 the Guide, the daily sets your run aside, cloud sync, 8 leaderboards (cleared 7 Nov); v70 fixed an item under a merchant). Details in DONE.md.
-**On `staging`, not live yet:** v71: 11 easter eggs + class birthdays; v72: step over seen traps; v73: Brood Mother/spider wake-up bug fixed (test with `?eggs` and `?date=MM-DD` on test.amberdepths.com).
+**On `staging`, not live yet:** v71: 11 easter eggs + class birthdays; v72: step over seen traps; v73: Brood Mother/spider wake-up bug fixed; v78: gold sinks (temper/reinforce/bigger pack) (test with `?eggs` and `?date=MM-DD` on test.amberdepths.com).
 **Art (8 Nov 2026):** Sam's first 5 sprites are in (v76, staging), waiting for him to try them on the iPhone. See *Art* below.
 **Next up:** Sam's Hard Endless run with Backup codes before boss floors.
 **Bot chat (7 Nov 2026):** the deep bot ([bot/](bot/README.md)) v1 is in: Warrior Hard Endless averages floor 53
@@ -63,8 +63,6 @@ have, remove deploy.yml (and optionally make the repo private).
 - **Boss minion farm** (found by the deep bot, 7 Nov 2026): the Lich and Brood Mother make minions forever, 1 XP
   each, so a patient player can level without limit on floor 10 (bot: level 17 → 41 in 12,000 turns). Fix if Sam
   wants: minions give 0 XP after the first N, or the boss stops summoning after a while.
-- **Late gold has nothing to buy** (deep bot, 7 Nov 2026): ~57k unspent at death around floor 53; shops sell only 2
-  potions. Matches the open "potions and gold pile up" note above.
 
 - **"Equip best" button in the pack** (Sam, 6 Nov 2026): puts on the highest `gearScore` weapon and armor. Small: the
   game already scores gear (pickup message, sell-junk). Watch out for cursed gear and Vampiric/Thorned trade-offs.
@@ -122,4 +120,5 @@ have, remove deploy.yml (and optionally make the repo private).
 
 - Easter eggs. Some are rare and some need a keyboard. Each class now has a birthday (it's in the Guide).
 - Traps you've already seen (or that got you once) no longer go off: you step over them.
+- Merchants now temper your weapon (+1 attack), reinforce your armor (+1 defence) and sell a bigger pack, as often as you can afford: the price goes up each time. Something to spend all that gold on.
 - Fixed: cave spiders, ghouls and the Brood Mother woke up and hunted you from the start of a floor (and lost their poison bite after a few turns).
