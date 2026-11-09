@@ -37,6 +37,9 @@ have, remove deploy.yml (and optionally make the repo private).
   Floor 49: Lv 82, 517/517 HP, ATK 119, 16 potions (44 drunk on floors 39-49), 71k gold, 769 kills, biggest hit
   taken 97. Damage taken on floors 39-49: 11,875 (2.2x the floors before). At this rate he runs dry around floor 52-55,
   close to where the deep bot dies (~53). Backup in `test/sam-save-f49.json`. Curve looks right; gold still useless.
+  **Died on floor 51** (9 Nov 2026): Lv 86, 812 kills, 12,286 turns, 46k gold left. Matches the forecast (52-55) and
+  the deep bot (~53): the deep curve is confirmed, no change needed. Gold sinks (v78) came in after this run's
+  floor-49 backup; see how much gold the next deep run has left.
   Backup in `test/sam-save-f19.json` (ignored). Waiting for floors 29/39/49 before changing anything.
   Testing with a real save: decode the backup code into `test/sam-save.json` (ignored; private) and load it in the
   test page (`localStorage` save key + `__T.loadGame()`). Soak test: `test/soak.js` (ignored; see DONE.md).
