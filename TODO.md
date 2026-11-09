@@ -7,6 +7,8 @@ under *Ideas (later)*; ask before building one.
 
 **Live on `main`:** v70 (merged 7 Nov 2026, commit `9e0926e`; v69 brought: new title screen and Settings sheet, How to play in
 the Guide, the daily sets your run aside, cloud sync, 8 leaderboards (cleared 7 Nov); v70 fixed an item under a merchant). Details in DONE.md.
+**Also live (9 Nov 2026, commit `980b471`, still v70):** the Google listing on its own: new title and description,
+link previews, robots.txt, sitemap. Sam verified amberdepths.com in Google Search Console and submits the sitemap there.
 **On `staging`, not live yet:** v71: 11 easter eggs + class birthdays; v72: step over seen traps; v73: Brood Mother/spider wake-up bug fixed; v78: gold sinks (temper/reinforce/bigger pack) (test with `?eggs` and `?date=MM-DD` on test.amberdepths.com).
 **Art (8 Nov 2026):** Sam's first 5 sprites are in (v76, staging), waiting for him to try them on the iPhone. See *Art* below.
 **Next up:** Sam's Hard Endless run with Backup codes before boss floors.
