@@ -136,7 +136,8 @@ window.DeepBotKnobs = {
       for (let step = 0; step < o.maxTurns * 4; step++) {
         S = T.S && screen(T.S);
         if (!S || S.dead || S.won || S.turn > o.maxTurns) break;
-        if (o.delay) await sleep(o.delay);
+        if (o.stopAfter && S.depth > o.stopAfter) break; // watching one floor: stop when it's done
+        if (o.delay && S.depth >= (o.slowFrom || 0)) await sleep(o.delay); // fast-forward to slowFrom, then watch speed
         else if (step % 200 === 0) await sleep(0); // let the page breathe, so DeepBot.status() can answer mid-batch
 
         // --- Pop-up screens ---

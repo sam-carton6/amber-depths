@@ -4,6 +4,8 @@
 //   node bot/run.mjs --watch 11                                   (watch seed 11 play in a visible window)
 // Options: --cls (class id), --seeds (1-20 or 1,5,9), --diff (easy|normal|hard|nightmare), --mode (short|standard|
 // endless), --label (a name for this batch), --jobs (games at once), --speed (ms per turn when watching), --no-open.
+// Watching: --from F skips ahead to floor F, --to F stops after floor F, --record saves a video (bot/runs/videos/)
+// instead of opening a window, to look at later or send to a phone.
 // Each batch goes in bot/runs/<date>-<label>/ (not in git): one JSON file per game, summary.json and report.html.
 import { chromium } from 'playwright';
 import http from 'node:http';
@@ -50,11 +52,20 @@ async function openGame(browser, viewport) {
 
 if (watchSeed) {
   // --- Watch one seed in a visible window ---
-  const browser = await chromium.launch({ headless: false });
-  const { page } = await openGame(browser, { width: 1200, height: 900 });
-  console.log(`Watching seed ${watchSeed} (${game.cls}, ${game.diff} ${game.mode}). Close the window to stop.`);
-  const r = await page.evaluate(o => DeepBot.play(o), { ...game, seed: +watchSeed, delay: +opt('speed', 120) }).catch(() => null);
-  if (r) console.log(`Seed ${r.seed}: reached floor ${r.depth}${r.death ? ', ' + r.death.by : ''}`);
+  const record = args.includes('--record'), from = +opt('from', 0) || 0, to = +opt('to', 0) || 0;
+  const browser = await chromium.launch({ headless: record });
+  const vids = path.join(BOT, 'runs', 'videos'), size = { width: 1000, height: 760 };
+  const ctx = await browser.newContext({ viewport: size, ...(record ? { recordVideo: { dir: vids, size } } : {}) });
+  const page = await ctx.newPage();
+  await page.goto(URL_); await page.waitForFunction(() => window.__T);
+  await page.addScriptTag({ path: path.join(BOT, 'deep-bot.js') });
+  console.log(`${record ? 'Recording' : 'Watching'} seed ${watchSeed} (${game.cls}, ${game.diff} ${game.mode})${from ? ', from floor ' + from : ''}${to ? ' to ' + to : ''}.${record ? '' : ' Close the window to stop.'}`);
+  const r = await page.evaluate(o => DeepBot.play(o), { ...game, seed: +watchSeed, delay: +opt('speed', 120), slowFrom: from, stopAfter: to }).catch(() => null);
+  if (r) console.log(`Seed ${r.seed}: ${to && r.depth > to ? 'finished floor ' + to : 'reached floor ' + r.depth + (r.death ? ', ' + r.death.by : '')}`);
+  await page.waitForTimeout(1500); // a moment on the last screen
+  const video = record && page.video();
+  await ctx.close().catch(() => {});
+  if (video) { const out = path.join(vids, `seed-${watchSeed}${from ? '-floor-' + from : ''}.webm`); await video.saveAs(out); await video.delete(); console.log('Video: ' + path.relative(ROOT, out)); }
   await browser.close().catch(() => {}); server.close();
 } else {
   // --- Play the batch, several games at once ---
