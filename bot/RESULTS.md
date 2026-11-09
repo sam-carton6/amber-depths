@@ -2,6 +2,14 @@
 
 One block per bot version. Same seeds (1-20) each time, so the numbers compare fairly.
 
+## v3: Sam's merchant and gear rules + fair-play screen view (9 Nov 2026), Warrior, Hard Endless, v81
+First batch from the runner (20 games in 1 minute). Merchant order (sell junk, sharpen, potions, Teleport, gear only
+if 2+ better, scrolls, full heal only if better value), two merchant visits a floor, swap gear when the pack is full,
+Mapping from floor 20, hidden rooms first, new potions used. The bot now sees only what's on screen.
+- **Average floor 55.9** (worst 51, middle 57, best 60), up from 53.8: the first real gain since v1.
+- Killed by: troll 9, frost wisp 5, ghoul 3, fire imp 2, wraith 1.
+- Flagged: seeds 5 (floor 25) and 16 (floor 40) took ~750 turns on one floor (usual ~175). Worth watching.
+
 ## v2: Sam's first tweaks (9 Nov 2026), Warrior, Hard Endless, game v81
 Even/odd first-hit timing, rest to full with Regeneration, full heal only when it's better value than a potion,
 merchant visited after exploring, reinforce with spare gold, walk around cats. Same game for both rows:

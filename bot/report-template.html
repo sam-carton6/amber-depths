@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep bot results</title>
+<!-- Template for bot/run.mjs: it swaps the DATA line below for the batch's numbers and saves report.html. -->
+<style>
+:root {
+  color-scheme: light;
+  --page: #f4f3ef; --surface-1: #fcfcfb; --line: #e3e1da; --grid: #ecebe6;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #77756f;
+  --series-1: #2a78d6; --series-1-band: rgba(42, 120, 214, .16); --series-2: #eb6834;
+  --warn-bg: #fff4e0; --warn-line: #eda100;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #121211; --surface-1: #1a1a19; --line: #2e2d2b; --grid: #262624;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8d86;
+    --series-1: #3987e5; --series-1-band: rgba(57, 135, 229, .22); --series-2: #d95926;
+    --warn-bg: #2b2210; --warn-line: #c98500;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #121211; --surface-1: #1a1a19; --line: #2e2d2b; --grid: #262624;
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8d86;
+  --series-1: #3987e5; --series-1-band: rgba(57, 135, 229, .22); --series-2: #d95926;
+  --warn-bg: #2b2210; --warn-line: #c98500;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--text-primary); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 60px; }
+h1 { font-size: 1.6rem; margin: 0 0 2px; }
+h2 { font-size: 1.05rem; margin: 0 0 2px; }
+.sub, .note { color: var(--text-secondary); margin: 0; }
+.note { font-size: .82rem; color: var(--text-muted); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 20px 0; }
+.tile, .card { background: var(--surface-1); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.tile b { display: block; font-size: 1.8rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.tile span { color: var(--text-secondary); font-size: .85rem; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 12px; margin-bottom: 12px; }
+.card { min-width: 0; }
+.card header { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+svg { display: block; width: 100%; height: auto; overflow: visible; }
+svg text { fill: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: .82rem; color: var(--text-secondary); margin: 4px 0 12px; }
+.legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+.legend i.band { height: 10px; background: var(--series-1-band); border-top: 2px solid var(--series-1); }
+.legend i.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--series-2); box-shadow: 0 0 0 2px var(--surface-1); }
+.tip { position: fixed; pointer-events: none; z-index: 5; background: var(--surface-1); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; font-size: .8rem; box-shadow: 0 4px 16px rgba(0,0,0,.18); max-width: 260px; }
+.tip b { color: var(--text-primary); }
+.tip div { color: var(--text-secondary); }
+.flags { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 6px; }
+.flags li { background: var(--warn-bg); border-left: 3px solid var(--warn-line); border-radius: 6px; padding: 7px 10px; font-size: .88rem; }
+code { font: .82rem ui-monospace, Consolas, monospace; background: var(--grid); border-radius: 4px; padding: 1px 5px; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .85rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--text-secondary); font-weight: 600; cursor: pointer; user-select: none; }
+td.num, th.num { text-align: right; }
+.ok { color: var(--text-muted); }
+section { margin-top: 28px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Deep bot results</h1>
+  <p class="sub" id="sub"></p>
+  <div class="tiles" id="tiles"></div>
+
+  <div class="grid2">
+    <div class="card"><header><h2>Floor reached</h2><span class="note">games per floor</span></header><div id="depth"></div></div>
+    <div class="card"><header><h2>What killed it</h2><span class="note">games</span></header><div id="killers"></div></div>
+  </div>
+
+  <section>
+    <h2>The character, floor by floor</h2>
+    <p class="note">On arriving at each floor. Only games that got that far count, so the deepest floors have fewer games
+      (hover to see how many). Your run's numbers come from your Backup codes in TODO.md.</p>
+    <div class="legend" id="legend"></div>
+    <div class="grid2" id="multiples"></div>
+  </section>
+
+  <section>
+    <h2>Weird things (fair-play check)</h2>
+    <p class="note">Things a person wouldn't or couldn't do. Watch one with <code>node bot/run.mjs --watch SEED</code>
+      (or the VS Code task "Bot: watch a seed").</p>
+    <ul class="flags" id="flags"></ul>
+  </section>
+
+  <section>
+    <h2>Every game</h2>
+    <p class="note">Click a column to sort.</p>
+    <div class="card tablewrap"><table id="games"></table></div>
+  </section>
+</main>
+<div class="tip" id="tip" hidden></div>
+<script>
+const D = /*DATA*/null;
+const $ = id => document.getElementById(id), S = D.summary, NS = 'http://www.w3.org/2000/svg';
+const fmt = v => v == null ? '—' : Math.abs(v) >= 10000 ? (v / 1000).toFixed(v >= 100000 ? 0 : 1) + 'k' : (+v).toLocaleString();
+const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const niceMax = v => { if (v <= 0) return 1; const p = 10 ** Math.floor(Math.log10(v)), n = v / p; return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * p; };
+const tip = $('tip');
+const showTip = (ev, html) => { tip.innerHTML = html; tip.hidden = false; const r = tip.getBoundingClientRect(); let x = ev.clientX + 14, y = ev.clientY + 14; if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 14; if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 14; tip.style.left = x + 'px'; tip.style.top = y + 'px'; };
+const hideTip = () => { tip.hidden = true; };
+
+// --- Header and tiles ---
+const cls = D.game.cls[0].toUpperCase() + D.game.cls.slice(1);
+$('sub').textContent = `${D.label} · ${cls}, ${D.game.diff} ${D.game.mode} · ${D.stamp.replace(/-(\d\d)-(\d\d)$/, ' $1:$2')}`;
+$('tiles').innerHTML = [
+  [S.avg, 'average floor reached'], [S.median, 'middle game'], [`${S.min}–${S.max}`, 'worst to best'], [S.games, 'games played'],
+  [S.flags.length, S.flags.length === 1 ? 'weird thing flagged' : 'weird things flagged'],
+].map(([v, t]) => `<div class="tile"><b>${v}</b><span>${t}</span></div>`).join('');
+
+// --- Bar chart helpers (one series, so no legend: the title names it) ---
+function bars(target, items, { horizontal } = {}) {
+  const W = 520, rowH = 24, H = horizontal ? items.length * rowH + 24 : 220, m = horizontal ? { l: 130, r: 34, t: 4, b: 18 } : { l: 30, r: 8, t: 10, b: 26 };
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': target }, $(target));
+  const max = niceMax(Math.max(...items.map(i => i.v), 1)), iw = W - m.l - m.r, ih = H - m.t - m.b;
+  for (let i = 0; i <= 4; i++) { // gridlines
+    const v = max * i / 4;
+    if (horizontal) { const x = m.l + iw * i / 4; el('line', { x1: x, x2: x, y1: m.t, y2: H - m.b, stroke: css('--grid') }, svg); el('text', { x, y: H - 4, 'text-anchor': 'middle' }, svg).textContent = fmt(v); }
+    else { const y = m.t + ih - ih * i / 4; el('line', { x1: m.l, x2: W - m.r, y1: y, y2: y, stroke: css('--grid') }, svg); el('text', { x: m.l - 6, y: y + 4, 'text-anchor': 'end' }, svg).textContent = fmt(v); }
+  }
+  const n = items.length, slot = horizontal ? rowH : iw / n, bw = Math.max(2, Math.min(horizontal ? 14 : 34, slot - 2));
+  items.forEach((it, i) => {
+    const g = el('g', {}, svg);
+    if (horizontal) {
+      const y = m.t + i * rowH + (rowH - bw) / 2, w = iw * it.v / max;
+      el('text', { x: m.l - 8, y: y + bw - 3, 'text-anchor': 'end', style: `fill:${css('--text-secondary')};font-size:12px` }, g).textContent = it.label;
+      el('path', { d: roundEnd(m.l, y, Math.max(w, 1), bw, 'right'), fill: css('--series-1') }, g);
+      el('text', { x: m.l + w + 6, y: y + bw - 3, style: `fill:${css('--text-secondary')}` }, g).textContent = it.v;
+      el('rect', { x: 0, y: m.t + i * rowH, width: W, height: rowH, fill: 'transparent' }, g);
+    } else {
+      const x = m.l + i * slot + (slot - bw) / 2, h = ih * it.v / max;
+      if (it.v) el('path', { d: roundEnd(x, m.t + ih - h, bw, h, 'top'), fill: css('--series-1') }, g);
+      if (it.tick) el('text', { x: x + bw / 2, y: H - 8, 'text-anchor': 'middle' }, g).textContent = it.label;
+      el('rect', { x: m.l + i * slot, y: m.t, width: slot, height: ih, fill: 'transparent' }, g);
+    }
+    g.addEventListener('mousemove', ev => showTip(ev, it.tip)); g.addEventListener('mouseleave', hideTip);
+  });
+  el('line', { x1: m.l, x2: horizontal ? m.l : W - m.r, y1: horizontal ? m.t : m.t + ih, y2: m.t + ih, stroke: css('--text-muted'), 'stroke-width': 1 }, svg);
+}
+// A bar with 4px rounded corners at its data end only (anchored square to the baseline).
+function roundEnd(x, y, w, h, end) {
+  const r = Math.min(4, w / 2, h / 2);
+  return end === 'top' ? `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`
+    : `M${x},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h - r}Q${x + w},${y + h} ${x + w - r},${y + h}H${x}Z`;
+}
+
+// Floor reached: one bar per floor from worst to best.
+const ok = D.games.filter(g => !g.error), lo = Math.min(...ok.map(g => g.depth)), hi = Math.max(...ok.map(g => g.depth));
+const span = hi - lo + 1, every = span > 40 ? 10 : span > 16 ? 5 : span > 8 ? 2 : 1;
+bars('depth', Array.from({ length: span }, (_, i) => { const f = lo + i, gs = ok.filter(g => g.depth === f);
+  return { label: f, v: gs.length, tick: f % every === 0 || span <= 8, tip: `<b>Floor ${f}</b><div>${gs.length} game${gs.length === 1 ? '' : 's'}${gs.length ? ' (seed ' + gs.map(g => g.seed).join(', ') + ')' : ''}</div>` }; }));
+// What killed it, most first.
+const K = Object.entries(S.killers).sort((a, b) => b[1] - a[1]);
+if (K.length) bars('killers', K.map(([k, v]) => ({ label: k, v, tip: `<b>${k}</b><div>${v} of ${ok.filter(g => g.by).length} deaths</div>` })), { horizontal: true });
+else $('killers').innerHTML = '<p class="note">Nothing killed it.</p>';
+
+// --- Small multiples: one chart per stat, bot median line + middle-half band, Sam's run as dots ---
+const STATS = [['lv', 'Level'], ['max', 'Max HP'], ['atk', 'Attack'], ['def', 'Defence'], ['potions', 'Healing potions'], ['gold', 'Gold']];
+const FL = S.floors.filter(f => f.n >= 3);
+const samRuns = (D.sam && D.sam.runs) || [];
+$('legend').innerHTML = `<span><i class="band"></i>Bot: middle game (line), middle half of games (band)</span>` +
+  samRuns.map(r => `<span><i class="dot"></i>${r.name}</span>`).join('');
+for (const [key, name] of STATS) {
+  const card = document.createElement('div'); card.className = 'card';
+  card.innerHTML = `<header><h2>${name}</h2></header>`; $('multiples').appendChild(card);
+  const samPts = samRuns.flatMap(r => r.floors.filter(f => f[key] != null).map(f => ({ floor: f.floor, v: f[key], run: r.name })));
+  const W = 520, H = 210, m = { l: 44, r: 12, t: 10, b: 26 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  if (!FL.length) { card.insertAdjacentHTML('beforeend', '<p class="note">Not enough games.</p>'); continue; }
+  const x0 = 1, x1 = Math.max(FL[FL.length - 1].floor, ...samPts.map(p => p.floor));
+  const ymax = niceMax(Math.max(...FL.map(f => f[key][2]), ...samPts.map(p => p.v), 1));
+  const X = f => m.l + iw * (f - x0) / Math.max(1, x1 - x0), Y = v => m.t + ih - ih * v / ymax;
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': name + ' by floor' }, card);
+  for (let i = 0; i <= 4; i++) { const v = ymax * i / 4, y = Y(v); el('line', { x1: m.l, x2: W - m.r, y1: y, y2: y, stroke: css('--grid') }, svg); el('text', { x: m.l - 6, y: y + 4, 'text-anchor': 'end' }, svg).textContent = fmt(v); }
+  const xstep = x1 > 40 ? 10 : 5;
+  for (let f = xstep; f <= x1; f += xstep) el('text', { x: X(f), y: H - 8, 'text-anchor': 'middle' }, svg).textContent = 'F' + f;
+  el('line', { x1: m.l, x2: W - m.r, y1: m.t + ih, y2: m.t + ih, stroke: css('--text-muted') }, svg);
+  const band = FL.map(f => `${X(f.floor)},${Y(f[key][2])}`).join(' ') + ' ' + [...FL].reverse().map(f => `${X(f.floor)},${Y(f[key][0])}`).join(' ');
+  el('polygon', { points: band, fill: css('--series-1-band') }, svg);
+  el('polyline', { points: FL.map(f => `${X(f.floor)},${Y(f[key][1])}`).join(' '), fill: 'none', stroke: css('--series-1'), 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, svg);
+  for (const p of samPts) el('circle', { cx: X(p.floor), cy: Y(p.v), r: 4.5, fill: css('--series-2'), stroke: css('--surface-1'), 'stroke-width': 2 }, svg);
+  // Hover: crosshair on the nearest floor.
+  const cross = el('line', { y1: m.t, y2: m.t + ih, stroke: css('--text-muted'), 'stroke-dasharray': '3 3', visibility: 'hidden' }, svg);
+  const hit = el('rect', { x: m.l, y: m.t, width: iw, height: ih, fill: 'transparent' }, svg);
+  hit.addEventListener('mousemove', ev => {
+    const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY; const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
+    const fl = Math.round(x0 + (loc.x - m.l) / iw * (x1 - x0));
+    const f = FL.reduce((a, b) => Math.abs(b.floor - fl) < Math.abs(a.floor - fl) ? b : a), sp = samPts.filter(p => Math.abs(p.floor - fl) <= 1);
+    cross.setAttribute('x1', X(f.floor)); cross.setAttribute('x2', X(f.floor)); cross.setAttribute('visibility', 'visible');
+    showTip(ev, `<b>Floor ${f.floor}</b><div>Bot: ${fmt(f[key][1])} (middle half ${fmt(f[key][0])}–${fmt(f[key][2])}), ${f.n} games</div>` + sp.map(p => `<div>You, floor ${p.floor}: ${fmt(p.v)}</div>`).join(''));
+  });
+  hit.addEventListener('mouseleave', () => { cross.setAttribute('visibility', 'hidden'); hideTip(); });
+}
+
+// --- Weird things ---
+$('flags').innerHTML = S.flags.length ? S.flags.map(f => `<li><b>Seed ${f.seed}</b>${f.floor ? `, floor ${f.floor}` : ''}: ${f.what}</li>`).join('')
+  : '<li style="background:var(--surface-1);border-left-color:var(--line)">Nothing flagged: no peeks, stalls, farming or odd jumps.</li>';
+
+// --- Every game (sortable) ---
+const flagged = new Set(S.flags.map(f => f.seed));
+const COLS = [['seed', 'Seed', 1], ['depth', 'Floor', 1], ['by', 'Killed by'], ['lv', 'Level', 1], ['kills', 'Kills', 1], ['turns', 'Turns', 1], ['rest', 'Resting', 1], ['secs', 'Seconds', 1], ['boons', 'Upgrades'], ['flag', 'Flagged']];
+let sortKey = 'seed', dir = 1;
+function table() {
+  const rows = [...D.games].map(g => ({ ...g, by: g.error ? 'ERROR' : g.by ? g.by.replace(/\.$/, '') : g.dead ? '?' : 'alive', flag: flagged.has(g.seed) ? 'yes' : '' }))
+    .sort((a, b) => (a[sortKey] > b[sortKey] ? 1 : a[sortKey] < b[sortKey] ? -1 : 0) * dir);
+  $('games').innerHTML = `<thead><tr>${COLS.map(([k, t, n]) => `<th class="${n ? 'num' : ''}" data-k="${k}">${t}${k === sortKey ? (dir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('')}</tr></thead>` +
+    `<tbody>${rows.map(r => `<tr>${COLS.map(([k, , n]) => `<td class="${n ? 'num' : ''}${r[k] === '' ? ' ok' : ''}">${n ? fmt(r[k]) : (r[k] || '')}</td>`).join('')}</tr>`).join('')}</tbody>`;
+  document.querySelectorAll('#games th').forEach(th => th.onclick = () => { const k = th.dataset.k; dir = k === sortKey ? -dir : 1; sortKey = k; table(); });
+}
+table();
+</script>
+</body>
+</html>

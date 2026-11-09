@@ -48,7 +48,8 @@ every chat), [DONE.md](DONE.md) (the archive; history only). Code map and game c
    Easter eggs: on localhost and test.* only, `?eggs` forces every chance egg and `?date=MM-DD` fakes the date.
 
 ## Stack
-Plain HTML/CSS/JS, no framework, no npm. Node is only used for the build script and `npx wrangler`. Fonts and icons
+Plain HTML/CSS/JS, no framework, no npm in the game. Node is only used for the build script, `npx wrangler` and the
+deep bot's runner (`bot/`: its own package.json with Playwright, never published; see bot/README.md). Fonts and icons
 are local files in `app/`. [app/sw.js](app/sw.js) caches the files for offline play (network-first for the page;
 `/api/` is never cached). Data lives in each player's browser (`localStorage`); players who turn on **cloud sync**
 also keep it on the server: [worker/index.js](worker/index.js) answers `/api/*` (sync codes, saves, leaderboards: daily, streaks, Endless, best, fastest and toughest win, biggest hit, most kills)

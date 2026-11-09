@@ -10,8 +10,8 @@ Brood Mother/spider fix, merchant gold sinks; sprites are in the code but hidden
 **On `staging`, not live yet:** 3 new potions (Strength, Haste, Antidote) and the Scavenger upgrade (9 Nov 2026).
 **Art (8 Nov 2026):** Sam's first 5 sprites are in (v76, staging), waiting for him to try them on the iPhone. See *Art* below.
 **Next up:** Sam's Hard Endless run with Backup codes before boss floors.
-**Bot chat (7 Nov 2026):** the deep bot ([bot/](bot/README.md)) v1 is in: Warrior Hard Endless averages floor 53
-(old bot: 16-23). Next: try a "dive" mode for deep floors, then other classes. Results: [bot/RESULTS.md](bot/RESULTS.md).
+**Bot chat (9 Nov 2026):** the deep bot ([bot/](bot/README.md)) now runs from VS Code (Sam runs it himself: 20 games a
+minute, a results page with charts). Warrior Hard Endless, v3 rules: floor 55.9 average. Next: other classes.
 **Cloudflare (6 Nov 2026):** live at amberdepths.com (Worker `amber-depths`, `main`); test at test.amberdepths.com
 (Worker `amber-depths-preview`, `staging`). Friends move their saves via the old address's moved screen; once all
 have, remove deploy.yml (and optionally make the repo private).
@@ -103,15 +103,10 @@ have, remove deploy.yml (and optionally make the repo private).
   **Started 7 Nov 2026:** rule-based v1 in [bot/deep-bot.js](bot/deep-bot.js) (in the test page, seeded replays;
   headless Node comes later, for the search and learning stages). Bot ideas to try: dive past floor ~45 instead of
   clearing floors; Frost/Teleport scrolls in bad fights; other classes.
-  **Next: the batch runner (agreed 9 Nov 2026, waiting for Sam's go; ~15-25% of a window).** Sam runs it himself in
-  VS Code (a Run button, no Claude tokens): Playwright (npm, inside `bot/` only; `node_modules` ignored) plays the
-  test page in ~25 hidden tabs at once (32 cores), writes each game to `bot/runs/` (ignored) and makes a results page
-  with charts (depth reached, killers, potions/gold/level by floor, Sam's own runs alongside). Fair-play checks built
-  in: (1) the bot gets only a "screen view" (seen tiles, visible monsters, log, pack), never the game state, so it
-  can't know hidden things (today it knows unseen walls when exploring); (2) a weirdness report flags outliers with
-  their seed (very long floors, level/gold jumps, lots of resting, peeks, stalls) to watch with `DeepBot.watch`.
-  First job: Sam's v3 rules on 20 seeds. Then teach the other classes. Step 2 (later, only if speed is needed):
-  split the game rules from the screen code to run without a browser (1-2 windows, touches live code).
+  **Batch runner done (9 Nov 2026):** VS Code tasks "Bot: ..." ([bot/README.md](bot/README.md)), 20 games a minute,
+  results page with charts and fair-play flags; the bot sees only what's on screen. v3 rules: floor 55.9 average.
+  Next: watch flagged seeds 5 and 16 (slow floors), then teach the other classes. Step 2 (later, only if speed is
+  needed): split the game rules from the screen code to run without a browser (1-2 windows, touches live code).
   How (decided 5 Nov 2026): Sam writes the strategy as plain rules or pseudocode, Claude turns it into JavaScript in
   this repo (a `bot/` folder, outside `app/` so it never goes live), with comments Sam can tweak.
   (needs the game logic split out to run headless in Node).

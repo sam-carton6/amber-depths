@@ -1,0 +1,13 @@
+{
+  "name": "amber-depths-bot",
+  "private": true,
+  "description": "The deep bot's batch runner (never published; the game itself has no npm). See README.md.",
+  "type": "module",
+  "scripts": {
+    "batch": "node run.mjs",
+    "watch": "node run.mjs --watch"
+  },
+  "devDependencies": {
+    "playwright": "1.65.0"
+  }
+}

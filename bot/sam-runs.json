@@ -1,0 +1,15 @@
+{
+  "note": "Sam's own runs, shown next to the bot on the results page. Add a run as another entry; null = not recorded.",
+  "runs": [
+    {
+      "name": "Sam, Berserker, Hard Endless (Nov 2026, v71-v80)",
+      "cls": "berserker", "diff": "hard", "mode": "endless",
+      "floors": [
+        { "floor": 19, "lv": 38, "max": 253, "atk": 45, "def": 0, "potions": 41, "gold": 9300 },
+        { "floor": 29, "lv": 52, "max": 337, "atk": 70, "def": null, "potions": 56, "gold": 20600 },
+        { "floor": 39, "lv": 68, "max": 433, "atk": 102, "def": null, "potions": 46, "gold": 43600 },
+        { "floor": 49, "lv": 82, "max": 517, "atk": 119, "def": null, "potions": 16, "gold": 71000 }
+      ]
+    }
+  ]
+}

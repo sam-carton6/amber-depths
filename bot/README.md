@@ -8,8 +8,29 @@ Nothing in `bot/` goes live; only `app/` is published.
 - [deep-bot.js](deep-bot.js): the bot. `KNOBS` at the top holds the numbers to tweak; the rules below it are
   checked top to bottom every turn, each with a comment saying what it does.
 - [RESULTS.md](RESULTS.md): how deep each version got, so changes can be compared.
+- [run.mjs](run.mjs): the batch runner; [report-template.html](report-template.html): its results page.
+- [sam-runs.json](sam-runs.json): your own runs, drawn on the charts next to the bot.
 
-## Running it
+## Running it from VS Code (on your PC, no Claude needed)
+Open the Amber Depths folder in VS Code, then **Terminal → Run Task...**:
+- **Bot: install (first time only)**: downloads Playwright (the tool that runs hidden browser tabs) into `bot/`.
+- **Bot: run batch**: pick a class, difficulty and seeds (`1-20`, or `1,5,9`) and give the batch a name. It plays
+  them about 25 at a time (20 games take a minute) and opens a results page with charts: floor reached, what killed
+  it, the character floor by floor next to your own run, a fair-play "weird things" list, and every game.
+- **Bot: watch a seed**: replays one seed slowly in a visible window (same seed = same game).
+- **Bot: open last results**: reopens the latest results page.
+
+Each batch is saved in `bot/runs/<date>-<name>/` (not in git): one file per game, `summary.json`, `report.html`.
+The same from a terminal: `node bot/run.mjs --cls warrior --seeds 1-20 --label v3` or `node bot/run.mjs --watch 11`.
+Your own runs on the charts come from [sam-runs.json](sam-runs.json): add a run there as you play.
+
+## Fair play
+The bot only sees what's on screen (a "screen view": unseen tiles are unknown; monsters only while in sight; items,
+traps, cracked walls, the merchant and stairs once seen), and it acts only through the game's own moves and buttons.
+The results page flags games where it did something a person wouldn't: map peeks, stalls, a floor that took far
+longer than the same floor in other games, or a big level jump on one floor.
+
+## Running it in the browser pane (how Claude tests a single game)
 1. `node src/build.mjs --test` (writes `test/game_test.html`: sound off, reduced motion, test hooks).
 2. `python -m http.server 8765` in the repo root, open http://localhost:8765/test/game_test.html.
 3. In the browser console (F12), load the bot:

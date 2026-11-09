@@ -1,0 +1,44 @@
+{
+  // The deep bot, from VS Code: Terminal > Run Task... (or Ctrl+Shift+P, "Tasks: Run Task"). See bot/README.md.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Bot: install (first time only)",
+      "type": "shell",
+      "command": "npm install --no-fund --no-audit; npx playwright install chromium",
+      "options": { "cwd": "${workspaceFolder}/bot" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Bot: run batch",
+      "type": "shell",
+      "command": "node run.mjs --cls ${input:cls} --diff ${input:diff} --seeds ${input:seeds} --label ${input:label}",
+      "options": { "cwd": "${workspaceFolder}/bot" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Bot: watch a seed",
+      "type": "shell",
+      "command": "node run.mjs --watch ${input:seed} --cls ${input:cls} --diff ${input:diff} --speed ${input:speed}",
+      "options": { "cwd": "${workspaceFolder}/bot" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Bot: open last results",
+      "type": "shell",
+      "windows": { "command": "start '' runs/latest.html" },
+      "command": "open runs/latest.html",
+      "options": { "cwd": "${workspaceFolder}/bot" },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    { "id": "cls", "type": "pickString", "description": "Which class?", "default": "warrior",
+      "options": ["warrior", "rogue", "mage", "necro", "berserker", "paladin", "gambler", "ranger", "trapper", "mole", "alch", "vampire"] },
+    { "id": "diff", "type": "pickString", "description": "Difficulty?", "default": "hard", "options": ["easy", "normal", "hard", "nightmare"] },
+    { "id": "seeds", "type": "promptString", "description": "Which seeds? (1-20, or 1,5,9)", "default": "1-20" },
+    { "id": "label", "type": "promptString", "description": "A short name for this batch (e.g. v3)", "default": "batch" },
+    { "id": "seed", "type": "promptString", "description": "Which seed to watch?", "default": "1" },
+    { "id": "speed", "type": "promptString", "description": "Milliseconds per turn (lower = faster)", "default": "120" }
+  ]
+}
