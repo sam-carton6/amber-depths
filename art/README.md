@@ -14,10 +14,14 @@ Which picture goes with what lives in `SPRITES` in `src/amber-depths-source.html
 
 ## Sprites so far
 
-| File | Drawn for | Added |
-|------|-----------|-------|
-| floor.png | `.` floor (tiled, so neighbours join up) | 8 Nov 2026 |
-| wall.png | `#` wall (tiled) | 8 Nov 2026 |
-| knight.png | the player, every class | 8 Nov 2026 |
-| rat.png | rat | 8 Nov 2026 |
-| potion.png | `!` potion | 8 Nov 2026 |
+Sam draws them as frames of one PicSquare project and exports every frame each time (`Amber Depths 1 - N.png` in a
+zip). **Frame N is matched by its number**, so new sprites go at the end and old frames never move. To bring in a new
+export: unzip it to a scratch folder and copy frame N to the file name below (all of them; edited ones change).
+
+| Frame | File | Drawn for | Added |
+|------:|------|-----------|-------|
+| 1 | floor.png | `.` floor (tiled, so neighbours join up) | 8 Nov 2026 |
+| 2 | wall.png | `#` wall (tiled) | 8 Nov 2026 |
+| 3 | knight.png | the player, every class | 8 Nov 2026 |
+| 4 | rat.png | rat | 8 Nov 2026 |
+| 5 | potion.png | `!` potion | 8 Nov 2026 |
