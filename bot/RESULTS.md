@@ -2,6 +2,20 @@
 
 One block per bot version. Same seeds (1-20) each time, so the numbers compare fairly.
 
+## Upgrade DOE (9 Nov 2026), all 12 classes, Hard Endless, seeds 1-20, `node bot/doe.mjs`
+6 upgrade-pick orders x 12 classes x 20 seeds = 1,440 games (45 min, 28 at a time). Each game compared with the
+defensive order on the same seed; 28 stuck games left out with their partner. Floors gained over defensive,
+average over all classes (± 2 standard errors):
+| Tank | Sam's mix | Crit/dodge | Damage | Glass cannon |
+|---|---|---|---|---|
+| −0.8 ± 0.6 | −1.3 ± 0.6 | −4.5 ± 0.8 | −6.7 ± 0.8 | −8.0 ± 0.9 |
+- **Defensive (Regeneration first) is best or tied for every class.** Nothing beat it clearly anywhere.
+- Damage-first orders cost 5-16 floors (Paladin worst: Glass cannon −15.7). Reckless's +20% damage taken hurts more
+  than its +40% attack helps once monsters hit for 40+.
+- Tank and Sam's mix (Might first, one Regeneration) are close behind: defence and Regeneration are what matter.
+- Three near-ties re-tested on seeds 21-60 (360 games): Mage Tank +1.3 → +0.3 ± 1.2, Berserker Tank +0.1 → −0.8 ± 1.6,
+  Vampire Sam's mix +1.3 → +0.5 ± 2.4 (Tank +1.0 ± 2.0). All noise, so **every class keeps the defensive order**.
+
 ## v3: Sam's merchant and gear rules + fair-play screen view (9 Nov 2026), Warrior, Hard Endless, v81
 First batch from the runner (20 games in 1 minute). Merchant order (sell junk, sharpen, potions, Teleport, gear only
 if 2+ better, scrolls, full heal only if better value), two merchant visits a floor, swap gear when the pack is full,

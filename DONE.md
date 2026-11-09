@@ -7,6 +7,12 @@ Finished work, moved out of TODO.md so a new chat reads less. Nothing here needs
 - One or two lines on how it works or anything a future chat should know.
 -->
 
+### 2026-11-09 — upgrade DOE for the deep bot (commit 04481f0)
+- `bot/doe.mjs` (VS Code task "Bot: upgrade DOE") plays every class x 6 upgrade orders x seeds in one pool and
+  builds a grid page (paired by seed, ± 2 SE, stuck games left out). `--resume`, `--only`, `--strategies`, `--seeds`.
+- Result: the defensive order (Regeneration first) wins or ties for every class; 3 near-ties re-tested on seeds
+  21-60 and vanished. Bot defaults unchanged. Numbers in bot/RESULTS.md.
+
 ### 2026-11-09 — 3 new potions and the Scavenger upgrade (staging)
 - `POTIONS` (str, haste, cure): a potion with a `kind`; no kind = healing, so old saves are untouched. `isHeal` picks
   healing for P, the HUD count, the Alchemist's Brew and the bots. Timers `S.str` (10), `S.haste` (16 of your turns:
