@@ -10,8 +10,10 @@ Brood Mother/spider fix, merchant gold sinks; sprites are in the code but hidden
 **On `staging`, not live yet:** 3 new potions (Strength, Haste, Antidote) and the Scavenger upgrade (9 Nov 2026).
 **Art (8 Nov 2026):** Sam's first 5 sprites are in (v76, staging), waiting for him to try them on the iPhone. See *Art* below.
 **Next up:** Sam's Hard Endless run with Backup codes before boss floors.
-**Bot chat (9 Nov 2026):** the deep bot ([bot/](bot/README.md)) now runs from VS Code (Sam runs it himself: 20 games a
-minute, a results page with charts). Warrior Hard Endless, v3 rules: floor 55.9 average. Next: other classes.
+**Bot (9 Nov 2026):** the deep bot ([bot/](bot/README.md)) plays all 12 classes ([bot/RULES.md](bot/RULES.md)); VS Code
+tasks run batches and "Bot: all classes" (a comparison page). Hard Endless averages: Paladin ~64, Berserker ~59, Rogue/
+Warrior ~55, Necro/Ranger/Trapper ~53, Mole ~48, Gambler/Mage ~47, Vampire ~42, Alchemist ~41.
+**Next (new chat): the upgrade DOE** (see the Learning project entry below).
 **Cloudflare (6 Nov 2026):** live at amberdepths.com (Worker `amber-depths`, `main`); test at test.amberdepths.com
 (Worker `amber-depths-preview`, `staging`). Friends move their saves via the old address's moved screen; once all
 have, remove deploy.yml (and optionally make the repo private).
@@ -106,6 +108,18 @@ have, remove deploy.yml (and optionally make the repo private).
   **Started 7 Nov 2026:** rule-based v1 in [bot/deep-bot.js](bot/deep-bot.js) (in the test page, seeded replays;
   headless Node comes later, for the search and learning stages). Bot ideas to try: dive past floor ~45 instead of
   clearing floors; Frost/Teleport scrolls in bad fights; other classes.
+  **Next: upgrade DOE (agreed with Sam 9 Nov 2026, not started; ~40 min of PC time).** Test 6 upgrade-priority
+  strategies x 12 classes x seeds 1-20 (1,440 games, paired by seed): defensive (today's `KNOBS.boonOrder`); Sam's mix
+  (might, regen:1, skin, vitality, keen, thirst, evasion, reckless: damage first, a little regen, then defence);
+  damage (might, keen, reckless, thirst first); glass cannon (reckless, might, keen, thirst; defence last); tank
+  (vitality, skin, regen, thirst, then might); crit/dodge (keen, evasion, might, thirst). `play({ boonOrder })` already
+  takes an order ("regen:1" = at most once). To build: `bot/doe.mjs` running all games in one pool (~28 at a time),
+  and a page: class x strategy grid coloured by the difference from "defensive" (diverging colours, +/- 2 standard
+  errors from the paired seeds) and each class's winner, which becomes its default. Leave out stuck games.
+  Then: smarter enemies (Sam: more chess, less wall): tactics like archers keeping distance and packs surrounding,
+  with gentler HP/damage growth (`DEEP_HP`, `DEEP_DMG`); the bot measures each change.
+  Open: the Lich still traps ~1-3% of games (it backs away inside its sealed arena behind its skeletons). Sam hasn't
+  chosen: bot corners it, Lich backs away less, or leave it (stuck games left out of averages).
   **Batch runner done (9 Nov 2026):** VS Code tasks "Bot: ..." ([bot/README.md](bot/README.md)), 20 games a minute,
   results page with charts and fair-play flags; the bot sees only what's on screen. v3 rules: floor 55.9 average.
   Next: watch flagged seeds 5 and 16 (slow floors), then teach the other classes. Step 2 (later, only if speed is

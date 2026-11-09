@@ -264,7 +264,11 @@ window.DeepBotKnobs = {
 
         // --- Pop-up screens ---
         if (!document.getElementById('boon').hidden) { // RULE: upgrade pick, by KNOBS.boonOrder
-          const best = [...S.boonOffer].sort((a, b) => KNOBS.boonOrder.indexOf(a) - KNOBS.boonOrder.indexOf(b))[0];
+          // The order can come from the run (o.boonOrder, for experiments). "regen:1" means: at most once, then it drops
+          // to the end of the list.
+          const order = o.boonOrder || KNOBS.boonOrder, taken = id => (S.boons || []).filter(b => b === id).length;
+          const rank = id => { const i = order.findIndex(e => e.split(':')[0] === id); if (i < 0) return 99; const cap = +order[i].split(':')[1]; return cap && taken(id) >= cap ? 50 + i : i; };
+          const best = [...S.boonOffer].sort((a, b) => rank(a) - rank(b))[0];
           log('upgrade ' + best); T.takeBoon(S.boonOffer.indexOf(best)); continue;
         }
         if (!document.getElementById('shop').hidden) { shop(); continue; }
