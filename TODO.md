@@ -65,6 +65,35 @@ have, remove deploy.yml (and optionally make the repo private).
 
 ## Ideas (later)
 
+- **True ranged classes: Ranger and Mage** (Sam, 10 Nov 2026; decided, not built yet; build when Sam asks). Sam:
+  every class plays melee today; he wants real ranged classes, with melee as the last resort. Turn-based with equal
+  speed means you can't walk away from an adjacent monster, so each ranged class needs a tool that makes distance.
+  Shared formula for ranged classes:
+  1. **Fire button** (Sam is fine with it) as the main attack, usable every turn: auto-targets the nearest enemy in
+     sight, shows a marker, tap again to cycle targets. Only shown for ranged classes. Not bump-to-shoot (you could
+     never walk at a monster on purpose).
+  2. **Point-blank penalty:** shooting with an enemy adjacent does about half damage. Melee stays as a weak knife
+     (~60% of normal), so "step back or stab" is a real choice.
+  3. **One escape tool** that makes distance.
+  - **Ranger:** basic arrow ≈ melee damage (atk + weapon bonus; weapons count as bows), range ~6, line of sight,
+    first target only, can crit. Volley stays the piercing special (cd 4); Rain of Arrows stays the alt.
+    Escape: **Roll** (Sam's name): roll 2 tiles away from the nearest enemy, short cooldown (~5 turns), its own
+    button or part of the ability. Rolling past traps or into water should follow the usual tile rules.
+  - **Mage, reworked as a true caster** (changes a class friends already play: say so in the patch notes):
+    **Spark** cantrip every turn, weaker than arrows (~2 + level/2, range ~5), with a twist (ignores armour, or a small
+    burn chance). Firebolt stays the big hit (cd 4). Escape: **Blink** (teleport 3 tiles, can pass monsters).
+    Frost Nova (the alt) already works as an escape.
+  - **Skyrim stealth-archer easter egg** (Ranger): e.g. arrows on a monster that hasn't noticed you (asleep, or
+    while the Ranger is unseen) are sneak attacks for extra damage, with a "Sneak attack for 3.0x damage!" log line;
+    plus a rare joke line, like a monster limping off with an arrow in its knee. Original wording, not quoted lines.
+    Fits the existing egg system (`?eggs` on test copies).
+  - **Tuning:** aim for the Ranger's and Mage's sweep win rates near the Warrior's. The bots (test-bot.js and the
+    deep bot) must learn to fire, step back and use Roll/Blink first, or ranged classes will look weak when it's
+    really the bot. Watch corridor fights (monsters line up and never arrive; fine, it's the Ranger's moment) and
+    kiting snared or frozen monsters (probably fine, it's fun). Smarter monsters (archers keep distance, packs flank)
+    matter more once ranged classes exist.
+  - Later, if the formula works: a third ranged class (the Alchemist is halfway there; or a Slinger / Hexer).
+
 - **"Equip best" button in the pack** (Sam, 6 Nov 2026): puts on the highest `gearScore` weapon and armor. Small: the
   game already scores gear (pickup message, sell-junk). Watch out for cursed gear and Vampiric/Thorned trade-offs.
 
