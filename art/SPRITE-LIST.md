@@ -11,7 +11,8 @@ How to send them and file names: [README.md](README.md).
 - [x] Stairs down `>`
 - [x] Stairs, locked (boss floors, until the boss dies) `>`
 - [x] Wall torch `ψ` (sits in a wall; mossy version too)
-- [x] Cracked wall `▒` (a secret room behind it)
+- [ ] Cracked wall `▒` (a secret room behind it)
+- [x] Cracked floor (a floor version)
 - [x] Water `~`: a puddle; shimmer (2 frames) and drip (9 frames)
 - [ ] Bigger puddles, later: 2x2 and 3x3 drawn as one 32x32 / 48x48 PNG, sliced by Claude
 - [ ] Bones `%`
@@ -78,8 +79,8 @@ Spell and arrow effects (they flash for a moment), the title screen and menus. T
 Flooded Halls, Bone Crypt, Wyrm's Lair, The Hollow) could each get their own floor and wall one day.
 
 ## Code notes for Claude
-- In the game so far (10 Nov 2026): floor, wall, knight, rat, healing potion. Drawn but not wired in yet: mossy floor and
-  wall versions, torches, cracked wall, stairs, locked stairs (shares `>`), water (puddle; animated; the game's water
+- In the game so far (10 Nov 2026): floor, wall, knight, rat, healing potion. Drawn but not wired in yet: mossy and cracked floor,
+  mossy wall, torches, stairs, locked stairs (shares `>`), water (puddle; animated; the game's water
   is patches, so every `~` would be a puddle until bigger puddles exist), the 3 new potions. Sprites show only on
   localhost and the test copy (a check in the source; remove it when Sam wants them live).
 - Showcase page for friends: `node art/make-showcase.mjs art/sprites <out.html>`, published as a claude.ai artifact

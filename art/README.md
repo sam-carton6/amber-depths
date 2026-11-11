@@ -31,7 +31,7 @@ The checklist is in [SPRITE-LIST.md](SPRITE-LIST.md).
 | floor.png, floor-2.png | floor; mossy floor | 8 / 10 Nov 2026 |
 | wall.png, wall-2.png | wall; mossy wall | 8 / 10 Nov 2026 |
 | torch.png, torch-2.png | wall torch; mossy torch | 10 Nov 2026 |
-| crack.png | cracked wall (secret room) | 10 Nov 2026 |
+| floor-cracked.png | cracked floor (a floor version) | 10 Nov 2026 |
 | stairs.png, stairs-locked.png | stairs down; locked (boss floors) | 10 Nov 2026 |
 | water.png, water-2.png | puddle, shimmer animation (2 frames) | 10 Nov 2026 |
 | water-drop-1..9.png | puddle, drip animation (9 frames) | 10 Nov 2026 |

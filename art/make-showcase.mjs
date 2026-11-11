@@ -9,7 +9,7 @@ for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.png'))) spr[f.slice
 const groups = [
   ['Dungeon', 'The stone the dungeon is built from.', [
     ['floor', 'Floor'], ['floor-2', 'Mossy floor'], ['wall', 'Wall'], ['wall-2', 'Mossy wall'],
-    ['torch', 'Torch'], ['torch-2', 'Mossy torch'], ['crack', 'Cracked wall', 'hides a secret room'],
+    ['torch', 'Torch'], ['torch-2', 'Mossy torch'], ['floor-cracked', 'Cracked floor'],
     ['stairs', 'Stairs down'], ['stairs-locked', 'Locked stairs', 'until the boss falls']]],
   ['Water', 'A puddle, in two animations.', [
     ['water', 'Shimmer', null, ['water', 'water-2']],
@@ -88,7 +88,7 @@ const img = {};
 for (const k in SPR) { const i = new Image(); i.src = SPR[k]; img[k] = i; }
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Room plan, 13 x 9. W wall, w mossy wall, T torch, t mossy torch, C cracked wall, . floor, , mossy floor,
+// Room plan, 13 x 9. W wall, w mossy wall, T torch, t mossy torch, C cracked floor, . floor, , mossy floor,
 // ~ shimmer puddle, d dripping puddle, > stairs. Things on the floor are placed separately.
 const PLAN = [
   'WWWTWWWWwWtWW',
@@ -97,18 +97,18 @@ const PLAN = [
   'W.....,.....w',
   'W..,........W',
   'w....~...d..W',
-  'W.......,...W',
-  'W..,....~...W',
-  'WWWWWCWWWWwWW',
+  'W..C....,...W',
+  'W..,....~.C.W',
+  'WWWWWWWWWWwWW',
 ];
 const H = PLAN.length, Wd = PLAN[0].length, T = 64;
 const items = [[2, 2, 'potion'], [9, 7, 'potion-strength'], [10, 3, 'potion-haste'], [3, 6, 'potion-antidote']];
 const hero = [5, 4];
 let rat = [8, 2];
-const floorish = (x, y) => '.,'.includes(PLAN[y][x]);
+const floorish = (x, y) => '.,C'.includes(PLAN[y][x]);
 const blocked = (x, y) => !floorish(x, y) || (x === hero[0] && y === hero[1]) || items.some(i => i[0] === x && i[1] === y);
-const tileFor = c => ({ W: 'wall', w: 'wall-2', T: 'torch', t: 'torch-2', C: 'crack', '.': 'floor', ',': 'floor-2', '>': 'stairs', '~': 'water', d: 'water-drop-1' })[c];
-const LETTER = { W: ['#', '#c98f45'], w: ['#', '#c98f45'], T: ['ψ', '#ffb547'], t: ['ψ', '#ffb547'], C: ['▒', '#a9773a'], '.': ['.', '#e7a54a'], ',': ['.', '#e7a54a'], '>': ['>', '#ffd894'], '~': ['~', '#6aa8ff'], d: ['~', '#6aa8ff'] };
+const tileFor = c => ({ W: 'wall', w: 'wall-2', T: 'torch', t: 'torch-2', C: 'floor-cracked', '.': 'floor', ',': 'floor-2', '>': 'stairs', '~': 'water', d: 'water-drop-1' })[c];
+const LETTER = { W: ['#', '#c98f45'], w: ['#', '#c98f45'], T: ['ψ', '#ffb547'], t: ['ψ', '#ffb547'], C: ['.', '#e7a54a'], '.': ['.', '#e7a54a'], ',': ['.', '#e7a54a'], '>': ['>', '#ffd894'], '~': ['~', '#6aa8ff'], d: ['~', '#6aa8ff'] };
 
 const cv = document.getElementById('room'), g = cv.getContext('2d');
 g.imageSmoothingEnabled = false;
@@ -125,8 +125,8 @@ function draw(now) {
     g.shadowBlur = 0;
     return;
   }
-  const shimmer = reduce ? 'water' : ((t / 520) | 0) % 2 ? 'water-2' : 'water';
-  const dc = reduce ? 0 : (t / 110 | 0) % 22; // 9 frames of drip, then a pause on the still puddle
+  const shimmer = ((t / 520) | 0) % 2 ? 'water-2' : 'water'; // water always plays, even with Reduce Motion
+  const dc = (t / 110 | 0) % 16; // 9 frames of drip, then a short pause on the still puddle
   const drip = 'water-drop-' + (dc < 9 ? dc + 1 : 1);
   for (let y = 0; y < H; y++) for (let x = 0; x < Wd; x++) {
     const c = PLAN[y][x];
@@ -144,16 +144,14 @@ function draw(now) {
   g.drawImage(img.rat, rat[0] * T, rat[1] * T, T, T);
   g.drawImage(img.knight, hero[0] * T, hero[1] * T, T, T);
 }
-function loop(now) { draw(now); if (!reduce) requestAnimationFrame(loop); }
 function wander() {
   const opts = [[1, 0], [-1, 0], [0, 1], [0, -1], [0, 0]].map(([dx, dy]) => [rat[0] + dx, rat[1] + dy]).filter(([x, y]) => !(x === rat[0] && y === rat[1]) && !blocked(x, y));
   if (opts.length) rat = opts[Math.random() * opts.length | 0];
   if (reduce) draw(performance.now());
 }
-Promise.all(Object.values(img).map(i => i.decode().catch(() => {}))).then(() => {
-  requestAnimationFrame(loop);
-  if (!reduce) setInterval(wander, 650);
-});
+// Start at once (pictures not loaded yet are simply skipped for a frame).
+setInterval(() => draw(performance.now()), 55);
+if (!reduce) setInterval(wander, 650);
 const bp = document.getElementById('b-pic'), bt = document.getElementById('b-txt'), cap = document.getElementById('cap');
 function setMode(m) {
   mode = m; bp.setAttribute('aria-pressed', String(m === 'pic')); bt.setAttribute('aria-pressed', String(m === 'txt'));
@@ -164,7 +162,7 @@ bp.onclick = () => setMode('pic'); bt.onclick = () => setMode('txt');
 
 // Animated sprites in the gallery
 const anims = [...document.querySelectorAll('img[data-anim]')].map(el => ({ el, frames: el.dataset.anim.split(',') }));
-if (!reduce) setInterval(() => { const n = Date.now(); for (const a of anims) { const sp = a.frames.length > 2 ? 110 : 520, len = a.frames.length > 2 ? a.frames.length + 13 : a.frames.length; const i = (n / sp | 0) % len; a.el.src = SPR[a.frames[i < a.frames.length ? i : 0]]; } }, 55);
+setInterval(() => { const n = Date.now(); for (const a of anims) { const sp = a.frames.length > 2 ? 110 : 520, len = a.frames.length > 2 ? a.frames.length + 7 : a.frames.length; const i = (n / sp | 0) % len; a.el.src = SPR[a.frames[i < a.frames.length ? i : 0]]; } }, 55);
 </script>
 `;
 fs.writeFileSync(out, html);
