@@ -26,10 +26,19 @@ The checklist is in [SPRITE-LIST.md](SPRITE-LIST.md).
 
 ## Files in art/sprites/ now
 
-| File | Drawn for | Added |
-|------|-----------|-------|
-| floor.png | `.` floor (tiled, so neighbours join up) | 8 Nov 2026 |
-| wall.png | `#` wall (tiled) | 8 Nov 2026 |
+| File | What | Added |
+|------|------|-------|
+| floor.png, floor-2.png | floor; mossy floor | 8 / 10 Nov 2026 |
+| wall.png, wall-2.png | wall; mossy wall | 8 / 10 Nov 2026 |
+| torch.png, torch-2.png | wall torch; mossy torch | 10 Nov 2026 |
+| crack.png | cracked wall (secret room) | 10 Nov 2026 |
+| stairs.png, stairs-locked.png | stairs down; locked (boss floors) | 10 Nov 2026 |
+| water.png, water-2.png | puddle, shimmer animation (2 frames) | 10 Nov 2026 |
+| water-drop-1..9.png | puddle, drip animation (9 frames) | 10 Nov 2026 |
+| potion.png | healing potion (red) | 8 / 10 Nov 2026 |
+| potion-strength / -haste / -antidote.png | orange / cyan / green | 10 Nov 2026 |
 | knight.png | the player, every class | 8 Nov 2026 |
 | rat.png | rat | 8 Nov 2026 |
-| potion.png | `!` potion | 8 Nov 2026 |
+
+**Exporting from PicSquare:** it flattens every *visible layer* into each frame, so export one layer at a time with
+the others hidden (or keep each sprite on its own frame). Sam sends one zip per layer and says which is which.
