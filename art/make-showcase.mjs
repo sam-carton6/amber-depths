@@ -10,7 +10,8 @@ for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.png'))) spr[f.slice
 // Animations: frames, ms per frame, and how many extra frames to rest on the first one.
 const range = (p, n) => Array.from({ length: n }, (_, i) => `${p}${i + 1}`);
 const ANIM = {
-  torch: { frames: range('torch-flame-', 10), ms: 100, hold: 0 },
+  torch: { frames: range('torch-flame-', 5), ms: 120, hold: 0 },
+  mossytorch: { frames: range('torch-mossy-flame-', 5), ms: 120, hold: 0 },
   shimmer: { frames: ['water', 'water-2'], ms: 520, hold: 0 },
   drip: { frames: range('water-drop-', 9), ms: 110, hold: 7 },
   trap: { frames: ['trap', 'trap', 'trap', 'trap-sprung'], ms: 380, hold: 0 },
@@ -22,7 +23,7 @@ const groups = [
   ['Dungeon', 'The stone the dungeon is built from.', [
     ['floor', 'Floor'], ['floor-2', 'Mossy floor'], ['floor-cracked', 'Cracked floor'],
     ['wall', 'Wall'], ['wall-2', 'Mossy wall'], ['wall-cracked', 'Cracked wall', 'a secret room behind it'],
-    ['torch-flame-1', 'Torch', null, 'torch'], ['torch-2', 'Mossy torch'],
+    ['torch-flame-1', 'Torch', null, 'torch'], ['torch-mossy-flame-1', 'Mossy torch', null, 'mossytorch'],
     ['stairs', 'Stairs down'], ['stairs-locked', 'Locked stairs', 'until the boss falls'],
     ['bones', 'Bones'], ['bones-2', 'A bone'], ['bones-3', 'Skull'], ['rune', 'Rune', 'rare']]],
   ['Water', 'A puddle, in two animations.', [
@@ -110,7 +111,7 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 // follow Reduce Motion.
 function frameAt(name, t) { const a = ANIM[name], n = a.frames.length + a.hold, i = (t / a.ms | 0) % n; return a.frames[i < a.frames.length ? i : 0]; }
 
-// Room plan, 15 x 10. W wall, w mossy wall, K cracked wall, T torch (animated), t mossy torch,
+// Room plan, 15 x 10. W wall, w mossy wall, K cracked wall, T torch, t mossy torch (both animated),
 // . floor, , mossy floor, c cracked floor, ~ shimmer puddle, d dripping puddle, > stairs, L locked stairs.
 const PLAN = [
   'WWWTWWWwWWWTWWW',
@@ -158,7 +159,7 @@ function draw(now) {
   }
   for (let y = 0; y < H; y++) for (let x = 0; x < Wd; x++) {
     const c = PLAN[y][x];
-    const k = c === 'T' ? frameAt('torch', t + x * 370) : c === '~' ? frameAt('shimmer', t + x * 200) : c === 'd' ? frameAt('drip', t) : TILE[c];
+    const k = c === 'T' ? frameAt('torch', t + x * 370) : c === 't' ? frameAt('mossytorch', t + x * 370) : c === '~' ? frameAt('shimmer', t + x * 200) : c === 'd' ? frameAt('drip', t) : TILE[c];
     g.drawImage(img[k], x * T, y * T, T, T);
   }
   // torchlight: a soft warm glow that breathes

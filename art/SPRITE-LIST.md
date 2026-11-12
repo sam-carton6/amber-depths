@@ -10,7 +10,7 @@ How to send them and file names: [README.md](README.md).
 - [x] Wall `#` (versions welcome; mossy done)
 - [x] Stairs down `>`
 - [x] Stairs, locked (boss floors, until the boss dies) `>`
-- [x] Wall torch `ψ` (sits in a wall; mossy version too; flame animation, 10 frames)
+- [x] Wall torch `ψ` (sits in a wall; mossy version too; flame animation, 5 frames each)
 - [x] Cracked wall `▒` (a secret room behind it)
 - [x] Cracked floor (a floor version)
 - [x] Water `~`: a puddle; shimmer (2 frames) and drip (9 frames)
