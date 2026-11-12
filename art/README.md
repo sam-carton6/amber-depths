@@ -39,7 +39,7 @@ The checklist is in [SPRITE-LIST.md](SPRITE-LIST.md).
 | bones.png, bones-2.png, bones-3.png | bones `%`: crossed bones; a bone; skull | 11 Nov 2026 |
 | rune.png | rune `¤` | 11 Nov 2026 |
 | web.png, web-2.png | web `"`; torn web | 11 Nov 2026 |
-| trap.png, trap-sprung.png | spike trap `^`: holes; spikes up (guessed as a pair, check with Sam) | 11 Nov 2026 |
+| trap.png, trap-sprung.png | spike trap `^`: one trap, holes then spikes up (confirmed by Sam) | 11 Nov 2026 |
 | snare.png | Trapper's snare `×` | 11 Nov 2026 |
 | danger.png | danger tile `≈` (red !) | 11 Nov 2026 |
 | gold.png, chest.png, scroll.png, weapon.png, armor.png | `$` `=` `?` `)` `[` | 11 Nov 2026 |
