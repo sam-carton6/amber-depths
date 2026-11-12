@@ -1,9 +1,12 @@
 // Builds the sprite showcase page from art/sprites/*.png (sprites inlined as data: URIs).
-// usage: node art/make-showcase.mjs art/sprites <out.html>
+// usage: node art/make-showcase.mjs art/sprites <out.html> [--site]
 // Published as https://claude.ai/artifact/882QsHfAVyJrHBDXm7kve8 (republish to that url to keep the link).
+// --site writes a whole page for the game's own site (src/build.mjs makes app/sprites/index.html with it): it shows
+// only on localhost and test.*, like the sprites in the game; on the live site it says "nothing here yet".
 import fs from 'fs';
 import path from 'path';
 const [dir, out] = process.argv.slice(2);
+const site = process.argv.includes('--site');
 const spr = {};
 for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.png'))) spr[f.slice(0, -4)] = 'data:image/png;base64,' + fs.readFileSync(path.join(dir, f)).toString('base64');
 
@@ -44,7 +47,7 @@ const card = ([id, name, note, anim]) => `<figure class="spr">
   <figcaption><b>${name}</b>${note ? `<span>${note}</span>` : ''}</figcaption>
 </figure>`;
 
-const html = `<title>Amber Depths Sprites</title>
+let html = `<title>Amber Depths Sprites</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=JetBrains+Mono:wght@400;700&display=swap">
 <style>
@@ -99,9 +102,12 @@ footer { color: var(--fog); font-size: 12px; border-top: 1px solid var(--line); 
 
   ${groups.map(([h, p, items]) => `<section><h2>${h}</h2><p>${p}</p><div class="grid">${items.map(card).join('')}</div></section>`).join('\n  ')}
 
-  <footer>Amber Depths is a small retro dungeon crawler. Before these sprites, everything was drawn with letters: you were an @, and rats were an r.</footer>
+  <footer>Amber Depths is a small retro dungeon crawler. Before these sprites, everything was drawn with letters: you were an @, and rats were an r.${site ? ' <a href="/" style="color:var(--amber)">Play the game</a>' : ''}</footer>
 </div>
-<script>
+${site ? `<script>if (!/^(localhost|127\.0\.0\.1|test\.)/.test(location.hostname)) document.querySelector('.wrap').innerHTML = '<header><h1>Amber Depths</h1><p class="sub">Nothing here yet. <a href="/" style="color:var(--amber)">Play the game</a></p></header>';</script>
+` : ''}<script>
+(() => {
+if (!document.getElementById('room')) return;
 const SPR = ${JSON.stringify(spr)};
 const ANIM = ${JSON.stringify(ANIM)};
 const img = {};
@@ -192,7 +198,19 @@ bp.onclick = () => setMode('pic'); bt.onclick = () => setMode('txt');
 const anims = [...document.querySelectorAll('img[data-anim]')];
 const blank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 setInterval(() => { const t = performance.now() - t0; for (const el of anims) { const f = frameAt(el.dataset.anim, t); const src = f ? SPR[f] : blank; if (el.src !== src) el.src = src; } }, 50);
+})();
 </script>
 `;
+if (site) html = `<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#120d08">
+<link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png">
+<style>:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); } body { margin: 0; } img { max-width: 100%; }</style>
+</head><body>
+${html}</body></html>
+`;
+fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(out, html);
 console.log('wrote', out, (html.length / 1024).toFixed(1) + ' KB');

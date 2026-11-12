@@ -1,5 +1,5 @@
 // Amber Depths service worker: works offline, and picks up new versions whenever you're online.
-const VERSION = 'amber-depths-v88';
+const VERSION = 'amber-depths-v89';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './vt323.woff2', './jbm-400.woff2', './jbm-700.woff2', './ahm-400.woff2', './ahm-700.woff2',
   './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
@@ -14,7 +14,12 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   // The server's /api/ answers (cloud saves, leaderboards) must always be fresh, so they skip the cache.
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin || new URL(req.url).pathname.startsWith('/api/')) return;
-  if (req.mode === 'navigate' || req.url.endsWith('/index.html')) {
+  // Only the game page itself is saved as the game. Other pages on the site (like /sprites/) load normally and are never
+  // cached, or opening one would replace the offline copy of the game.
+  const p = new URL(req.url).pathname, root = new URL('./', self.registration.scope).pathname;
+  const isGame = p === root || p === root + 'index.html';
+  if (req.mode === 'navigate' && !isGame) return;
+  if (isGame) {
     // The game page: try the network first so updates arrive, fall back to the cached copy offline.
     // cache: 'no-cache' asks the server every time (a cheap ETag check) instead of reusing a copy up to 10 minutes old.
     e.respondWith(fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then(res => { const copy = res.clone(); caches.open(VERSION).then(c => c.put('./index.html', copy)); return res; })

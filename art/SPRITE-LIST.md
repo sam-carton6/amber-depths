@@ -84,6 +84,10 @@ Flooded Halls, Bone Crypt, Wyrm's Lair, The Hollow) could each get their own flo
   weapon, armor, stairs, locked stairs (shares `>`), water (puddle; animated; the game's water
   is patches, so every `~` would be a puddle until bigger puddles exist), the 3 new potions. Sprites show only on
   localhost and the test copy (a check in the source; remove it when Sam wants them live).
+- Showcase page: also at test.amberdepths.com/sprites/ (`app/sprites/index.html`, rebuilt by every `node src/build.mjs`;
+  hidden on the live site). The service worker caches only the game page, so other pages never replace it offline.
+- Torch export of 11 Nov: all 10 frames came out identical (one still torch); waiting for a re-export with the
+  animation (Sam: frames 1-5 regular, 6-10 mossy).
 - Showcase page for friends: `node art/make-showcase.mjs art/sprites <out.html>`, published as a claude.ai artifact
   (https://claude.ai/artifact/882QsHfAVyJrHBDXm7kve8; republish to the same link from a new chat with `url`).
 - The three new potions share the `!` letter, so each needs its own key in `SPRITES` (by potion kind) before its

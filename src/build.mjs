@@ -3,6 +3,7 @@
 //   node src/build.mjs --test  -> test/game_test.html, a copy exposing window.__T for test-bot.js (not published)
 import fs from 'fs';
 import path from 'path';
+import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -112,6 +113,11 @@ if (test) {
   fs.writeFileSync(path.join(root, 'test/game_test.html'), withVer(out, 'test'));
   console.log('wrote test/game_test.html');
 } else {
+  // The sprites page (test.amberdepths.com/sprites/) is rebuilt from art/sprites every time.
+  if (fs.existsSync(sprDir)) {
+    const r = spawnSync(process.execPath, [path.join(root, 'art/make-showcase.mjs'), sprDir, path.join(root, 'app/sprites/index.html'), '--site'], { stdio: 'inherit' });
+    if (r.status !== 0) throw new Error('art/make-showcase.mjs failed');
+  }
   const target = path.join(root, 'app/index.html');
   const old = fs.existsSync(target) ? fs.readFileSync(target, 'utf8').replace(/\r\n/g, '\n') : '';
   if (withVer(old, 'dev') === out) { console.log('app/index.html already up to date'); process.exit(0); }
