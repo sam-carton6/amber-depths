@@ -10,31 +10,31 @@ How to send them and file names: [README.md](README.md).
 - [x] Wall `#` (versions welcome; mossy done)
 - [x] Stairs down `>`
 - [x] Stairs, locked (boss floors, until the boss dies) `>`
-- [x] Wall torch `ψ` (sits in a wall; mossy version too)
-- [ ] Cracked wall `▒` (a secret room behind it)
+- [x] Wall torch `ψ` (sits in a wall; mossy version too; flame animation, 10 frames)
+- [x] Cracked wall `▒` (a secret room behind it)
 - [x] Cracked floor (a floor version)
 - [x] Water `~`: a puddle; shimmer (2 frames) and drip (9 frames)
 - [ ] Bigger puddles, later: 2x2 and 3x3 drawn as one 32x32 / 48x48 PNG, sliced by Claude
-- [ ] Bones `%`
-- [ ] Rune `¤` (rare)
+- [x] Bones `%` (3 versions: crossed bones, a bone, a skull)
+- [x] Rune `¤` (rare)
 
 ## Traps and hazards
-- [ ] Trap you spotted `^`
-- [ ] Web `"` (slows you)
-- [ ] Your snare `×` (Trapper)
+- [x] Trap you spotted `^` (spike trap: holes, then spikes)
+- [x] Web `"` (and a torn version) (slows you)
+- [x] Your snare `×` (Trapper)
 - [ ] Corpse `,` (Necromancer raises them)
-- [ ] Danger tile `≈` (flashes before a big attack; may be best left as a letter)
+- [x] Danger tile `≈` (flashes before a big attack; may be best left as a letter)
 
 ## Items
 - [x] Healing potion `!` (red)
 - [x] Strength potion `!` (orange; the game's letter is red)
 - [x] Haste potion `!` (cyan; the game's letter is pink)
 - [x] Antidote `!` (green)
-- [ ] ★ Gold `$`
-- [ ] Chest `=` (a mimic hides as one)
-- [ ] Scroll `?`
-- [ ] Weapon `)` (one to start)
-- [ ] Armor `[` (one to start)
+- [x] Gold `$`
+- [x] Chest `=` (a mimic hides as one)
+- [x] Scroll `?`
+- [x] Weapon `)` (one to start)
+- [x] Armor `[` (one to start)
 - Later, if wanted: one per weapon (Dagger, Short sword, Mace, Longsword, War axe, Runeblade), per armor (Leather,
   Studded leather, Chain mail, Scale mail, Plate, Amberplate) and per scroll (Fire, Frost, Teleport, Mapping)
 
@@ -79,8 +79,9 @@ Spell and arrow effects (they flash for a moment), the title screen and menus. T
 Flooded Halls, Bone Crypt, Wyrm's Lair, The Hollow) could each get their own floor and wall one day.
 
 ## Code notes for Claude
-- In the game so far (10 Nov 2026): floor, wall, knight, rat, healing potion. Drawn but not wired in yet: mossy and cracked floor,
-  mossy wall, torches, stairs, locked stairs (shares `>`), water (puddle; animated; the game's water
+- In the game so far (10 Nov 2026): floor, wall, knight, rat, healing potion. Drawn but not wired in yet (11 Nov):
+  floor and wall versions, cracked wall, animated torches, bones, rune, web, traps, snare, danger, gold, chest, scroll,
+  weapon, armor, stairs, locked stairs (shares `>`), water (puddle; animated; the game's water
   is patches, so every `~` would be a puddle until bigger puddles exist), the 3 new potions. Sprites show only on
   localhost and the test copy (a check in the source; remove it when Sam wants them live).
 - Showcase page for friends: `node art/make-showcase.mjs art/sprites <out.html>`, published as a claude.ai artifact

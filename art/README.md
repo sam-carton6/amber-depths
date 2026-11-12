@@ -28,15 +28,23 @@ The checklist is in [SPRITE-LIST.md](SPRITE-LIST.md).
 
 | File | What | Added |
 |------|------|-------|
-| floor.png, floor-2.png | floor; mossy floor | 8 / 10 Nov 2026 |
-| wall.png, wall-2.png | wall; mossy wall | 8 / 10 Nov 2026 |
-| torch.png, torch-2.png | wall torch; mossy torch | 10 Nov 2026 |
-| floor-cracked.png | cracked floor (a floor version) | 10 Nov 2026 |
+| floor.png, floor-2.png, floor-cracked.png | floor; mossy; cracked (all floor versions) | 8-10 Nov 2026 |
+| wall.png, wall-2.png | wall; mossy wall | 8-10 Nov 2026 |
+| wall-cracked.png | cracked wall (secret room) | 11 Nov 2026 |
+| torch-flame-1..10.png | wall torch, flame animation (10 frames) | 11 Nov 2026 |
+| torch.png, torch-2.png | wall torch (still); mossy torch | 10 Nov 2026 |
 | stairs.png, stairs-locked.png | stairs down; locked (boss floors) | 10 Nov 2026 |
 | water.png, water-2.png | puddle, shimmer animation (2 frames) | 10 Nov 2026 |
 | water-drop-1..9.png | puddle, drip animation (9 frames) | 10 Nov 2026 |
-| potion.png | healing potion (red) | 8 / 10 Nov 2026 |
-| potion-strength / -haste / -antidote.png | orange / cyan / green | 10 Nov 2026 |
+| bones.png, bones-2.png, bones-3.png | bones `%`: crossed bones; a bone; skull | 11 Nov 2026 |
+| rune.png | rune `¤` | 11 Nov 2026 |
+| web.png, web-2.png | web `"`; torn web | 11 Nov 2026 |
+| trap.png, trap-sprung.png | spike trap `^`: holes; spikes up (guessed as a pair, check with Sam) | 11 Nov 2026 |
+| snare.png | Trapper's snare `×` | 11 Nov 2026 |
+| danger.png | danger tile `≈` (red !) | 11 Nov 2026 |
+| gold.png, chest.png, scroll.png, weapon.png, armor.png | `$` `=` `?` `)` `[` | 11 Nov 2026 |
+| potion.png | healing potion (red) | 8-11 Nov 2026 |
+| potion-strength / -haste / -antidote.png | orange / cyan / green | 10-11 Nov 2026 |
 | knight.png | the player, every class | 8 Nov 2026 |
 | rat.png | rat | 8 Nov 2026 |
 
